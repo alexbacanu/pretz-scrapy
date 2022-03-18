@@ -1,0 +1,49 @@
+{
+    // Python specific
+    "python.languageServer": "Pylance",
+    "python.linting.enabled": false,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.formatting.autopep8Path": "${workspaceRoot}/.venv/bin/autopep8",
+    "python.formatting.provider": "black",
+
+    // Extension specific settings
+    "[python]": {
+        "editor.formatOnSave": true
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "[JSON]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "[YAML]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+
+    // Hide files fron explorer
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/*.pyc": true,
+        "**/__pycache__": true,
+        "**/.mypy_cache/**": true,
+    },
+
+    // Exclude files from search
+    "search.exclude": {
+        "**/.git": true,
+        "**/.venv": true,
+        "**/.venv3": true,
+        "**/tmp": true,
+    },
+}
