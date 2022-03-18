@@ -32,10 +32,10 @@ class RedisPipelineProductsTS(object):
         for price in prices:
             key_id = f'ts_{price}:{item["id"]}'
 
-            try:
-                get_last_price = self.r.ts().get(key_id)[1]
-            except redis.exceptions.ResponseError:
-                print("Key does not exist")
+            # try:
+            #     get_last_price = self.r.ts().get(key_id)[1]
+            # except redis.exceptions.ResponseError:
+            #     print("Key does not exist")
 
             # if get_last_price != item[price]:
             #     # id, timestamp, value, chunk_size
