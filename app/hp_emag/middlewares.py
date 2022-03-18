@@ -20,6 +20,9 @@ class StartUrlsMiddleware:
 
         # Remove entry(ies - watch count) from Redis and get their value
         start_requests = self.r.spop(url_key, count=1)
+
+        # TODO: add vendor/emag/ in URL
+
         for request in start_requests:
             yield Request(url=request, meta=meta)
 
