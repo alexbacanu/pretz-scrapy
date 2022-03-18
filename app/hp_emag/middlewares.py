@@ -15,7 +15,8 @@ class StartUrlsMiddleware:
         # Key name seen in Redis
         url_key = "emag_sitemap:start_urls"
 
-        meta = {"proxy": config("SCRAPEAPI_URL")}
+        # meta = {"proxy": config("SCRAPEAPI_URL")}
+        meta = {}
 
         # Remove entry(ies - watch count) from Redis and get their value
         start_requests = self.r.spop(url_key, count=1)
