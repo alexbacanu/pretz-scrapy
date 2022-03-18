@@ -1,12 +1,26 @@
 # Define here the models for your spider middleware
 #
-# See documentation in:
-# https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from scrapy.http import Request
+from decouple import config
+import redis
 
-# useful for handling different item types with a single interface
-from itemadapter import is_item, ItemAdapter
+
+class StartUrlsMiddleware:
+    def __init__(self):
+        self.r = redis.Redis.from_url(config("RURL_GH_FREE"), decode_responses=True)
+
+    def process_start_requests(self, start_requests, spider):
+        # Key name seen in Redis
+        url_key = "emag_sitemap:start_urls"
+
+        meta = {"proxy": config("SCRAPEAPI_URL")}
+
+        # Remove entry(ies - watch count) from Redis and get their value
+        start_requests = self.r.spop(url_key, count=1)
+        for request in start_requests:
+            yield Request(url=request, meta=meta)
 
 
 class HpEmagSpiderMiddleware:
@@ -53,7 +67,7 @@ class HpEmagSpiderMiddleware:
             yield r
 
     def spider_opened(self, spider):
-        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info("Spider opened: %s" % spider.name)
 
 
 class HpEmagDownloaderMiddleware:
@@ -100,4 +114,4 @@ class HpEmagDownloaderMiddleware:
         pass
 
     def spider_opened(self, spider):
-        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info("Spider opened: %s" % spider.name)
