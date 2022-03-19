@@ -3,13 +3,15 @@
 
 from scrapy import signals
 from scrapy.http import Request
-from decouple import config
+import os
 import redis
 
 
 class StartUrlsMiddleware:
     def __init__(self):
-        self.r = redis.Redis.from_url(config("RURL_GH_FREE"), decode_responses=True)
+        self.r = redis.Redis.from_url(
+            os.environ.get("RURL_GH_FREE"), decode_responses=True
+        )
 
     def process_start_requests(self, start_requests, spider):
         # Key name seen in Redis

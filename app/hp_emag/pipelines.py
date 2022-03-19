@@ -3,7 +3,7 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 
 from redis.commands.json.path import Path
-from decouple import config
+import os
 import redis
 
 
@@ -18,7 +18,9 @@ class DefaultValuesPipeline(object):
 
 class RedisPipelineProductsTS(object):
     def open_spider(self, spider):
-        self.r = redis.Redis.from_url(config("RURL_GO_FREE"), decode_responses=True)
+        self.r = redis.Redis.from_url(
+            os.environ.get("RURL_GO_FREE"), decode_responses=True
+        )
         self.pipe = self.r.pipeline()
 
     def close_spider(self, spider):
@@ -46,7 +48,9 @@ class RedisPipelineProductsTS(object):
 
 class RedisPipelineProductsJSON(object):
     def open_spider(self, spider):
-        self.r = redis.Redis.from_url(config("RURL_GH_FREE"), decode_responses=True)
+        self.r = redis.Redis.from_url(
+            os.environ.get("RURL_GH_FREE"), decode_responses=True
+        )
         self.pipe = self.r.pipeline()
 
     def close_spider(self, spider):
@@ -64,7 +68,9 @@ class RedisPipelineProductsJSON(object):
 
 class RedisPipelineSitemap(object):
     def open_spider(self, spider):
-        self.r = redis.Redis.from_url(config("RURL_GH_FREE"), decode_responses=True)
+        self.r = redis.Redis.from_url(
+            os.environ.get("RURL_GH_FREE"), decode_responses=True
+        )
         self.pipe = self.r.pipeline()
 
     def close_spider(self, spider):
