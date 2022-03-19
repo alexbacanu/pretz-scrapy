@@ -81,3 +81,8 @@ HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 # LOG_ENABLED = True
 # LOG_LEVEL = "INFO"
 # LOG_FILE = "scrapy.log"
+
+#  Crawl in BFO order to save memory
+DEPTH_PRIORITY = 1
+SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
+SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
