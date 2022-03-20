@@ -82,6 +82,10 @@ HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 # LOG_LEVEL = "INFO"
 # LOG_FILE = "scrapy.log"
 
+#  Disable redirect
+REDIRECT_ENABLED = False
+METAREFRESH_ENABLED = False
+
 #  Crawl in BFO order to save memory
 DEPTH_PRIORITY = 1
 SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
