@@ -9,7 +9,8 @@
 
     // Extension specific settings
     "[python]": {
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "editor.rulers": [80,120]
     },
     "[typescript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -37,6 +38,8 @@
         "**/*.pyc": true,
         "**/__pycache__": true,
         "**/.mypy_cache/**": true,
+        "**/.venv/": true,
+        "**/node_modules/": true,
     },
 
     // Exclude files from search
