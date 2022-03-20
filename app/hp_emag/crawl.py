@@ -1,33 +1,40 @@
 # hp_emag/crawl.py
 # See: https://blog.vikfand.com/posts/scrapy-fargate-sls-guide/
+
+# Avoid ReactorNotRestartable using scrapydo
+import scrapydo
+
+scrapydo.setup()
+
 import sys
-import imp
+import types
 import os
 
 from scrapy.spiderloader import SpiderLoader
-from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
+from scrapy.utils.log import configure_logging
 
-# Need to "mock" sqlite for the process to not crash in AWS Lambda / Amazon Linux
-sys.modules["sqlite"] = imp.new_module("sqlite")
-sys.modules["sqlite3.dbapi2"] = imp.new_module("sqlite.dbapi2")
+# Need to 'mock' sqlite for the process to not crash in AWS Lambda, Amazon Linux
+sys.modules["sqlite"] = types.ModuleType("sqlite")
+sys.modules["sqlite3.dbapi2"] = types.ModuleType("sqlite.dbapi2")
 
 
 def is_in_aws():
     return os.getenv("AWS_EXECUTION_ENV") is not None
 
 
-def crawl(settings={}, spider_name="emag_products", spider_kwargs={}):
+def crawl():
+    # See logs in serverless invoke command
+    configure_logging({"LOG_FORMAT": "%(levelname)s: %(message)s"})
+
+    spider_name = "emag_products"
+
     project_settings = get_project_settings()
     spider_loader = SpiderLoader(project_settings)
-
     spider_cls = spider_loader.load(spider_name)
 
     if is_in_aws():
         # Lambda can only write to the /tmp folder.
-        settings["HTTPCACHE_DIR"] = "/tmp"
+        project_settings["HTTPCACHE_DIR"] = "/tmp"
 
-    process = CrawlerProcess({**project_settings, **settings})
-
-    process.crawl(spider_cls, **spider_kwargs)
-    process.start()
+    scrapydo.run_spider(spider_cls, settings=project_settings)
