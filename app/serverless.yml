@@ -25,6 +25,8 @@ provider:
   name: aws
   runtime: python3.8
   logRetentionInDays: 1
+  memorySize: 128
+  timeout: 90
 
 # you can overwrite defaults here
   #stage: dev
@@ -73,7 +75,6 @@ functions:
     handler: handler.hello
   lambdaScrape:
     handler: launcher.scrape
-    timeout: 900
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
