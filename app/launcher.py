@@ -2,7 +2,6 @@
 # See: https://blog.vikfand.com/posts/scrapy-fargate-sls-guide/
 import sys
 import json
-
 from hp_emag.crawl import crawl
 
 
