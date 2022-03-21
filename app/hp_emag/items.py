@@ -1,14 +1,14 @@
 # Define here the models for your scraped items
 #
 
+import time
+import re
 from itemloaders.processors import MapCompose, TakeFirst
 from scrapy.item import Item, Field
 from w3lib.html import remove_tags
-import time
-import re
 
 
-def current_date(text):
+def current_date():
     return round(time.time())
 
 
@@ -23,19 +23,20 @@ class EmagProductsItem(Item):
     name = Field(input_processor=MapCompose(remove_tags), output_processor=TakeFirst())
     id = Field(input_processor=MapCompose(remove_tags), output_processor=TakeFirst())
     rrp = Field(
-        input_processor=MapCompose(filter_pricing), output_processor=TakeFirst()
+        input_processor=MapCompose(filter_pricing),
+        output_processor=TakeFirst(),
     )
     full = Field(
-        input_processor=MapCompose(filter_pricing), output_processor=TakeFirst()
+        input_processor=MapCompose(filter_pricing),
+        output_processor=TakeFirst(),
     )
     price = Field(
-        input_processor=MapCompose(filter_pricing), output_processor=TakeFirst()
+        input_processor=MapCompose(filter_pricing),
+        output_processor=TakeFirst(),
     )
     link = Field(input_processor=MapCompose(), output_processor=TakeFirst())
     img = Field(input_processor=MapCompose(), output_processor=TakeFirst())
-    crawled = Field(
-        input_processor=MapCompose(current_date), output_processor=TakeFirst()
-    )
+    crawled = Field(input_processor=MapCompose(current_date), output_processor=TakeFirst())
 
 
 class EmagSitemapItem(Item):
