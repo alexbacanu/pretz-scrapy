@@ -2,17 +2,17 @@
 # See: https://blog.vikfand.com/posts/scrapy-fargate-sls-guide/
 
 # Avoid ReactorNotRestartable using scrapydo
-import scrapydo
-
-scrapydo.setup()
-
 import sys
 import types
 import os
+import scrapydo
 
 from scrapy.spiderloader import SpiderLoader
 from scrapy.utils.project import get_project_settings
 from scrapy.utils.log import configure_logging
+
+scrapydo.setup()
+
 
 # Need to 'mock' sqlite for the process to not crash in AWS Lambda, Amazon Linux
 sys.modules["sqlite"] = types.ModuleType("sqlite")
