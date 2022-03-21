@@ -2,15 +2,21 @@
     // Python specific
     "python.languageServer": "Pylance",
     "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
     "python.linting.pylintEnabled": false,
+    "python.linting.mypyEnabled": true,
+    "python.linting.flake8Args": [
+        "--max-line-length", "99",
+        "--extend-ignore", "E203",
+    ],
+
     "python.formatting.provider": "black",
-        
     "python.formatting.blackArgs": [
-        "--line-length", "119"
+        "--line-length", "99"
     ],
 
     "pylint.args": [
-        "--disable=C0111" // disable doc-string warnings
+        "--disable=C0111,W0221" // disable doc-string warnings
     ],
 
     "prettier.printWidth": 120,
@@ -22,7 +28,10 @@
     // Extension specific settings
     "[python]": {
         "editor.formatOnSave": true,
-        "editor.rulers": [80,120]
+        "editor.rulers": [99],
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
     },
     "[typescript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
