@@ -1,8 +1,8 @@
 # Define your item pipelines here
-#
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 
 import os
+
 import redis
 from redis.commands.json.path import Path
 
@@ -55,8 +55,10 @@ class RedisPipelineProductsJSON(object):
     def process_item(self, item, spider):
         # Add scraped items to Redis using JSON (pipeline)
         product = {}
+
         for k, v in item.items():
             product[k] = v if v is not None else ""
+
         self.pipe.json().set(f'json:{item["id"]}', Path.rootPath(), product)
 
         return item
@@ -77,9 +79,4 @@ class RedisPipelineSitemap(object):
         # Add urls to Redis using sets (pipeline)
         self.pipe.sadd(spider_key, item["url"])
 
-        return item
-
-
-class HpEmagPipeline:
-    def process_item(self, item, spider):
         return item

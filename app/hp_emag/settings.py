@@ -1,13 +1,12 @@
 #  Scrapy settings for hp_emag project
 #
-
 BOT_NAME = "hp_emag"
 
 SPIDER_MODULES = ["hp_emag.spiders"]
 NEWSPIDER_MODULE = "hp_emag.spiders"
 
 #  Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = "hp_emag/0.4 (Windows NT 10.0; Win64; x64)"
+USER_AGENT = "hp_emag/0.5 (Windows NT 10.0; Win64; x64)"
 
 #  Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -31,19 +30,18 @@ TELNETCONSOLE_ENABLED = False
 
 #  Override the default request headers:
 # DEFAULT_REQUEST_HEADERS = {
-# "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-# "Accept-Language": "en",
+#     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+#     "Accept-Language": "en",
 # }
 
 #  Enable or disable spider middlewares
-SPIDER_MIDDLEWARES = {
-    "hp_emag.middlewares.StartUrlsMiddleware": 100,
-    # "hp_emag.middlewares.HpEmagSpiderMiddleware": 543,
-}
+# SPIDER_MIDDLEWARES = {
+#     "hp_emag.middlewares.StartUrlsMiddleware": 100,
+# }
 
 #  Enable or disable downloader middlewares
 # DOWNLOADER_MIDDLEWARES = {
-# "hp_emag.middlewares.HpEmagDownloaderMiddleware": 543,
+#     "hp_emag.middlewares.HpEmagDownloaderMiddleware": 543,
 # }
 
 #  Enable or disable extensions
@@ -52,12 +50,11 @@ EXTENSIONS = {
 }
 
 #  Configure item pipelines
-ITEM_PIPELINES = {
-    "hp_emag.pipelines.DefaultValuesPipeline": 100,
-    "hp_emag.pipelines.RedisPipelineProductsTS": 110,
-    "hp_emag.pipelines.RedisPipelineProductsJSON": 111,
-    # "hp_emag.pipelines.HpEmagPipeline": 300,
-}
+# ITEM_PIPELINES = {
+#     "hp_emag.pipelines.DefaultValuesPipeline": 100,
+#     "hp_emag.pipelines.RedisPipelineProductsTS": 110,
+#     "hp_emag.pipelines.RedisPipelineProductsJSON": 111,
+# }
 
 #  Enable and configure the AutoThrottle extension (disabled by default)
 AUTOTHROTTLE_ENABLED = True
