@@ -1,15 +1,18 @@
 # Define here the models for your scraped items
-#
-
-import time
 import re
+import time
+
 from itemloaders.processors import MapCompose, TakeFirst
-from scrapy.item import Item, Field
+from scrapy import Field, Item
 from w3lib.html import remove_tags
 
 
-def current_date():
+def current_date(text):
     return round(time.time())
+
+
+def remove_newline(text):
+    return text.replace("\n", "")
 
 
 def filter_pricing(text):
@@ -20,20 +23,11 @@ def filter_pricing(text):
 
 
 class EmagProductsItem(Item):
-    name = Field(input_processor=MapCompose(remove_tags), output_processor=TakeFirst())
+    name = Field(input_processor=MapCompose(remove_tags, remove_newline), output_processor=TakeFirst())
     id = Field(input_processor=MapCompose(remove_tags), output_processor=TakeFirst())
-    rrp = Field(
-        input_processor=MapCompose(filter_pricing),
-        output_processor=TakeFirst(),
-    )
-    full = Field(
-        input_processor=MapCompose(filter_pricing),
-        output_processor=TakeFirst(),
-    )
-    price = Field(
-        input_processor=MapCompose(filter_pricing),
-        output_processor=TakeFirst(),
-    )
+    rrp = Field(input_processor=MapCompose(filter_pricing), output_processor=TakeFirst())
+    full = Field(input_processor=MapCompose(filter_pricing), output_processor=TakeFirst())
+    price = Field(input_processor=MapCompose(filter_pricing), output_processor=TakeFirst())
     link = Field(input_processor=MapCompose(), output_processor=TakeFirst())
     img = Field(input_processor=MapCompose(), output_processor=TakeFirst())
     crawled = Field(input_processor=MapCompose(current_date), output_processor=TakeFirst())
@@ -41,9 +35,3 @@ class EmagProductsItem(Item):
 
 class EmagSitemapItem(Item):
     url = Field()
-
-
-class HpEmagItem(Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass

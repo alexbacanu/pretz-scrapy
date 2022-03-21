@@ -1,5 +1,5 @@
-from hp_emag.items import EmagSitemapItem
 from bs4 import BeautifulSoup
+from hp_emag.items import EmagSitemapItem
 from scrapy import Spider
 
 
@@ -10,8 +10,6 @@ class EmagSitemapSpider(Spider):
     start_urls = ["https://www.emag.ro/sitemaps/categories-0.xml"]
 
     custom_settings = {
-        "SPIDER_MIDDLEWARES": {},
-        "DOWNLOADER_MIDDLEWARES": {},
         "ITEM_PIPELINES": {
             "hp_emag.pipelines.RedisPipelineSitemap": 250,
         },
