@@ -1,11 +1,23 @@
 {
     // Python specific
     "python.languageServer": "Pylance",
-    "python.linting.enabled": false,
+    "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
-    "python.linting.flake8Enabled": true,
-    "python.formatting.autopep8Path": "${workspaceRoot}/.venv/bin/autopep8",
     "python.formatting.provider": "black",
+        
+    "python.formatting.blackArgs": [
+        "--line-length", "119"
+    ],
+
+    "pylint.args": [
+        "--disable=C0111" // disable doc-string warnings
+    ],
+
+    "prettier.printWidth": 120,
+    "prettier.singleQuote": true,
+
+    "typescript.preferences.quoteStyle": "single",
+    "javascript.preferences.quoteStyle": "single",
 
     // Extension specific settings
     "[python]": {
