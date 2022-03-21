@@ -1,6 +1,5 @@
 # Define here the models for your spider middleware
 #
-
 from scrapy import signals
 from scrapy.http import Request
 import os
