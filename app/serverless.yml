@@ -56,7 +56,8 @@ package:
   patterns:
     - '!./**'
     - hp_emag/**
-    - launcher.py
+    - launcher_products.py
+    - launcher_sitemap.py
     - scrapy.cfg
 #    - '!exclude-me.py'
 #    - '!exclude-me-dir/**'
