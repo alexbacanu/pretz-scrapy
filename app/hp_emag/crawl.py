@@ -1,19 +1,17 @@
 # hp_emag/crawl.py
 # See: https://blog.vikfand.com/posts/scrapy-fargate-sls-guide/
 
-# Avoid ReactorNotRestartable using scrapydo
+import os
 import sys
 import types
-import os
-import scrapydo
 
+# Avoid ReactorNotRestartable using scrapydo
+import scrapydo
 from scrapy.spiderloader import SpiderLoader
-from scrapy.utils.project import get_project_settings
 from scrapy.utils.log import configure_logging
+from scrapy.utils.project import get_project_settings
 
 scrapydo.setup()
-
-
 # Need to 'mock' sqlite for the process to not crash in AWS Lambda, Amazon Linux
 sys.modules["sqlite"] = types.ModuleType("sqlite")
 sys.modules["sqlite3.dbapi2"] = types.ModuleType("sqlite.dbapi2")
