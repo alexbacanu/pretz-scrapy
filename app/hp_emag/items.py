@@ -36,3 +36,4 @@ class EmagProductsItem(Item):
 
 class EmagSitemapItem(Item):
     url = Field()
+    status = Field()
