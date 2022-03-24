@@ -11,18 +11,22 @@ class EmagSitemapSpider(Spider):
 
     custom_settings = {
         "ITEM_PIPELINES": {
-            "hp_emag.pipelines.RedisPipelineSitemap": 250,
+            "hp_emag.pipelines.AmazonDynamoDBSitemapPipeline": 250,
         },
     }
 
     def parse(self, response):
         # Find all objects in response text with <loc> tag
-        sp = BeautifulSoup(response.text, "lxml")
-        links = sp.find_all("loc")
+        soup = BeautifulSoup(response.text, "lxml")
+        links = soup.find_all("loc")
 
         for link in links:
             # Declare items
+            # Statuses
+            # 0 - Unprocessed
+            # 1 - Processing
             item = EmagSitemapItem()
             item["url"] = link.text
+            item["status"] = 0
 
             yield item
