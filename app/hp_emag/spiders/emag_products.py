@@ -19,7 +19,7 @@ class EmagProductsSpider(CrawlSpider):
 
     custom_settings = {
         "SPIDER_MIDDLEWARES": {
-            "hp_emag.middlewares.StartUrlsMiddleware": 905,
+            "hp_emag.middlewares.AmazonStartUrlsMiddleware": 905,
         },
         "ITEM_PIPELINES": {
             "hp_emag.pipelines.DefaultValuesPipeline": 300,

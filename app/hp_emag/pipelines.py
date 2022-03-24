@@ -1,14 +1,12 @@
 # Define your item pipelines here
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 
-import os
-
 import boto3
-import redis
-from redis.commands.json.path import Path
+from boto3.dynamodb.conditions import Key
 
 
 class DefaultValuesPipeline(object):
+    # pylint: disable=unused-argument
     def process_item(self, item, spider):
         # Make items have a default value (which is 0)
         for field in item.fields:
@@ -17,24 +15,25 @@ class DefaultValuesPipeline(object):
         return item
 
 
-class AmazonDynamoDBPipeline(object):
-    def open_spider(self, spider):
+class AmazonDynamoDBItemsPipeline(object):
+    # pylint: disable=unused-argument
+    def __init__(self):
         # Init DB
         self.dynamodb = boto3.resource("dynamodb", region_name="eu-central-1")
         self.timeseries_table = self.dynamodb.Table("emag-timeseries")
-        self.products_table = self.dynamodb.Table("emag-products")
         self.timeseries_items = []
+        self.products_table = self.dynamodb.Table("emag-products")
         self.products_items = []
 
     def close_spider(self, spider):
         # Write all items to emag-timeseries after spider is finished
         with self.timeseries_table.batch_writer() as batch:
-            for i in range(len(self.timeseries_items)):
+            for i, _ in enumerate(self.timeseries_items):
                 batch.put_item(self.timeseries_items[i])
 
         # Write all items to emag-products after spider is finished
         with self.products_table.batch_writer() as batch:
-            for i in range(len(self.products_items)):
+            for i, _ in enumerate(self.products_items):
                 batch.put_item(self.products_items[i])
 
     def process_item(self, item, spider):
@@ -65,67 +64,32 @@ class AmazonDynamoDBPipeline(object):
         return item
 
 
-class RedisPipelineProductsTS(object):
-    def open_spider(self, spider):
-        self.r = redis.Redis.from_url(os.environ.get("RURL_GO_FREE"), decode_responses=True)
-        self.pipe = self.r.pipeline()
+class AmazonDynamoDBSitemapPipeline(object):
+    # pylint: disable=unused-argument
+    def __init__(self):
+        # Init DB
+        self.dynamodb = boto3.resource("dynamodb", region_name="eu-central-1")
+        self.start_urls_table = self.dynamodb.Table("emag-start_urls")
+        self.start_urls_items = []
+
+        self.response = self.start_urls_table.query(KeyConditionExpression=Key("status").eq(0))
 
     def close_spider(self, spider):
-        self.pipe.execute()
+        # Write all items to emag-start_urls after spider is finished
+        if self.response["Count"] == 0:
+            with self.start_urls_table.batch_writer() as batch:
+                batch.put_item(
+                    Item={
+                        "status": 0,
+                        "crawled_urls": self.start_urls_items,
+                    }
+                )
 
     def process_item(self, item, spider):
-        # List of item ids to be iterated
-        prices = ["rrp", "full", "price"]
-
-        # Add prices to Redis using Timeseries (pipeline)
-        for price in prices:
-            key_id = f'ts_{price}:{item["id"]}'
-
-            # try:
-            #     get_last_price = self.r.ts().get(key_id)[1]
-            # except redis.exceptions.ResponseError:
-            #     print("Key does not exist")
-
-            # if get_last_price != item[price]:
-            #     # id, timestamp, value, chunk_size
-            self.pipe.ts().add(key_id, item["crawled"], item[price], chunk_size=128)
-
-        return item
-
-
-class RedisPipelineProductsJSON(object):
-    def open_spider(self, spider):
-        self.r = redis.Redis.from_url(os.environ.get("RURL_GH_FREE"), decode_responses=True)
-        self.pipe = self.r.pipeline()
-
-    def close_spider(self, spider):
-        self.pipe.execute()
-
-    def process_item(self, item, spider):
-        # Add scraped items to Redis using JSON (pipeline)
-        product = {}
-
-        for key, value in item.items():
-            product[key] = value if value is not None else ""
-
-        self.pipe.json().set(f'json:{item["id"]}', Path.rootPath(), product)
-
-        return item
-
-
-class RedisPipelineSitemap(object):
-    def open_spider(self, spider):
-        self.r = redis.Redis.from_url(os.environ.get("RURL_GH_FREE"), decode_responses=True)
-        self.pipe = self.r.pipeline()
-
-    def close_spider(self, spider):
-        self.pipe.execute()
-
-    def process_item(self, item, spider):
-        # Key name seen in Redis
-        spider_key = f"{spider.name}:start_urls"
-
-        # Add urls to Redis using sets (pipeline)
-        self.pipe.sadd(spider_key, item["url"])
-
+        # Add values in a list for emag-start_urls
+        self.start_urls_items.extend(
+            {
+                item["url"],
+            }
+        )
         return item

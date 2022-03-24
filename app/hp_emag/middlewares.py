@@ -1,27 +1,32 @@
 # Define here the models for your spider middleware
-import os
-
-import redis
+import boto3
 from scrapy.http import Request
 
 
-class StartUrlsMiddleware:
+class AmazonStartUrlsMiddleware:
+    # pylint: disable=unused-argument
     def __init__(self):
-        self.r = redis.Redis.from_url(os.environ.get("RURL_GH_FREE"), decode_responses=True)
+        # Init DB
+        self.dynamodb = boto3.resource("dynamodb", region_name="eu-central-1")
+        self.start_urls_table = self.dynamodb.Table("emag-start_urls")
 
     def process_start_requests(self, start_requests, spider):
-        # Key name seen in Redis
-        url_key = "emag_sitemap:start_urls"
+        # How many start_requests
+        start_urls_pops = 6
 
         # meta = {"proxy": config("SCRAPEAPI_URL")}
         meta = {}
 
-        # Remove entry(ies - watch count) from Redis and get their value
-        start_requests = self.r.spop(url_key, count=1)
+        # Pop x entries from database and return their value
 
-        for request in start_requests:
-            # Add vendor/emag/ in url
-            split_request = request.rsplit("/", 1)
+        for _ in range(start_urls_pops):
+            get_url = self.start_urls_table.update_item(
+                Key={"status": 0},
+                ReturnValues="UPDATED_OLD",
+                UpdateExpression="REMOVE crawled_urls[0]",
+            )["Attributes"]["crawled_urls"][0]
+
+            split_request = get_url.rsplit("/", 1)
             request = f"{split_request[0]}/vendor/emag/c"
 
             yield Request(url=request, meta=meta)
