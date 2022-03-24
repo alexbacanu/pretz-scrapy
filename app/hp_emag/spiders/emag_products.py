@@ -5,6 +5,7 @@ from scrapy.spiders import CrawlSpider, Rule
 
 
 class EmagProductsSpider(CrawlSpider):
+    # pylint: disable=abstract-method
     name = "emag_products"
     allowed_domains = ["emag.ro"]
 
@@ -22,9 +23,7 @@ class EmagProductsSpider(CrawlSpider):
         },
         "ITEM_PIPELINES": {
             "hp_emag.pipelines.DefaultValuesPipeline": 300,
-            "hp_emag.pipelines.AmazonDynamoDBPipeline": 305,
-            # "hp_emag.pipelines.RedisPipelineProductsTS": 310,
-            # "hp_emag.pipelines.RedisPipelineProductsJSON": 315,
+            "hp_emag.pipelines.AmazonDynamoDBItemsPipeline": 305,
         },
     }
 
