@@ -1,6 +1,7 @@
 # Define here the models for your scraped items
 import re
 import time
+from decimal import Decimal
 
 from itemloaders.processors import MapCompose, TakeFirst
 from scrapy import Field, Item
@@ -8,7 +9,7 @@ from w3lib.html import remove_tags
 
 
 def current_date(text):
-    return round(time.time())
+    return str(round(time.time()))
 
 
 def remove_newline(text):
@@ -18,7 +19,7 @@ def remove_newline(text):
 def filter_pricing(text):
     replace_text = text.replace(".", "").replace("<sup>", ".")
     remove_tag = re.sub(re.compile("<.*?>"), "", replace_text)
-    digits_only = [float(s) for s in re.findall(r"-?\d+\.?\d*", remove_tag)]
+    digits_only = [Decimal(s) for s in re.findall(r"-?\d+\.?\d*", remove_tag)]
     return digits_only
 
 
