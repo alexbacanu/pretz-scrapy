@@ -40,6 +40,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
+        - dynamodb:BatchWriteItem
       Resource: "*"
 
 # you can define service wide environment variables here
@@ -63,8 +64,10 @@ package:
 #    - include-me-dir/**
 
 functions:
-  lambdaScrape:
-    handler: launcher.scrape
+  lambdaScrapeProducts:
+    handler: launcher_products.scrape
+  lambdaScrapeSitemap:
+    handler: launcher_sitemap.scrape
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -124,8 +127,8 @@ resources:
           - AttributeName: date
             KeyType: RANGE
         ProvisionedThroughput:
-          ReadCapacityUnits: 8
-          WriteCapacityUnits: 8
+          ReadCapacityUnits: 6
+          WriteCapacityUnits: 6
     EmagProductsTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -141,21 +144,21 @@ resources:
           - AttributeName: name
             KeyType: RANGE
         ProvisionedThroughput:
-          ReadCapacityUnits: 8
-          WriteCapacityUnits: 8
+          ReadCapacityUnits: 6
+          WriteCapacityUnits: 6
     EmagStartUrlsTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: emag-start_urls
         AttributeDefinitions:
           - AttributeName: status
-            AttributeType: S
+            AttributeType: N
         KeySchema:
           - AttributeName: status
             KeyType: HASH
         ProvisionedThroughput:
-          ReadCapacityUnits: 2
-          WriteCapacityUnits: 2
+          ReadCapacityUnits: 6
+          WriteCapacityUnits: 6
 
 plugins:
   - serverless-python-requirements
