@@ -2,3 +2,4 @@ Scrapy>=2.6.1
 redis>=4.1.4
 beautifulsoup4>=4.10.0
 scrapydo>=0.2.2
+boto3>=1.21.23
