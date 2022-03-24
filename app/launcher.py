@@ -1,7 +1,8 @@
 # launcher.py
 # See: https://blog.vikfand.com/posts/scrapy-fargate-sls-guide/
-import sys
 import json
+import sys
+
 from hp_emag.crawl import crawl
 
 
