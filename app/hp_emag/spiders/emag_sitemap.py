@@ -26,7 +26,7 @@ class EmagSitemapSpider(Spider):
             # 0 - Unprocessed
             # 1 - Processing
             item = EmagSitemapItem()
-            item["url"] = link.text
             item["status"] = 0
+            item["url"] = link.text
 
             yield item
