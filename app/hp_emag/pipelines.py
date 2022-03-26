@@ -77,13 +77,13 @@ class AmazonDynamoDBSitemapPipeline(object):
     def close_spider(self, spider):
         # Write all items to emag-start_urls after spider is finished
         if self.response["Count"] == 0:
-            with self.start_urls_table.batch_writer() as batch:
-                batch.put_item(
-                    Item={
-                        "status": 0,
-                        "crawled_urls": self.start_urls_items,
-                    }
-                )
+            # with self.start_urls_table.batch_writer() as batch:
+            self.start_urls_table.put_item(
+                Item={
+                    "status": 0,
+                    "crawled_urls": self.start_urls_items,
+                }
+            )
 
     def process_item(self, item, spider):
         # Add values in a list for emag-start_urls
