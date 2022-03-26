@@ -21,11 +21,9 @@ def is_in_aws():
     return os.getenv("AWS_EXECUTION_ENV") is not None
 
 
-def crawl():
+def crawl(spider_name):
     # See logs in serverless invoke command
     configure_logging({"LOG_FORMAT": "%(levelname)s: %(message)s"})
-
-    spider_name = "emag_products"
 
     project_settings = get_project_settings()
     spider_loader = SpiderLoader(project_settings)
