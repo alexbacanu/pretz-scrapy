@@ -1,7 +1,7 @@
 from hp_emag.items import EmagProductsItem
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
-from scrapy.spiders import CrawlSpider, Rule
+from scrapy.spiders import CrawlSpider, Request, Rule
 
 
 class EmagProductsSpider(CrawlSpider):
@@ -12,7 +12,7 @@ class EmagProductsSpider(CrawlSpider):
     rules = (
         Rule(
             LinkExtractor(allow=(r"/c$"), restrict_css=("a.js-change-page")),
-            callback="parse_start_url",
+            callback="parse_page",
             follow=True,
         ),
     )
@@ -28,7 +28,17 @@ class EmagProductsSpider(CrawlSpider):
     }
 
     def parse_start_url(self, response):
-        self.logger.info("Visited %s", response.url)
+        self.logger.info("Getting header from: %s", response.url)
+
+        header = response.css("div.js-head-title")
+
+        self.logger.info("Category: %s", header.css("span.title-phrasing-xl::text").get())
+        self.logger.info("Items: %s", header.css("span.title-phrasing-sm::text").get())
+
+        return Request(url=response.url, callback=self.parse_page, dont_filter=True)
+
+    def parse_page(self, response):
+        self.logger.info("Parsing page: %s", response.url)
 
         products = response.css("div.card-v2")
 
@@ -46,9 +56,3 @@ class EmagProductsSpider(CrawlSpider):
             itemloader.add_value("crawled", "")
 
             yield itemloader.load_item()
-
-    # TODO: Try to fix this
-    # def parse_title(self, response):
-    #     self.logger.info("Visited %s", response.url)
-    #     self.logger.info("Category %s", response.css("span.title-phrasing-xl::text"))
-    #     self.logger.info("Items %s", response.css("span.title-phrasing-sm::text"))
