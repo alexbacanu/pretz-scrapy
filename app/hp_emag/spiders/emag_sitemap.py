@@ -1,13 +1,12 @@
-from bs4 import BeautifulSoup
+import defusedxml.ElementTree as ET
 from hp_emag.items import EmagSitemapItem
-from scrapy import Spider
+from scrapy.spiders import CrawlSpider, Request
 
 
-class EmagSitemapSpider(Spider):
-    name = "emag_sitemap"
+class EmagSitemapSpider(CrawlSpider):
+    name = "emag_vendor"
     allowed_domains = ["emag.ro"]
-    # TODO: Get first index.xml and then 0.xml in case there are multiple files
-    start_urls = ["https://www.emag.ro/sitemaps/categories-0.xml"]
+    start_urls = ["https://www.emag.ro/sitemaps/category-filters-index.xml"]
 
     custom_settings = {
         "ITEM_PIPELINES": {
@@ -15,18 +14,20 @@ class EmagSitemapSpider(Spider):
         },
     }
 
+    def parse_start_url(self, response):
+        """Get all sitemaps in first crawl and yield request for each one"""
+        tree = ET.fromstring(response.text)
+        for child in tree:
+            yield Request(child[0].text, self.parse)
+
     def parse(self, response):
-        # Find all objects in response text with <loc> tag
-        soup = BeautifulSoup(response.text, "lxml")
-        links = soup.find_all("loc")
+        """Get all links from request that contains /vendor/emag/c"""
+        tree = ET.fromstring(response.text)
+        for child in tree:
+            if child[0].text.endswith("/vendor/emag/c"):
+                item = EmagSitemapItem()
+                # status 0 = unprocessed, 1 = processing
+                item["status"] = 0
+                item["url"] = child[0].text
 
-        for link in links:
-            # Declare items
-            # Statuses
-            # 0 - Unprocessed
-            # 1 - Processing
-            item = EmagSitemapItem()
-            item["status"] = 0
-            item["url"] = link.text
-
-            yield item
+                yield item
