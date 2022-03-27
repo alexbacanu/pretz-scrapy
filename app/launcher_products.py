@@ -8,7 +8,7 @@ from hp_emag.crawl import crawl
 
 def scrape(event={}, context={}):
     spider_name = "emag_products"
-    crawl(spider_name, **event)
+    crawl(spider_name)
 
 
 if __name__ == "__main__":
