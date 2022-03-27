@@ -3,6 +3,7 @@
 
 import boto3
 from boto3.dynamodb.conditions import Key
+from botocore.config import Config
 
 
 class DefaultValuesPipeline(object):
@@ -19,7 +20,11 @@ class AmazonDynamoDBItemsPipeline(object):
     # pylint: disable=unused-argument
     def __init__(self):
         # Init DB
-        self.dynamodb = boto3.resource("dynamodb", region_name="eu-central-1")
+        self.dynamodb = boto3.resource(
+            "dynamodb",
+            region_name="eu-central-1",
+            config=Config(retries={"mode": "standard"}),
+        )
         self.timeseries_table = self.dynamodb.Table("emag-timeseries")
         self.timeseries_items = []
         self.products_table = self.dynamodb.Table("emag-products")
