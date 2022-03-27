@@ -103,8 +103,8 @@ resources:
           - AttributeName: date
             KeyType: RANGE
         ProvisionedThroughput:
-          ReadCapacityUnits: 6
-          WriteCapacityUnits: 6
+          ReadCapacityUnits: 8
+          WriteCapacityUnits: 8
     EmagProductsTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -120,8 +120,8 @@ resources:
           - AttributeName: name
             KeyType: RANGE
         ProvisionedThroughput:
-          ReadCapacityUnits: 6
-          WriteCapacityUnits: 6
+          ReadCapacityUnits: 8
+          WriteCapacityUnits: 8
     EmagStartUrlsTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -133,8 +133,8 @@ resources:
           - AttributeName: status
             KeyType: HASH
         ProvisionedThroughput:
-          ReadCapacityUnits: 6
-          WriteCapacityUnits: 6
+          ReadCapacityUnits: 2
+          WriteCapacityUnits: 2
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
 
