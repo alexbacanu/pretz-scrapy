@@ -23,7 +23,7 @@ class AmazonDynamoDBItemsPipeline(object):
         self.dynamodb = boto3.resource(
             "dynamodb",
             region_name="eu-central-1",
-            config=Config(retries={"mode": "standard"}),
+            config=Config(retries={"max_attempts": 10, "mode": "standard"}),
         )
         self.timeseries_table = self.dynamodb.Table("emag-timeseries")
         self.timeseries_items = []
