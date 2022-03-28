@@ -19,9 +19,9 @@ class AmazonStartUrlsMiddleware:
         # How many start_requests
         start_urls_pops = 4
 
-        proxy = {
-            "proxy": f"http://scraperapi.autoparse=true:{os.getenv('SCRAPEAPI_KEY')}@proxy-server.scraperapi.com:8001"
-        }
+        # proxy = {
+        #     "proxy": f"http://scraperapi.autoparse=true:{os.getenv('SCRAPEAPI_KEY')}@proxy-server.scraperapi.com:8001"
+        # }
 
         # Pop x entries from database and return their value
         for _ in range(start_urls_pops):
@@ -34,4 +34,4 @@ class AmazonStartUrlsMiddleware:
             split_request = get_url.rsplit("/", 1)
             request = f"{split_request[0]}/vendor/emag/c"
 
-            yield Request(url=request, meta=proxy)
+            yield Request(url=request)

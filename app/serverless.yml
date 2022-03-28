@@ -58,7 +58,7 @@ provider:
 
 # you can define service wide environment variables here
   environment:
-    SCRAPEAPI_KEY: ***REMOVED***
+    SCRAPEAPI_KEY: 9ba6912b366251753bbf3bb260a68fe9
 
 # you can add packaging information here
 package:
