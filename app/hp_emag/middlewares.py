@@ -1,9 +1,12 @@
 # Define here the models for your spider middleware
 import logging
-import os
 
 import boto3
+from botocore.config import Config
 from scrapy.http import Request
+
+# import os
+
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +15,12 @@ class AmazonStartUrlsMiddleware:
     # pylint: disable=unused-argument
     def __init__(self):
         # Init DB
-        self.dynamodb = boto3.resource("dynamodb", region_name="eu-central-1")
+        self.dynamodb = boto3.resource(
+            "dynamodb",
+            region_name="eu-central-1",
+            config=Config(retries={"max_attempts": 15, "mode": "standard"}),
+        )
+
         self.start_urls_table = self.dynamodb.Table("emag-start_urls")
 
     def process_start_requests(self, start_requests, spider):

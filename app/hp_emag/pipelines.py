@@ -23,8 +23,9 @@ class AmazonDynamoDBItemsPipeline(object):
         self.dynamodb = boto3.resource(
             "dynamodb",
             region_name="eu-central-1",
-            config=Config(retries={"max_attempts": 10, "mode": "standard"}),
+            config=Config(retries={"max_attempts": 15, "mode": "standard"}),
         )
+
         self.timeseries_table = self.dynamodb.Table("emag-timeseries")
         self.timeseries_items = []
         self.products_table = self.dynamodb.Table("emag-products")
@@ -73,7 +74,12 @@ class AmazonDynamoDBSitemapPipeline(object):
     # pylint: disable=unused-argument
     def __init__(self):
         # Init DB
-        self.dynamodb = boto3.resource("dynamodb", region_name="eu-central-1")
+        self.dynamodb = boto3.resource(
+            "dynamodb",
+            region_name="eu-central-1",
+            config=Config(retries={"max_attempts": 15, "mode": "standard"}),
+        )
+
         self.start_urls_table = self.dynamodb.Table("emag-start_urls")
         self.start_urls_items = []
 
