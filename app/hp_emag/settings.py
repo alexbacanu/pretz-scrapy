@@ -10,7 +10,7 @@ USER_AGENT = "hp_emag/0.5 (Windows NT 10.0; Win64; x64)"
 
 #  Obey robots.txt rules
 #  TODO: Turn this to True when we don't use proxy
-ROBOTSTXT_OBEY = False
+ROBOTSTXT_OBEY = True
 
 #  Configure maximum concurrent requests performed by Scrapy (default: 16)
 CONCURRENT_REQUESTS = 4
@@ -20,6 +20,7 @@ DOWNLOAD_DELAY = 2
 #  The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN = 16
 # CONCURRENT_REQUESTS_PER_IP = 16
+
 #  Retries
 RETRY_TIMES = 6
 
