@@ -54,11 +54,11 @@ provider:
             - logs:CreateLogGroup
             - logs:CreateLogStream
             - logs:PutLogEvents
-          Resource: "arn:aws:dynamodb:eu-central-1:561116139747:*"
+          Resource: "arn:aws:dynamodb:${aws:region}:${aws:accountId}:*"
 
 # you can define service wide environment variables here
   environment:
-    SCRAPEAPI_KEY: ***REMOVED***
+    SCRAPEAPI_KEY: ${env:SCRAPEAPI_KEY}
 
 # you can add packaging information here
 package:
@@ -67,6 +67,7 @@ package:
     - hp_emag/**
     - launcher_products.py
     - launcher_sitemap.py
+    - launcher_test.py
     - scrapy.cfg
 
 functions:
@@ -84,6 +85,8 @@ functions:
           enabled: true
   lambdaScrapeSitemap:
     handler: launcher_sitemap.scrape
+  lambdaScrapeTest:
+    handler: launcher_test.scrape
 
 # you can add CloudFormation resource templates here
 resources:
