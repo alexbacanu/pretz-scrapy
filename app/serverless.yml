@@ -81,8 +81,8 @@ functions:
           arn: !GetAtt EmagStartUrlsTable.StreamArn
           batchSize: 1
           startingPosition: LATEST
-          maximumRetryAttempts: 4
-          enabled: true
+          maximumRetryAttempts: 6
+          enabled: false
   lambdaScrapeSitemap:
     handler: launcher_sitemap.scrape
   lambdaScrapeTest:
