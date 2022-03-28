@@ -6,14 +6,13 @@ import sys
 from hp_emag.crawl import crawl
 
 
-def scrape(event={}, context={}):
-    spider_name = "test_response"
+def scrape(spider_name):
     crawl(spider_name)
 
 
 if __name__ == "__main__":
     try:
-        event = json.loads(sys.argv[1])
+        spider_name = json.loads(sys.argv[1])
     except IndexError:
-        event = {}
-    scrape(event)
+        spider_name = {}
+    scrape(spider_name)
