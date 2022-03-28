@@ -4,7 +4,7 @@ from scrapy.spiders import CrawlSpider, Request
 
 
 class EmagSitemapSpider(CrawlSpider):
-    name = "emag_vendor"
+    name = "emag_sitemap"
     allowed_domains = ["emag.ro"]
     start_urls = ["https://www.emag.ro/sitemaps/category-filters-index.xml"]
 
@@ -27,7 +27,7 @@ class EmagSitemapSpider(CrawlSpider):
             if child[0].text.endswith("/vendor/emag/c"):
                 item = EmagSitemapItem()
                 # status 0 = unprocessed, 1 = processing
-                item["status"] = 0
-                item["url"] = child[0].text
+                item["status_code"] = 0
+                item["crawled_urls"] = child[0].text
 
                 yield item

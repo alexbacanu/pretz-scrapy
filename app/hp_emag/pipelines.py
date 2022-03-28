@@ -23,7 +23,7 @@ class AmazonDynamoDBItemsPipeline(object):
         self.dynamodb = boto3.resource(
             "dynamodb",
             region_name="eu-central-1",
-            config=Config(retries={"max_attempts": 15, "mode": "standard"}),
+            config=Config(retries={"max_attempts": 20, "mode": "adaptive"}),
         )
 
         self.timeseries_table = self.dynamodb.Table("emag-timeseries")
@@ -47,10 +47,10 @@ class AmazonDynamoDBItemsPipeline(object):
         self.timeseries_items.append(
             {
                 "id": item["id"],
-                "date": item["crawled"],
-                "rrp": item["rrp"],
-                "full": item["full"],
-                "price": item["price"],
+                "crawled": item["crawled"],
+                "price_rrp": item["price_rrp"],
+                "price_full": item["price_full"],
+                "price_std": item["price_std"],
             }
         )
         # Add values in a list for emag-products
@@ -58,9 +58,9 @@ class AmazonDynamoDBItemsPipeline(object):
             {
                 "id": item["id"],
                 "name": item["name"],
-                "rrp": item["rrp"],
-                "full": item["full"],
-                "price": item["price"],
+                "price_rrp": item["price_rrp"],
+                "price_full": item["price_full"],
+                "price_std": item["price_std"],
                 "link": item["link"],
                 "img": item["img"],
                 "crawled": item["crawled"],
@@ -77,13 +77,13 @@ class AmazonDynamoDBSitemapPipeline(object):
         self.dynamodb = boto3.resource(
             "dynamodb",
             region_name="eu-central-1",
-            config=Config(retries={"max_attempts": 15, "mode": "standard"}),
+            config=Config(retries={"max_attempts": 20, "mode": "adaptive"}),
         )
 
         self.start_urls_table = self.dynamodb.Table("emag-start_urls")
         self.start_urls_items = []
 
-        self.response = self.start_urls_table.query(KeyConditionExpression=Key("status").eq(0))
+        self.response = self.start_urls_table.query(KeyConditionExpression=Key("status_code").eq(0))
 
     def close_spider(self, spider):
         # Write all items to emag-start_urls after spider is finished
@@ -91,7 +91,7 @@ class AmazonDynamoDBSitemapPipeline(object):
             # with self.start_urls_table.batch_writer() as batch:
             self.start_urls_table.put_item(
                 Item={
-                    "status": 0,
+                    "status_code": 0,
                     "crawled_urls": self.start_urls_items,
                 }
             )
@@ -100,7 +100,7 @@ class AmazonDynamoDBSitemapPipeline(object):
         # Add values in a list for emag-start_urls
         self.start_urls_items.extend(
             {
-                item["url"],
+                item["crawled_urls"],
             }
         )
         return item

@@ -26,14 +26,14 @@ def filter_pricing(text):
 class EmagProductsItem(Item):
     name = Field(input_processor=MapCompose(remove_tags, remove_newline), output_processor=TakeFirst())
     id = Field(input_processor=MapCompose(remove_tags), output_processor=TakeFirst())
-    rrp = Field(input_processor=MapCompose(filter_pricing), output_processor=TakeFirst())
-    full = Field(input_processor=MapCompose(filter_pricing), output_processor=TakeFirst())
-    price = Field(input_processor=MapCompose(filter_pricing), output_processor=TakeFirst())
+    price_rrp = Field(input_processor=MapCompose(filter_pricing), output_processor=TakeFirst())
+    price_full = Field(input_processor=MapCompose(filter_pricing), output_processor=TakeFirst())
+    price_std = Field(input_processor=MapCompose(filter_pricing), output_processor=TakeFirst())
     link = Field(input_processor=MapCompose(), output_processor=TakeFirst())
     img = Field(input_processor=MapCompose(), output_processor=TakeFirst())
     crawled = Field(input_processor=MapCompose(current_date), output_processor=TakeFirst())
 
 
 class EmagSitemapItem(Item):
-    status = Field()
-    url = Field()
+    status_code = Field()
+    crawled_urls = Field()

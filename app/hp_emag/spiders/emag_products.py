@@ -48,9 +48,9 @@ class EmagProductsSpider(CrawlSpider):
 
             itemloader.add_css("name", ".card-v2-title")
             itemloader.add_css("id", "div.card-v2-atc::attr(data-pnk)")
-            itemloader.add_css("rrp", "span.rrp-lp30d-content:nth-child(1)")
-            itemloader.add_css("full", "span.rrp-lp30d-content:nth-child(2)")
-            itemloader.add_css("price", "p.product-new-price")
+            itemloader.add_css("price_rrp", "span.rrp-lp30d-content:nth-child(1)")
+            itemloader.add_css("price_full", "span.rrp-lp30d-content:nth-child(2)")
+            itemloader.add_css("price_std", "p.product-new-price")
             itemloader.add_css("link", "a.card-v2-thumb::attr(href)")
             itemloader.add_css("img", "img.w-100::attr(src)")
             itemloader.add_value("crawled", "")
