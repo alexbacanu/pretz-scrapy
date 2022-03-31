@@ -21,13 +21,12 @@ class AmazonStartUrlsMiddleware:
             config=Config(retries={"max_attempts": 20, "mode": "adaptive"}),
         )
 
-        self.start_urls_table = self.dynamodb.Table("emag-start_urls")
+        self.su_table = self.dynamodb.Table("emag-start_urls")
 
     def process_start_requests(self, start_requests, spider):
         # Statuses:
-        # 0 - not crawled
-        # 1 - crawled
-        # response.status - error code
+        # not crawled:  0
+        # error code:   response.status
 
         # How many start_requests
         start_urls_pops = 4
@@ -38,23 +37,35 @@ class AmazonStartUrlsMiddleware:
 
         # Pop x entries from database and return their value
         for _ in range(start_urls_pops):
-            get_url = self.start_urls_table.update_item(
-                Key={"status_code": 0},
-                ReturnValues="UPDATED_OLD",
+            get_url = self.su_table.update_item(
+                Key={
+                    "status_code": 0,
+                },
                 UpdateExpression="REMOVE crawled_urls[0]",
+                ReturnValues="UPDATED_OLD",
             )["Attributes"]["crawled_urls"][0]
+
+            # get_url = "https://www.emag.ro/skimmere-acvarii/vendor/emag/c"
+            get_url = "https://www.emag.ro/echipament-tatuaje/vendor/emag/c"
 
             yield Request(url=get_url)
 
     def process_spider_exception(self, response, exception, spider):
-        # XXX: Still testing
         logger.exception("Exception in spider %s on %s: %s", spider.name, response.url, response.status)
 
-        # Add crawled_urls to database with status 2
-        self.start_urls_table.put_item(
-            Item={
+        # This will append the crawled_urls to the status_code key if it doesn't exist already
+        # TODO: prevent duplicates
+        self.su_table.update_item(
+            Key={
                 "status_code": response.status,
-                "crawled_urls": [response.url],
             },
-            ConditionExpression="attribute_not_exists(status_code) AND attribute_not_exists(crawled_urls)",
+            UpdateExpression="SET crawled_urls = list_append(if_not_exists(crawled_urls, :empty_list), :cu)",
+            ExpressionAttributeValues={
+                ":empty_list": [],
+                ":cu": [response.url],
+            },
         )
+
+
+class AzureStartUrlsMiddleware:
+    pass

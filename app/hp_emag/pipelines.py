@@ -1,6 +1,5 @@
 # Define your item pipelines here
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
-
 import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.config import Config
@@ -14,6 +13,13 @@ class DefaultValuesPipeline(object):
             item.setdefault(field, 0)
 
         return item
+
+
+class DynamoDBPipeline:
+    # TODO: Write as a single pipeline for both spiders
+    # https://github.com/Thormod/scrapy-demo/blob/c0fcd7004496acd320d7f28c64b7d85e5cb0adfe/scrapyTutorial/pipelines.py
+
+    pass
 
 
 class AmazonDynamoDBItemsPipeline(object):
@@ -80,16 +86,16 @@ class AmazonDynamoDBSitemapPipeline(object):
             config=Config(retries={"max_attempts": 20, "mode": "adaptive"}),
         )
 
-        self.start_urls_table = self.dynamodb.Table("emag-start_urls")
-        self.start_urls_items = []
+        self.su_table = self.dynamodb.Table("emag-start_urls")
+        self.su_query = self.su_table.query(KeyConditionExpression=Key("status_code").eq(0))["Count"]
 
-        self.response = self.start_urls_table.query(KeyConditionExpression=Key("status_code").eq(0))
+        self.start_urls_items = []
 
     def close_spider(self, spider):
         # Write all items to emag-start_urls after spider is finished
-        if self.response["Count"] == 0:
+        if self.su_query == 0:
             # with self.start_urls_table.batch_writer() as batch:
-            self.start_urls_table.put_item(
+            self.su_table.put_item(
                 Item={
                     "status_code": 0,
                     "crawled_urls": self.start_urls_items,
@@ -104,3 +110,11 @@ class AmazonDynamoDBSitemapPipeline(object):
             }
         )
         return item
+
+
+class AzureCosmosDBItemsPipeline(object):
+    pass
+
+
+class AzureCosmosDBSitemapPipeline(object):
+    pass
