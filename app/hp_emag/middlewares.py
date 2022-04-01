@@ -29,17 +29,21 @@ class AmazonStartUrlsMiddleware:
         # error code:   response.status
 
         # How many start_requests
-        start_urls_pops = 4
+        start_urls_pops = 3
 
         # Pop x entries from database and return their value
         for _ in range(start_urls_pops):
-            get_url = self.su_table.update_item(
-                Key={
-                    "status_code": 0,
-                },
-                UpdateExpression="REMOVE crawled_urls[0]",
-                ReturnValues="UPDATED_OLD",
-            )["Attributes"]["crawled_urls"][0]
+            try:
+                get_url = self.su_table.update_item(
+                    Key={
+                        "status_code": 0,
+                    },
+                    UpdateExpression="REMOVE crawled_urls[0]",
+                    ReturnValues="UPDATED_OLD",
+                )["Attributes"]["crawled_urls"][0]
+            except KeyError:
+                logger.info("No more start_urls to crawl")
+                break
 
             yield Request(url=get_url)
 
