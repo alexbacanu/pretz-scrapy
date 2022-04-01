@@ -1,42 +1,37 @@
 {
     // Python specific
-    "python.languageServer": "Pylance",
-    "python.linting.enabled": true,
-    "python.linting.flake8Enabled": true,
-    "python.linting.pylintEnabled": false,
-    "python.linting.mypyEnabled": true,
-    "python.linting.flake8Args": [
-        "--max-line-length", "119",
-        "--extend-ignore", "E203",
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+        "--disable=C0111,arguments-differ"
     ],
-
+    
     "python.formatting.provider": "black",
     "python.formatting.blackArgs": [
-        "--line-length", "119"
+        "--line-length", "100"
     ],
 
-    "pylint.args": [
-        "--disable=C0111,W0221" // disable doc-string warnings
-    ],
+    "terminal.integrated.cwd": "app",
+    "python.terminal.activateEnvironment": true,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.defaultInterpreterPath": ".venv/Scripts/python.exe",
 
-    "prettier.printWidth": 119,
-    "prettier.singleQuote": true,
-
-    "typescript.preferences.quoteStyle": "single",
-    "javascript.preferences.quoteStyle": "single",
-
+    
     // Editor specific
+    "workbench.editor.highlightModifiedTabs": true,
     "editor.bracketPairColorization.enabled": true,
     "editor.guides.bracketPairs": true,
-    "workbench.editor.highlightModifiedTabs": true,
-    "editor.fontFamily": "Jetbrains Mono, Menlo, Monaco, 'Courier New', monospace",
+    "editor.fontFamily": "Fira Code",
     "editor.fontLigatures": true,
+
     "typescript.inlayHints.parameterNames.enabled": "all",
+    
+    "typescript.preferences.quoteStyle": "single",    
+    "javascript.preferences.quoteStyle": "single",
 
     // Extension specific settings
     "[python]": {
         "editor.formatOnSave": true,
-        "editor.rulers": [119],
+        "editor.rulers": [100],
         "editor.codeActionsOnSave": {
             "source.organizeImports": true
         }
