@@ -32,8 +32,14 @@ class EmagProductsSpider(CrawlSpider):
 
         header = response.css("div.js-head-title")
 
-        self.logger.info("Category: %s", header.css("span.title-phrasing-xl::text").get())
-        self.logger.info("Items: %s", header.css("span.title-phrasing-sm::text").get())
+        self.logger.info(
+            "Category: %s",
+            header.css("span.title-phrasing-xl::text").get(),
+        )
+        self.logger.info(
+            "Items: %s",
+            header.css("span.title-phrasing-sm::text").get(),
+        )
 
         return Request(url=response.url, callback=self.parse_page, dont_filter=True)
 

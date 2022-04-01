@@ -31,10 +31,6 @@ class AmazonStartUrlsMiddleware:
         # How many start_requests
         start_urls_pops = 4
 
-        # proxy = {
-        #     "proxy": f"http://scraperapi.autoparse=true:{os.getenv('SCRAPEAPI_KEY')}@proxy-server.scraperapi.com:8001"
-        # }
-
         # Pop x entries from database and return their value
         for _ in range(start_urls_pops):
             get_url = self.su_table.update_item(
@@ -45,13 +41,15 @@ class AmazonStartUrlsMiddleware:
                 ReturnValues="UPDATED_OLD",
             )["Attributes"]["crawled_urls"][0]
 
-            # get_url = "https://www.emag.ro/skimmere-acvarii/vendor/emag/c"
-            get_url = "https://www.emag.ro/echipament-tatuaje/vendor/emag/c"
-
             yield Request(url=get_url)
 
     def process_spider_exception(self, response, exception, spider):
-        logger.exception("Exception in spider %s on %s: %s", spider.name, response.url, response.status)
+        logger.exception(
+            "Exception in spider %s on %s: %s",
+            spider.name,
+            response.url,
+            response.status,
+        )
 
         # This will append the crawled_urls to the status_code key if it doesn't exist already
         # TODO: prevent duplicates
@@ -59,9 +57,12 @@ class AmazonStartUrlsMiddleware:
             Key={
                 "status_code": response.status,
             },
-            UpdateExpression="SET crawled_urls = list_append(if_not_exists(crawled_urls, :empty_list), :cu)",
+            UpdateExpression="SET #cu = list_append(if_not_exists(#cu, :el), :cu)",
+            ExpressionAttributes={
+                "#cu": "crawled_urls",
+            },
             ExpressionAttributeValues={
-                ":empty_list": [],
+                ":el": [],
                 ":cu": [response.url],
             },
         )

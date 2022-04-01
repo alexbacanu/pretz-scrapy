@@ -87,7 +87,9 @@ class AmazonDynamoDBSitemapPipeline(object):
         )
 
         self.su_table = self.dynamodb.Table("emag-start_urls")
-        self.su_query = self.su_table.query(KeyConditionExpression=Key("status_code").eq(0))["Count"]
+        self.su_query = (
+            self.su_table.query(KeyConditionExpression=Key("status_code").eq(0))["Count"],
+        )
 
         self.start_urls_items = []
 
