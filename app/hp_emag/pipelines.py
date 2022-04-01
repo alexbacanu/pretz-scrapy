@@ -1,8 +1,12 @@
 # Define your item pipelines here
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
+import logging
+
 import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.config import Config
+
+logger = logging.getLogger(__name__)
 
 
 class DefaultValuesPipeline(object):
@@ -87,15 +91,15 @@ class AmazonDynamoDBSitemapPipeline(object):
         )
 
         self.su_table = self.dynamodb.Table("emag-start_urls")
-        self.su_query = (
-            self.su_table.query(KeyConditionExpression=Key("status_code").eq(0))["Count"],
-        )
+        self.su_query = self.su_table.query(KeyConditionExpression=Key("status_code").eq(0))[
+            "Items"
+        ][0]["crawled_urls"]
 
         self.start_urls_items = []
 
     def close_spider(self, spider):
         # Write all items to emag-start_urls after spider is finished
-        if self.su_query == 0:
+        if len(self.su_query) == 0:
             # with self.start_urls_table.batch_writer() as batch:
             self.su_table.put_item(
                 Item={
