@@ -25,9 +25,10 @@ class EmagSitemapSpider(CrawlSpider):
         tree = ET.fromstring(response.text)
         for child in tree:
             if child[0].text.endswith("/vendor/emag/c"):
-                item = EmagSitemapItem()
-                # status 0 = unprocessed, 1 = processing
-                item["status_code"] = 0
-                item["crawled_urls"] = child[0].text
+                if "laptop" in child[0].text:
+                    item = EmagSitemapItem()
+                    # status 0 = unprocessed, 1 = processing
+                    item["status_code"] = 0
+                    item["crawled_urls"] = child[0].text
 
-                yield item
+                    yield item
