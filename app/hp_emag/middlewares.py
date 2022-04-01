@@ -4,9 +4,7 @@ import logging
 import boto3
 from botocore.config import Config
 from scrapy.http import Request
-
-# import os
-
+from scrapy.utils.project import get_project_settings
 
 logger = logging.getLogger(__name__)
 
@@ -24,15 +22,10 @@ class AmazonStartUrlsMiddleware:
         self.su_table = self.dynamodb.Table("emag-start_urls")
 
     def process_start_requests(self, start_requests, spider):
-        # Statuses:
-        # not crawled:  0
-        # error code:   response.status
-
-        # How many start_requests
-        start_urls_pops = 3
+        settings = get_project_settings()
 
         # Pop x entries from database and return their value
-        for _ in range(start_urls_pops):
+        for _ in range(settings.get("START_URLS_COUNT")):
             try:
                 get_url = self.su_table.update_item(
                     Key={
@@ -62,7 +55,7 @@ class AmazonStartUrlsMiddleware:
                 "status_code": response.status,
             },
             UpdateExpression="SET #cu = list_append(if_not_exists(#cu, :el), :cu)",
-            ExpressionAttributes={
+            ExpressionAttributeNames={
                 "#cu": "crawled_urls",
             },
             ExpressionAttributeValues={
