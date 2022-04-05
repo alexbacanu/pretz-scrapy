@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class AmazonStartUrlsMiddleware:
+
     # pylint: disable=unused-argument
     def __init__(self):
         # Init DB
@@ -24,12 +25,18 @@ class AmazonStartUrlsMiddleware:
     def process_start_requests(self, start_requests, spider):
         settings = get_project_settings()
 
+        # TODO: I don't like this approach, make it better
+        if spider.name == "emag_products":
+            status_code_val = 0
+        else:
+            status_code_val = 511
+
         # Pop x entries from database and return their value
         for _ in range(settings.get("START_URLS_COUNT")):
             try:
                 get_url = self.su_table.update_item(
                     Key={
-                        "status_code": 0,
+                        "status_code": status_code_val,
                     },
                     UpdateExpression="REMOVE crawled_urls[0]",
                     ReturnValues="UPDATED_OLD",
