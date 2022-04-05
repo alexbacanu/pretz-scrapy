@@ -41,9 +41,11 @@ TELNETCONSOLE_ENABLED = False
 # }
 
 #  Enable or disable downloader middlewares
-# DOWNLOADER_MIDDLEWARES = {
-#     "hp_emag.middlewares.HpEmagDownloaderMiddleware": 543,
-# }
+DOWNLOADER_MIDDLEWARES = {
+    "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
+    "scrapy_user_agents.middlewares.RandomUserAgentMiddleware": 400,
+    # "hp_emag.middlewares.HpEmagDownloaderMiddleware": 543,
+}
 
 #  Enable or disable extensions
 EXTENSIONS = {
@@ -72,7 +74,7 @@ AUTOTHROTTLE_START_DELAY = 4
 HTTPCACHE_ENABLED = True
 HTTPCACHE_EXPIRATION_SECS = 3600
 HTTPCACHE_DIR = ".httpcache"
-HTTPCACHE_IGNORE_HTTP_CODES = ["400", "401", "403", "404", "500", "504"]
+HTTPCACHE_IGNORE_HTTP_CODES = ["400", "401", "403", "404", "500", "504", "511"]
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 
 #  Log related
@@ -88,6 +90,9 @@ METAREFRESH_ENABLED = False
 DEPTH_PRIORITY = 1
 SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
 SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
+
+# Random user-agent middleware
+RANDOM_UA_FILE = "useragents.txt"
 
 # Custom settings
 START_URLS_COUNT = 8
