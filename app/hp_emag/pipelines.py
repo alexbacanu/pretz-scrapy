@@ -91,9 +91,12 @@ class AmazonDynamoDBSitemapPipeline(object):
         )
 
         self.su_table = self.dynamodb.Table("emag-start_urls")
-        self.su_query = self.su_table.query(KeyConditionExpression=Key("status_code").eq(0))[
-            "Items"
-        ][0]["crawled_urls"]
+        try:
+            self.su_query = self.su_table.query(KeyConditionExpression=Key("status_code").eq(0))[
+                "Items"
+            ][0]["crawled_urls"]
+        except IndexError:
+            self.su_query = []
 
         self.start_urls_items = []
 
