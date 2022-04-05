@@ -1,5 +1,6 @@
 # Define here the models for your spider middleware
 import logging
+import os
 
 import boto3
 from botocore.config import Config
@@ -8,6 +9,9 @@ from scrapy.utils.project import get_project_settings
 
 logger = logging.getLogger(__name__)
 
+class ScrapeAPIProxyMiddleware(object):
+    def process_request(self, request, spider):
+        request.meta["proxy"] = f"http://scraperapi.autoparse=true:{os.getenv('SCRAPEAPI_KEY')}@proxy-server.scraperapi.com:8001"
 
 class AmazonStartUrlsMiddleware:
 

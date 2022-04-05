@@ -15,7 +15,7 @@ ROBOTSTXT_OBEY = True
 CONCURRENT_REQUESTS = 4
 
 #  Configure a delay for requests for the same website (default: 0)
-DOWNLOAD_DELAY = 4
+DOWNLOAD_DELAY = 1
 #  The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN = 16
 # CONCURRENT_REQUESTS_PER_IP = 16
@@ -44,6 +44,8 @@ TELNETCONSOLE_ENABLED = False
 DOWNLOADER_MIDDLEWARES = {
     "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
     "scrapy_user_agents.middlewares.RandomUserAgentMiddleware": 400,
+    "hp_emag.middlewares.ScrapeAPIProxyMiddleware": 305,
+    "scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware": 310,
     # "hp_emag.middlewares.HpEmagDownloaderMiddleware": 543,
 }
 
@@ -62,7 +64,7 @@ EXTENSIONS = {
 #  Enable and configure the AutoThrottle extension (disabled by default)
 AUTOTHROTTLE_ENABLED = True
 #  The initial download delay
-AUTOTHROTTLE_START_DELAY = 4
+AUTOTHROTTLE_START_DELAY = 1
 #  The maximum download delay to be set in case of high latencies
 # AUTOTHROTTLE_MAX_DELAY = 60
 #  The average number of requests Scrapy should be sending in parallel to each remote server
@@ -95,4 +97,4 @@ SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 RANDOM_UA_FILE = "useragents.txt"
 
 # Custom settings
-START_URLS_COUNT = 8
+START_URLS_COUNT = 4
