@@ -65,34 +65,35 @@ package:
   patterns:
     - "!./**"
     - hp_emag/**
-    - launcher_products.py
-    - launcher_sitemap.py
-    - launcher_test.py
+    - aws_launcher.py
     - scrapy.cfg
     - useragents.txt
 
 functions:
   lambdaScrapeProducts:
-    handler: launcher_products.scrape
+    handler: aws_launcher.lambdaScrapeProducts
     dependsOn:
       - EmagStartUrlsTable
     events:
       - stream:
           type: dynamodb
           arn: !GetAtt EmagStartUrlsTable.StreamArn
-          batchSize: 1
+          batchSize: 4
+          batchWindow: 30
           startingPosition: LATEST
           maximumRetryAttempts: 6
           enabled: true
+
   lambdaScrapeFailed:
-    handler: launcher_failed_products.scrape
+    handler: aws_launcher.lambdaScrapeFailed
     dependsOn:
       - EmagStartUrlsTable
     events:
       - stream:
           type: dynamodb
           arn: !GetAtt EmagStartUrlsTable.StreamArn
-          batchSize: 1
+          batchSize: 4
+          batchWindow: 30
           startingPosition: LATEST
           maximumRetryAttempts: 6
           enabled: true
@@ -102,14 +103,16 @@ functions:
                 NewImage:
                   status:
                     N: [511]
+
   lambdaScrapeSitemap:
-    handler: launcher_sitemap.scrape
+    handler: aws_launcher.lambdaScrapeSitemap
     events:
       - schedule:
           rate: cron(11 15 * * ? *)
           enabled: true
+
   lambdaScrapeTest:
-    handler: launcher_test.scrape
+    handler: aws_launcher.lambdaScrapeTest
 
 # you can add CloudFormation resource templates here
 resources:
@@ -171,4 +174,6 @@ custom:
   pythonRequirements:
     slim: true # Omits tests, __pycache__, *.pyc etc from dependencies
     fileName: requirements.txt
+    dockerImage: mlupin/docker-lambda:python3.9-build # Fix error for Python 3.9
     dockerizePip: non-linux
+    invalidateCaches: true
