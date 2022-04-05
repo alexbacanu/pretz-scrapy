@@ -2,7 +2,7 @@
     // Python specific
     "python.linting.pylintEnabled": true,
     "python.linting.pylintArgs": [
-        "--disable=C0111,arguments-differ"
+        "--disable=C0111,arguments-differ,line-too-long"
     ],
     
     "python.formatting.provider": "black",
