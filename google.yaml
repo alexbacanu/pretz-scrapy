@@ -1,0 +1,23 @@
+steps:
+- name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+  args:
+  - gcloud
+  - functions
+  - deploy
+  - cloud_crawl_sitemap
+  - --region=europe-west1
+  - --runtime=python39
+  - --trigger-event=providers/cloud.firestore/eventTypes/document.update
+  - --trigger-resource=projects/honestprice-firebase/databases/(default)/documents/emag_start_urls/start
+  - --env-vars-file=.env.yaml
+- name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+  args:
+  - gcloud
+  - functions
+  - deploy
+  - cloud_crawl_products
+  - --region=europe-west1
+  - --runtime=python39
+  - --trigger-event=providers/cloud.firestore/eventTypes/document.update
+  - --trigger-resource=projects/honestprice-firebase/databases/(default)/documents/emag_start_urls/start
+  - --env-vars-file=.env.yaml

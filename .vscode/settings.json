@@ -9,12 +9,12 @@
     "python.formatting.blackArgs": [
         "--line-length", "100"
     ],
-
-    "terminal.integrated.cwd": "app",
+    
+    // "terminal.integrated.cwd": "honestprice",
     "python.terminal.activateEnvironment": true,
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.defaultInterpreterPath": ".venv/Scripts/python.exe",
-
+    
     
     // Editor specific
     "workbench.editor.highlightModifiedTabs": true,
@@ -22,6 +22,9 @@
     "editor.guides.bracketPairs": true,
     "editor.fontFamily": "Fira Code",
     "editor.fontLigatures": true,
+    
+    // Explorer specific
+    "explorer.sortOrder": "type",
 
     "typescript.inlayHints.parameterNames.enabled": "all",
     
@@ -73,4 +76,5 @@
         "**/.venv3": true,
         "**/tmp": true,
     },
+    "explorer.experimental.fileNesting.enabled": false,
 }

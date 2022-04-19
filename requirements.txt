@@ -1,0 +1,16 @@
+# Editor
+pylint
+black
+
+# Local requirements
+Scrapy>=2.6.1
+defusedxml>=0.7.1
+scrapydo>=0.2.2
+
+# Amazon AWS
+# boto3>=1.21.23
+
+# Microsoft Azure
+
+# Google Cloud
+google-cloud-firestore
