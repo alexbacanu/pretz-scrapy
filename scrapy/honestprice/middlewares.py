@@ -9,12 +9,10 @@ from scrapy.utils.project import get_project_settings
 
 
 class ScrapeAPIProxyMiddleware(object):
-    def process_start_requests(self, start_requests, spider):
-        for request in start_requests:
-            request.meta[
-                "proxy"
-            ] = f"http://scraperapi.autoparse=true:{os.getenv('SCRAPEAPI_KEY')}@proxy-server.scraperapi.com:8001"
-            yield request
+    def process_request(self, request, spider):
+        request.meta[
+            "proxy"
+        ] = f"http://scraperapi.autoparse=true:{os.getenv('SCRAPEAPI_KEY')}@proxy-server.scraperapi.com:8001"
 
 
 class AmazonDynamoDBStartUrlsMiddleware:

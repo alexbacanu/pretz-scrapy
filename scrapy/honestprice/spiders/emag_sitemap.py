@@ -13,6 +13,7 @@ class EmagSitemapSpider(CrawlSpider):
             # "honestprice.pipelines.AmazonDynamoDBPipeline": 250,
             # "honestprice.pipelines.AzureCosmosDBPipeline": 250,
             "honestprice.pipelines.GoogleFirestoreSitemapPipeline": 250,
+            "honestprice.pipelines.GoogleTasksPipeline": 650,
         },
     }
 
@@ -35,5 +36,6 @@ class EmagSitemapSpider(CrawlSpider):
                     item = EmagSitemapItem()
                     item["response_status"] = response.status
                     item["response_url"] = child[0].text
+                    item["response_category"] = child[0].text.split("/")[3]
 
                     yield item

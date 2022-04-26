@@ -61,3 +61,4 @@ class EmagProductsItem(Item):
 class EmagSitemapItem(Item):
     response_status = Field()
     response_url = Field()
+    response_category = Field()

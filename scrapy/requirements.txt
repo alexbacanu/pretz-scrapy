@@ -13,4 +13,6 @@ scrapydo>=0.2.2
 # Microsoft Azure
 
 # Google Cloud
+functions-framework
 google-cloud-firestore
+google-cloud-tasks

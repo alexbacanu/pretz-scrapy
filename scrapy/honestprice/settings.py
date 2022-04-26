@@ -20,13 +20,13 @@ TELNETCONSOLE_ENABLED = False
 
 #  Enable or disable spider middlewares
 SPIDER_MIDDLEWARES = {
-    "honestprice.middlewares.ScrapeAPIProxyMiddleware": 150,
     # "honestprice.middlewares.HonestpriceSpiderMiddleware": 543,
 }
 
 #  Enable or disable downloader middlewares
 DOWNLOADER_MIDDLEWARES = {
-    # "scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware": 150,
+    "honestprice.middlewares.ScrapeAPIProxyMiddleware": 130,
+    "scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware": 170,
     # "honestprice.middlewares.HonestpriceDownloaderMiddleware": 543,
 }
 
