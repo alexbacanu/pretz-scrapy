@@ -55,6 +55,9 @@
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true
     },
+    "[terraform]": {
+        "editor.formatOnSave": true
+    },
 
     // Hide files fron explorer
     "files.exclude": {
@@ -67,6 +70,10 @@
         "**/.mypy_cache/**": true,
         "**/.venv/": true,
         "**/node_modules/": true,
+        "**/.terraform/": true,
+        "**/*.tfstate": true,
+        "**/*.tfstate.*": true,
+        "**/*.terraform.lock.hcl": true,
     },
 
     // Exclude files from search
@@ -76,5 +83,4 @@
         "**/.venv3": true,
         "**/tmp": true,
     },
-    "explorer.experimental.fileNesting.enabled": false,
 }
