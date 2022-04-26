@@ -1,12 +1,12 @@
-from hp_emag.items import EmagProductsItem
+from honestprice.items import EmagProductsItem
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from scrapy.spiders import CrawlSpider, Request, Rule
 
 
-class EmagFailedProductsSpider(CrawlSpider):
+class EmagProductsSpider(CrawlSpider):
     # pylint: disable=abstract-method
-    name = "emag_failed_products"
+    name = "emag_products"
     allowed_domains = ["emag.ro"]
 
     rules = (
@@ -19,11 +19,15 @@ class EmagFailedProductsSpider(CrawlSpider):
 
     custom_settings = {
         "SPIDER_MIDDLEWARES": {
-            "hp_emag.middlewares.AmazonStartUrlsMiddleware": 905,
+            # "honestprice.middlewares.AmazonDynamoDBPipeline": 200,
+            # "honestprice.middlewares.AzureCosmosDBPipeline": 200,
+            "honestprice.middlewares.GoogleFirestoreStartUrlsMiddleware": 200,
         },
         "ITEM_PIPELINES": {
-            "hp_emag.pipelines.DefaultValuesPipeline": 300,
-            "hp_emag.pipelines.AmazonDynamoDBItemsPipeline": 305,
+            "honestprice.pipelines.DefaultValuesPipeline": 150,
+            # "honestprice.pipelines.AmazonDynamoDBPipeline": 250,
+            # "honestprice.pipelines.AzureCosmosDBPipeline": 250,
+            "honestprice.pipelines.GoogleFirestoreProductsPipeline": 250,
         },
     }
 
@@ -52,13 +56,13 @@ class EmagFailedProductsSpider(CrawlSpider):
 
             itemloader = ItemLoader(item=EmagProductsItem(), selector=product)
 
-            itemloader.add_css("name", ".card-v2-title")
-            itemloader.add_css("id", "div.card-v2-atc::attr(data-pnk)")
+            itemloader.add_value("product_crawled", "")
+            itemloader.add_css("product_name", ".card-v2-title")
+            itemloader.add_css("product_id", "div.card-v2-atc::attr(data-pnk)")
+            itemloader.add_css("product_link", "a.card-v2-thumb::attr(href)")
+            itemloader.add_css("product_img", "img.w-100::attr(src)")
             itemloader.add_css("price_rrp", "span.rrp-lp30d-content:nth-child(1)")
-            itemloader.add_css("price_full", "span.rrp-lp30d-content:nth-child(2)")
-            itemloader.add_css("price_std", "p.product-new-price")
-            itemloader.add_css("link", "a.card-v2-thumb::attr(href)")
-            itemloader.add_css("img", "img.w-100::attr(src)")
-            itemloader.add_value("crawled", "")
+            itemloader.add_css("price_old", "span.rrp-lp30d-content:nth-child(2)")
+            itemloader.add_css("price_new", "p.product-new-price")
 
             yield itemloader.load_item()

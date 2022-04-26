@@ -1,5 +1,0 @@
-Scrapy>=2.6.1
-scrapydo>=0.2.2
-scrapy-user-agents>=0.1.1
-boto3>=1.21.23
-defusedxml>=0.7.1

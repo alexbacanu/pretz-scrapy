@@ -9,12 +9,12 @@
     "python.formatting.blackArgs": [
         "--line-length", "100"
     ],
-
-    "terminal.integrated.cwd": "app",
+    
+    // "terminal.integrated.cwd": "honestprice",
     "python.terminal.activateEnvironment": true,
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.defaultInterpreterPath": ".venv/Scripts/python.exe",
-
+    
     
     // Editor specific
     "workbench.editor.highlightModifiedTabs": true,
@@ -22,6 +22,9 @@
     "editor.guides.bracketPairs": true,
     "editor.fontFamily": "Fira Code",
     "editor.fontLigatures": true,
+    
+    // Explorer specific
+    "explorer.sortOrder": "type",
 
     "typescript.inlayHints.parameterNames.enabled": "all",
     
@@ -52,6 +55,9 @@
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true
     },
+    "[terraform]": {
+        "editor.formatOnSave": true
+    },
 
     // Hide files fron explorer
     "files.exclude": {
@@ -64,6 +70,10 @@
         "**/.mypy_cache/**": true,
         "**/.venv/": true,
         "**/node_modules/": true,
+        "**/.terraform/": true,
+        "**/*.tfstate": true,
+        "**/*.tfstate.*": true,
+        "**/*.terraform.lock.hcl": true,
     },
 
     // Exclude files from search
