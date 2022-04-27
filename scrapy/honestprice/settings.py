@@ -43,7 +43,7 @@ EXTENSIONS = {
 #  Enable and configure the AutoThrottle extension (disabled by default)
 AUTOTHROTTLE_ENABLED = True
 #  The initial download delay
-AUTOTHROTTLE_START_DELAY = 5
+AUTOTHROTTLE_START_DELAY = 3
 #  The maximum download delay to be set in case of high latencies
 # AUTOTHROTTLE_MAX_DELAY = 60
 #  The average number of requests Scrapy should be sending in parallel
@@ -73,7 +73,7 @@ SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
 SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 
 #  Custom settings
-START_URLS_COUNT = 1
-RETRY_TIMES = 6
-DOWNLOAD_DELAY = 5  # Default: 0
+START_URLS_COUNT = 4
+RETRY_TIMES = 8
+DOWNLOAD_DELAY = 3  # Default: 0
 CONCURRENT_REQUESTS = 4  # Default: 16

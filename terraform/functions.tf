@@ -46,7 +46,7 @@ resource "google_cloudfunctions_function" "sitemap_function" {
     resource   = google_pubsub_topic.sitemap-topic.name
   }
 
-  available_memory_mb = 256
+  available_memory_mb = 512
   timeout             = 540
   max_instances       = 4
   entry_point         = var.function_sitemap_entry_point
@@ -64,7 +64,7 @@ resource "google_cloudfunctions_function" "products_function" {
   name    = var.function_products_name
   runtime = "python39"
 
-  available_memory_mb = 256
+  available_memory_mb = 512
   timeout             = 540
   max_instances       = 4
   trigger_http        = true

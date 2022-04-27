@@ -25,7 +25,7 @@ resource "google_cloud_tasks_queue" "emag-sitemap-queue" {
   }
 
   retry_config {
-    max_attempts       = 24
+    max_attempts       = 18
     max_retry_duration = "120s"
     max_backoff        = "45s"
     min_backoff        = "10s"
