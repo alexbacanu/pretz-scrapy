@@ -15,7 +15,6 @@
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.defaultInterpreterPath": ".venv/Scripts/python.exe",
     
-    
     // Editor specific
     "workbench.editor.highlightModifiedTabs": true,
     "editor.bracketPairColorization.enabled": true,

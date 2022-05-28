@@ -1,4 +1,4 @@
-###### gcloudignore
+### GCloudIgnore ###
 # This file specifies files that are *not* uploaded to Google Cloud
 # using gcloud. It follows the same syntax as .gitignore, with the addition of
 # "#!include" directives (which insert the entries of the given .gitignore-style
@@ -25,7 +25,7 @@ crawls/
 # Serverless directories
 .serverless
 
-###### gitignore
+### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -141,7 +141,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-###### Terraform
+### Terraform ###
 # Local .terraform directories
 **/.terraform/*
 
@@ -177,7 +177,7 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-###### Custom
+### Custom ###
 .deploy
 .auth/
 .env/
