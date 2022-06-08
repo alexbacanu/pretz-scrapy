@@ -87,7 +87,7 @@ class GoogleFirestoreSitemapPipeline:
     def close_spider(self, spider):
         # Add data to firestore
         data = {"response_url": self.collected_urls}
-        self.fdb.collection("emag_start_urls").document("start").set(data)
+        self.fdb.collection("startUrls").document("emgStart").set(data)
 
 
 class GoogleTasksPipeline:
@@ -161,21 +161,21 @@ class GoogleFirestoreProductsPipeline:
 
     def process_item(self, item, spider):
         # Reference to emag_products collection
-        products_ref = self.fdb.collection("emag_products").document(item["product_id"])
-        timeseries_ref = self.fdb.collection("emag_timeseries").document(item["product_id"])
         date_time = datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y-%m-%d")
+
+        products_ref = self.fdb.collection("products").document(f"emg{item['productID']}")
+        timeseries_ref = self.fdb.collection(
+            f"products/emg{item['productID']}/timeseries"
+        ).document(date_time)
 
         # Add data to batch
         self.batch.set(products_ref, dict(item))
         self.batch.set(
             timeseries_ref,
             {
-                date_time: {
-                    "product_id": item["product_id"],
-                    "price_rrp": item["price_rrp"],
-                    "price_old": item["price_old"],
-                    "price_new": item["price_new"],
-                }
+                "retailPrice": item["retailPrice"],
+                "slashedPrice": item["slashedPrice"],
+                "currentPrice": item["productPrice"],
             },
             merge=True,
         )

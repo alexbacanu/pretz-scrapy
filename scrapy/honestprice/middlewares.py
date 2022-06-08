@@ -33,8 +33,8 @@ class GoogleFirestoreStartUrlsMiddleware:
         # Get url count from settings
         url_count = get_project_settings().get("START_URLS_COUNT")
 
-        # Reference to emag_start_urls collection
-        start_urls_ref = self.fdb.collection("emag_start_urls").document("start")
+        # Reference to startUrls collection
+        start_urls_ref = self.fdb.collection("startUrls").document("emgStart")
 
         # Retain only the first x(url_count) urls
         start_urls_list = start_urls_ref.get().to_dict()["response_url"][:url_count]

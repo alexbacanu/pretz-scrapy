@@ -35,14 +35,16 @@ class EmagProductsSpider(CrawlSpider):
         self.logger.info("Getting header from: %s", response.url)
 
         header = response.css("div.js-head-title")
+        self.category = header.css("span.title-phrasing-xl::text").get()
+        self.items = header.css("span.title-phrasing-sm::text").get()
 
         self.logger.info(
             "Category: %s",
-            header.css("span.title-phrasing-xl::text").get(),
+            self.category,
         )
         self.logger.info(
             "Items: %s",
-            header.css("span.title-phrasing-sm::text").get(),
+            self.items,
         )
 
         return Request(url=response.url, callback=self.parse_page, dont_filter=True)
@@ -56,13 +58,22 @@ class EmagProductsSpider(CrawlSpider):
 
             itemloader = ItemLoader(item=EmagProductsItem(), selector=product)
 
-            itemloader.add_value("product_crawled", "")
-            itemloader.add_css("product_name", ".card-v2-title")
-            itemloader.add_css("product_id", "div.card-v2-atc::attr(data-pnk)")
-            itemloader.add_css("product_link", "a.card-v2-thumb::attr(href)")
-            itemloader.add_css("product_img", "img.w-100::attr(src)")
-            itemloader.add_css("price_rrp", "span.rrp-lp30d-content:nth-child(1)")
-            itemloader.add_css("price_old", "span.rrp-lp30d-content:nth-child(2)")
-            itemloader.add_css("price_new", "p.product-new-price")
+            itemloader.add_value("crawledAt", "")
+            itemloader.add_css("productID", "div.card-v2-atc::attr(data-pnk)")
+            itemloader.add_css("productName", ".card-v2-title")
+            itemloader.add_css("productLink", "a.card-v2-thumb::attr(href)")
+            itemloader.add_css("productImg", "img.w-100::attr(src)")
+            itemloader.add_value("productCategory", self.category)
+            itemloader.add_css("productPrice", "p.product-new-price")
+            itemloader.add_css("slashedPrice", "span.rrp-lp30d-content:nth-child(2)")
+            itemloader.add_css("retailPrice", "span.rrp-lp30d-content:nth-child(1)")
 
+            # Genius tag boolean
+            badge = product.css("div.card-v2-badges").get()
+            if badge != None and "badge-genius" in badge:
+                itemloader.add_value("geniusTag", True)
+            else:
+                itemloader.add_value("geniusTag", False)
+
+            # Load items
             yield itemloader.load_item()

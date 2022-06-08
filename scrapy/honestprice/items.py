@@ -17,42 +17,56 @@ def remove_newline(text):
     return text.replace("\n", "")
 
 
+def remove_vendor(text):
+    remove_vendor = text.split("-")
+    clean_category = remove_vendor[0].strip()
+    return clean_category
+
+
 def filter_pricing(text):
-    remove_tags_re = re.sub(re.compile("<.*?>"), "", text).replace(",", ".")
+    remove_tags_re = re.sub(re.compile("<.*?>"), "", text).replace(".", "").replace(",", ".")
     digits_only = [float(s) for s in re.findall(r"-?\d+\.?\d*", remove_tags_re)]
     return digits_only
 
 
 class EmagProductsItem(Item):
-    product_crawled = Field(
+    crawledAt = Field(
         input_processor=MapCompose(current_date),
         output_processor=TakeFirst(),
     )
-    product_name = Field(
-        input_processor=MapCompose(remove_tags, remove_newline),
-        output_processor=TakeFirst(),
-    )
-    product_id = Field(
+    productID = Field(
         input_processor=MapCompose(remove_tags),
         output_processor=TakeFirst(),
     )
-    product_link = Field(
+    productName = Field(
+        input_processor=MapCompose(remove_tags, remove_newline),
+        output_processor=TakeFirst(),
+    )
+    productLink = Field(
         input_processor=MapCompose(),
         output_processor=TakeFirst(),
     )
-    product_img = Field(
+    productImg = Field(
         input_processor=MapCompose(),
         output_processor=TakeFirst(),
     )
-    price_rrp = Field(
+    productCategory = Field(
+        input_processor=MapCompose(remove_vendor),
+        output_processor=TakeFirst(),
+    )
+    productPrice = Field(
         input_processor=MapCompose(filter_pricing),
         output_processor=TakeFirst(),
     )
-    price_old = Field(
+    geniusTag = Field(
+        input_processor=MapCompose(),
+        output_processor=TakeFirst(),
+    )
+    slashedPrice = Field(
         input_processor=MapCompose(filter_pricing),
         output_processor=TakeFirst(),
     )
-    price_new = Field(
+    retailPrice = Field(
         input_processor=MapCompose(filter_pricing),
         output_processor=TakeFirst(),
     )
