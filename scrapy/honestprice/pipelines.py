@@ -110,7 +110,9 @@ class GoogleTasksPipeline:
         task_name = f"sitemap-task_{item['response_category']}"
         payload = item["response_url"]
 
-        task = {"http_request": {"http_method": tasks_v2.HttpMethod.POST, "url": self.url}}
+        task = {
+            "http_request": {"http_method": tasks_v2.HttpMethod.POST, "url": self.url}
+        }
 
         if payload is not None:
             if isinstance(payload, dict):
@@ -127,7 +129,9 @@ class GoogleTasksPipeline:
 
         if self.in_seconds is not None:
             # Convert "seconds from now" into an rfc3339 datetime string.
-            date = datetime.datetime.utcnow() + datetime.timedelta(seconds=self.in_seconds)
+            date = datetime.datetime.utcnow() + datetime.timedelta(
+                seconds=self.in_seconds
+            )
 
             # Create Timestamp protobuf.
             timestamp = timestamp_pb2.Timestamp()
@@ -138,7 +142,9 @@ class GoogleTasksPipeline:
 
         if task_name is not None:
             # Add the name to tasks.
-            task["name"] = self.client.task_path(self.project, self.location, self.queue, task_name)
+            task["name"] = self.client.task_path(
+                self.project, self.location, self.queue, task_name
+            )
 
         if self.deadline is not None:
             # Add dispatch deadline for requests sent to the worker.
@@ -146,7 +152,9 @@ class GoogleTasksPipeline:
             task["dispatch_deadline"] = duration.FromSeconds(self.deadline)
 
         # Use the client to build and send the task.
-        response = self.client.create_task(request={"parent": self.parent, "task": task})
+        response = self.client.create_task(
+            request={"parent": self.parent, "task": task}
+        )
 
         print(f"Created task ${response.name}")
 
@@ -163,19 +171,22 @@ class GoogleFirestoreProductsPipeline:
         # Reference to emag_products collection
         date_time = datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y-%m-%d")
 
-        products_ref = self.fdb.collection("products").document(f"emg{item['productID']}")
-        timeseries_ref = self.fdb.collection(
-            f"products/emg{item['productID']}/timeseries"
-        ).document(date_time)
+        products_ref = self.fdb.collection("products").document(
+            f"emg{item['productID']}"
+        )
 
         # Add data to batch
-        self.batch.set(products_ref, dict(item))
+        self.batch.set(products_ref, dict(item), merge=True)
         self.batch.set(
-            timeseries_ref,
+            products_ref,
             {
-                "retailPrice": item["retailPrice"],
-                "slashedPrice": item["slashedPrice"],
-                "currentPrice": item["productPrice"],
+                "timeseries": {
+                    date_time: {
+                        "retailPrice": item["retailPrice"],
+                        "slashedPrice": item["slashedPrice"],
+                        "currentPrice": item["productPrice"],
+                    }
+                }
             },
             merge=True,
         )
