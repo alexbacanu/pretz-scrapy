@@ -55,6 +55,9 @@ class EmagProductsSpider(CrawlSpider):
         products = response.css("div.card-v2")
 
         for product in products:
+            # Skip objects with no ID
+            if product.css("div.card-v2-atc::attr(data-pnk)").get() == None:
+                return
 
             itemloader = ItemLoader(item=EmagProductsItem(), selector=product)
 
