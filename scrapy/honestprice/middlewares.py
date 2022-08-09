@@ -41,7 +41,9 @@ class GoogleFirestoreStartUrlsMiddleware:
 
         for request in start_urls_list:
             # Delete the array from firestore
-            self.batch.update(start_urls_ref, {"response_url": firestore.ArrayRemove([request])})
+            self.batch.update(
+                start_urls_ref, {"response_url": firestore.ArrayRemove([request])}
+            )
             yield Request(url=request)
 
         # Commit batch

@@ -24,7 +24,9 @@ def remove_vendor(text):
 
 
 def filter_pricing(text):
-    remove_tags_re = re.sub(re.compile("<.*?>"), "", text).replace(".", "").replace(",", ".")
+    remove_tags_re = (
+        re.sub(re.compile("<.*?>"), "", text).replace(".", "").replace(",", ".")
+    )
     digits_only = [float(s) for s in re.findall(r"-?\d+\.?\d*", remove_tags_re)]
     return digits_only
 
