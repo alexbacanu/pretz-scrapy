@@ -13,7 +13,7 @@ class EmagSitemapSpider(CrawlSpider):
             # "honestprice.pipelines.AmazonDynamoDBPipeline": 250,
             # "honestprice.pipelines.AzureCosmosDBPipeline": 250,
             "honestprice.pipelines.GoogleFirestoreSitemapPipeline": 250,
-            "honestprice.pipelines.GoogleTasksPipeline": 650,
+            # "honestprice.pipelines.GoogleTasksPipeline": 650,
         },
     }
 
@@ -32,7 +32,7 @@ class EmagSitemapSpider(CrawlSpider):
 
         for child in tree:
             if child[0].text.endswith("/vendor/emag/c"):  # TODO: temporary filter
-                if "laptop" in child[0].text:  # TODO: temporary filter
+                if "combine-frigorifice" in child[0].text:  # TODO: temporary filter
                     item = EmagSitemapItem()
                     item["response_status"] = response.status
                     item["response_url"] = child[0].text
