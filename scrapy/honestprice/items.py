@@ -10,7 +10,7 @@ from w3lib.html import remove_tags
 
 
 def current_date(text):
-    return datetime.datetime.now(tz=datetime.timezone.utc)
+    return datetime.datetime.now(tz=datetime.timezone.utc).timestamp() * 1000
 
 
 def remove_newline(text):
@@ -56,20 +56,33 @@ class EmagProductsItem(Item):
         input_processor=MapCompose(remove_vendor),
         output_processor=TakeFirst(),
     )
+    # TODO: Add more fields
+    # productStars = Field(
+    #     input_processor=MapCompose(remove_vendor),
+    #     output_processor=TakeFirst(),
+    # )
+    # productReviews = Field(
+    #     input_processor=MapCompose(remove_vendor),
+    #     output_processor=TakeFirst(),
+    # )
+    # productStock = Field(
+    #     input_processor=MapCompose(remove_vendor),
+    #     output_processor=TakeFirst(),
+    # )
     productPrice = Field(
         input_processor=MapCompose(filter_pricing),
         output_processor=TakeFirst(),
     )
-    geniusTag = Field(
-        input_processor=MapCompose(),
+    retailPrice = Field(
+        input_processor=MapCompose(filter_pricing),
         output_processor=TakeFirst(),
     )
     slashedPrice = Field(
         input_processor=MapCompose(filter_pricing),
         output_processor=TakeFirst(),
     )
-    retailPrice = Field(
-        input_processor=MapCompose(filter_pricing),
+    geniusTag = Field(
+        input_processor=MapCompose(),
         output_processor=TakeFirst(),
     )
 

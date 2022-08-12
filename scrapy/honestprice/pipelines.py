@@ -10,9 +10,9 @@ from google.protobuf import duration_pb2, timestamp_pb2
 
 class DefaultValuesPipeline(object):
     def process_item(self, item, spider):
-        # Set default values (0) for all fields
+        # Set default values to null for all fields
         for field in item.fields:
-            item.setdefault(field, 0)
+            item.setdefault(field, None)
         return item
 
 
@@ -169,7 +169,9 @@ class GoogleFirestoreProductsPipeline:
 
     def process_item(self, item, spider):
         # Reference to emag_products collection
-        date_time = datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y-%m-%d")
+        date_time = (datetime.datetime.now(tz=datetime.timezone.utc)).strftime(
+            "%Y-%m-%d"
+        )
 
         products_ref = self.fdb.collection("products").document(
             f"emg{item['productID']}"
@@ -182,9 +184,10 @@ class GoogleFirestoreProductsPipeline:
             {
                 "timeseries": {
                     date_time: {
+                        "priceDate": item["crawledAt"],
+                        "productPrice": item["productPrice"],
                         "retailPrice": item["retailPrice"],
                         "slashedPrice": item["slashedPrice"],
-                        "currentPrice": item["productPrice"],
                     }
                 }
             },

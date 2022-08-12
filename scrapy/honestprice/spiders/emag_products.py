@@ -67,9 +67,13 @@ class EmagProductsSpider(CrawlSpider):
             itemloader.add_css("productLink", "a.card-v2-thumb::attr(href)")
             itemloader.add_css("productImg", "img.w-100::attr(src)")
             itemloader.add_value("productCategory", self.category)
+            # TODO: Add more fields
+            # itemloader.add_value("productStars", self.category)
+            # itemloader.add_value("productReviews", self.category)
+            # itemloader.add_value("productStock", self.category)
             itemloader.add_css("productPrice", "p.product-new-price")
-            itemloader.add_css("slashedPrice", "span.rrp-lp30d-content:nth-child(2)")
             itemloader.add_css("retailPrice", "span.rrp-lp30d-content:nth-child(1)")
+            itemloader.add_css("slashedPrice", "span.rrp-lp30d-content:nth-child(2)")
 
             # Genius tag boolean
             badge = product.css("div.card-v2-badges").get()
