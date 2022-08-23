@@ -52,7 +52,7 @@ class EmagProductsSpider(CrawlSpider):
     def parse_page(self, response):
         self.logger.info("Parsing page: %s", response.url)
 
-        products = response.css("div.card-v2")
+        products = response.css("div.card-v2-wrapper")
 
         for product in products:
             # Skip objects with no ID
@@ -61,26 +61,36 @@ class EmagProductsSpider(CrawlSpider):
 
             itemloader = ItemLoader(item=EmagProductsItem(), selector=product)
 
+            # Used tag
+            used = product.css(
+                "div.mrg-btm-xxs.semibold.font-size-sm.text-success::text"
+            ).get()
+            if used == "RESIGILAT":
+                itemloader.add_value("usedTag", True)
+                itemloader.add_css("usedPrice", "p.product-new-price")
+            else:
+                itemloader.add_value("usedTag", False)
+                itemloader.add_css("productPrice", "p.product-new-price")
+
+            # Genius tag
+            genius = product.css("div.card-v2-badges").get()
+            if genius != None and "badge-genius" in genius:
+                itemloader.add_value("geniusTag", True)
+            else:
+                itemloader.add_value("geniusTag", False)
+
             itemloader.add_value("crawledAt", "")
             itemloader.add_css("productID", "div.card-v2-atc::attr(data-pnk)")
             itemloader.add_css("productName", ".card-v2-title")
             itemloader.add_css("productLink", "a.card-v2-thumb::attr(href)")
             itemloader.add_css("productImg", "img.w-100::attr(src)")
             itemloader.add_value("productCategory", self.category)
+            itemloader.add_css("productStars", "span.average-rating.semibold::text")
+            itemloader.add_css("productReviews", "span.visible-xs-inline-block::text")
             # TODO: Add more fields
-            # itemloader.add_value("productStars", self.category)
-            # itemloader.add_value("productReviews", self.category)
-            # itemloader.add_value("productStock", self.category)
-            itemloader.add_css("productPrice", "p.product-new-price")
+            # itemloader.add_value("productStock", "span.visible-xs-inline-block::text")
             itemloader.add_css("retailPrice", "span.rrp-lp30d-content:nth-child(1)")
             itemloader.add_css("slashedPrice", "span.rrp-lp30d-content:nth-child(2)")
-
-            # Genius tag boolean
-            badge = product.css("div.card-v2-badges").get()
-            if badge != None and "badge-genius" in badge:
-                itemloader.add_value("geniusTag", True)
-            else:
-                itemloader.add_value("geniusTag", False)
 
             # Load items
             yield itemloader.load_item()

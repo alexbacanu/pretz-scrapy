@@ -188,6 +188,7 @@ class GoogleFirestoreProductsPipeline:
                         "productPrice": item["productPrice"],
                         "retailPrice": item["retailPrice"],
                         "slashedPrice": item["slashedPrice"],
+                        "usedPrice": item["usedPrice"],
                     }
                 }
             },

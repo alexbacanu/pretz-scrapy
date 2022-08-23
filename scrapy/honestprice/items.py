@@ -31,6 +31,11 @@ def filter_pricing(text):
     return digits_only
 
 
+def filter_text(text):
+    digits_only = re.findall("(\d+)", text)[0]
+    return digits_only
+
+
 class EmagProductsItem(Item):
     crawledAt = Field(
         input_processor=MapCompose(current_date),
@@ -56,17 +61,17 @@ class EmagProductsItem(Item):
         input_processor=MapCompose(remove_vendor),
         output_processor=TakeFirst(),
     )
+    productStars = Field(
+        input_processor=MapCompose(),
+        output_processor=TakeFirst(),
+    )
+    productReviews = Field(
+        input_processor=MapCompose(filter_text),
+        output_processor=TakeFirst(),
+    )
     # TODO: Add more fields
-    # productStars = Field(
-    #     input_processor=MapCompose(remove_vendor),
-    #     output_processor=TakeFirst(),
-    # )
-    # productReviews = Field(
-    #     input_processor=MapCompose(remove_vendor),
-    #     output_processor=TakeFirst(),
-    # )
     # productStock = Field(
-    #     input_processor=MapCompose(remove_vendor),
+    #     input_processor=MapCompose(),
     #     output_processor=TakeFirst(),
     # )
     productPrice = Field(
@@ -79,6 +84,14 @@ class EmagProductsItem(Item):
     )
     slashedPrice = Field(
         input_processor=MapCompose(filter_pricing),
+        output_processor=TakeFirst(),
+    )
+    usedPrice = Field(
+        input_processor=MapCompose(filter_pricing),
+        output_processor=TakeFirst(),
+    )
+    usedTag = Field(
+        input_processor=MapCompose(),
         output_processor=TakeFirst(),
     )
     geniusTag = Field(
