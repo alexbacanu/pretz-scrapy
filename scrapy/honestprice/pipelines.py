@@ -4,6 +4,7 @@
 import datetime
 import json
 
+import typesense
 from google.cloud import firestore, tasks_v2
 from google.protobuf import duration_pb2, timestamp_pb2
 
@@ -13,6 +14,7 @@ class DefaultValuesPipeline(object):
         # Set default values to null for all fields
         for field in item.fields:
             item.setdefault(field, None)
+            item.setdefault("productReviews", 0)
         return item
 
 
@@ -200,6 +202,92 @@ class GoogleFirestoreProductsPipeline:
     def close_spider(self, spider):
         # Commit batch
         self.batch.commit()
+
+
+class TypesenseProductsPipeline:
+    def __init__(self):
+        # Initialize empty documents array
+        self.documents = []
+
+        # Initialize Typesense Client
+        self.client = typesense.Client(
+            {
+                "nodes": [
+                    {
+                        "host": "localhost",  # For Typesense Cloud use xxx.a1.typesense.net
+                        "port": "8108",  # For Typesense Cloud use 443
+                        "protocol": "http",  # For Typesense Cloud use https
+                    }
+                ],
+                "api_key": "test123",
+                "connection_timeout_seconds": 300,
+            }
+        )
+
+        # Define collection
+        self.schema = {
+            "name": "typesenseProducts",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "string",
+                },
+                {
+                    "name": "productName",
+                    "type": "string",
+                },
+                {
+                    "name": "productCategory",
+                    "type": "string",
+                },
+                {
+                    "name": "productImg",
+                    "type": "string",
+                },
+                {
+                    "name": "productReviews",
+                    "type": "int32",
+                },
+            ],
+            "default_sorting_field": "productReviews",
+        }
+
+        # Drop schema
+        # self.client.collections["typesenseProducts"].delete()
+
+        # Retreive schema
+        # client.collections["typesenseProducts"].retrieve()
+
+        # Create schema
+        # client.collections.create(schema)
+
+        # Create schema if it doesn't exist
+        try:
+            self.client.collections["typesenseProducts"].retrieve()
+        except Exception as e:
+            if 404 in e.args:
+                self.client.collections.create(self.schema)
+
+    def process_item(self, item, spider):
+        # Index documents
+        self.document = {
+            "id": f'emg{item["productID"]}',
+            "productName": item["productName"],
+            "productPrice": item["productPrice"],
+            "productCategory": item["productCategory"],
+            "productImg": item["productImg"],
+            "productReviews": item["productReviews"],
+        }
+
+        self.documents.append(self.document)
+
+        return item
+
+    def close_spider(self, spider):
+        # Commit batch
+        self.client.collections["typesenseProducts"].documents.import_(
+            self.documents, {"action": "upsert"}
+        )
 
 
 class HonestpricePipeline:

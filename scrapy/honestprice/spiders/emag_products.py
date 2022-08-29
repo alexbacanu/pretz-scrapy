@@ -11,6 +11,7 @@ class EmagProductsSpider(CrawlSpider):
 
     rules = (
         Rule(
+            # TODO: FIX THIS
             LinkExtractor(allow=(r"/c$"), restrict_css=("a.js-change-page")),
             callback="parse_page",
             follow=True,
@@ -28,6 +29,7 @@ class EmagProductsSpider(CrawlSpider):
             # "honestprice.pipelines.AmazonDynamoDBPipeline": 250,
             # "honestprice.pipelines.AzureCosmosDBPipeline": 250,
             "honestprice.pipelines.GoogleFirestoreProductsPipeline": 250,
+            "honestprice.pipelines.TypesenseProductsPipeline": 280,
         },
     }
 

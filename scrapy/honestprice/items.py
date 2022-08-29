@@ -33,7 +33,7 @@ def filter_pricing(text):
 
 def filter_text(text):
     digits_only = re.findall("(\d+)", text)[0]
-    return digits_only
+    return int(digits_only)
 
 
 class EmagProductsItem(Item):
