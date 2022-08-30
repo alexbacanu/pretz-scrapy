@@ -171,9 +171,9 @@ class GoogleFirestoreProductsPipeline:
 
     def process_item(self, item, spider):
         # Reference to emag_products collection
-        date_time = (datetime.datetime.now(tz=datetime.timezone.utc)).strftime(
-            "%Y-%m-%d"
-        )
+        date_time = (
+            datetime.datetime.now(datetime.timezone.utc).astimezone()
+        ).strftime("%Y-%m-%d")
 
         products_ref = self.fdb.collection("products").document(
             f"emg{item['productID']}"
