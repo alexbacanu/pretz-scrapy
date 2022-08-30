@@ -36,6 +36,11 @@ def filter_text(text):
     return int(digits_only)
 
 
+def filter_image(text):
+    url = re.findall("https?://[^)]+", text)[0]
+    return url
+
+
 class EmagProductsItem(Item):
     crawledAt = Field(
         input_processor=MapCompose(current_date),
@@ -54,7 +59,7 @@ class EmagProductsItem(Item):
         output_processor=TakeFirst(),
     )
     productImg = Field(
-        input_processor=MapCompose(),
+        input_processor=MapCompose(filter_image),
         output_processor=TakeFirst(),
     )
     productCategory = Field(

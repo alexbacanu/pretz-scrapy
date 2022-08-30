@@ -81,11 +81,17 @@ class EmagProductsSpider(CrawlSpider):
             else:
                 itemloader.add_value("geniusTag", False)
 
+            # Image tag
+            image = product.css("img.w-100::attr(src)").get()
+            if image != None:
+                itemloader.add_css("productImg", "img.w-100::attr(src)")
+            else:
+                itemloader.add_css("productImg", "div.bundle-image::attr(style)")
+
             itemloader.add_value("crawledAt", "")
             itemloader.add_css("productID", "div.card-v2-atc::attr(data-pnk)")
             itemloader.add_css("productName", ".card-v2-title")
             itemloader.add_css("productLink", "a.card-v2-thumb::attr(href)")
-            itemloader.add_css("productImg", "img.w-100::attr(src)")
             itemloader.add_value("productCategory", self.category)
             itemloader.add_css("productStars", "span.average-rating.semibold::text")
             itemloader.add_css("productReviews", "span.visible-xs-inline-block::text")
