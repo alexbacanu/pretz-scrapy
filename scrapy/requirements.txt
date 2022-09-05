@@ -3,7 +3,7 @@ pylint
 black
 
 # Local requirements
-Scrapy>=2.6.1
+Scrapy>=2.6.2
 defusedxml>=0.7.1
 scrapydo>=0.2.2
 typesense>=0.14.0

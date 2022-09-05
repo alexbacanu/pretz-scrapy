@@ -6,8 +6,6 @@ from itemloaders.processors import MapCompose, TakeFirst
 from scrapy import Field, Item
 from w3lib.html import remove_tags
 
-# from decimal import Decimal
-
 
 def current_date(text):
     return datetime.datetime.now(tz=datetime.timezone.utc).timestamp() * 1000
@@ -32,7 +30,7 @@ def filter_pricing(text):
 
 
 def filter_text(text):
-    digits_only = re.findall("(\d+)", text)[0]
+    digits_only = re.findall("(\d+)", str(text))[0]
     return int(digits_only)
 
 
@@ -67,7 +65,7 @@ class EmagProductsItem(Item):
         output_processor=TakeFirst(),
     )
     productStars = Field(
-        input_processor=MapCompose(),
+        input_processor=MapCompose(filter_text),
         output_processor=TakeFirst(),
     )
     productReviews = Field(
@@ -107,5 +105,5 @@ class EmagProductsItem(Item):
 
 class EmagSitemapItem(Item):
     response_status = Field()
-    response_url = Field()
     response_category = Field()
+    response_url = Field()

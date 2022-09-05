@@ -7,13 +7,14 @@ SPIDER_MODULES = ["honestprice.spiders"]
 NEWSPIDER_MODULE = "honestprice.spiders"
 
 #  Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = "honestprice/0.6 (Windows NT 10.0; Win64; x64)"
+USER_AGENT = "honestprice/0.9 (Windows NT 10.0; Win64; x64)"
 
 #  Obey robots.txt rules
 ROBOTSTXT_OBEY = True
 
 #  Disable cookies (enabled by default)
-COOKIES_ENABLED = False
+COOKIES_ENABLED = True
+# COOKIES_DEBUG = True
 
 #  Disable Telnet Console (enabled by default)
 TELNETCONSOLE_ENABLED = False
@@ -25,8 +26,10 @@ SPIDER_MIDDLEWARES = {
 
 #  Enable or disable downloader middlewares
 DOWNLOADER_MIDDLEWARES = {
-    "honestprice.middlewares.ScrapeAPIProxyMiddleware": 130,
+    "honestprice.middlewares.WebShareProxyMiddleware": 120,
+    # "honestprice.middlewares.ScrapeAPIProxyMiddleware": 130,
     "scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware": 170,
+    "honestprice.middlewares.EmagCookiesMiddleware": 200,
     # "honestprice.middlewares.HonestpriceDownloaderMiddleware": 543,
 }
 
@@ -49,14 +52,18 @@ AUTOTHROTTLE_START_DELAY = 3
 #  The average number of requests Scrapy should be sending in parallel
 # AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
 #  Enable showing throttling stats for every response received:
-# AUTOTHROTTLE_DEBUG = False
+# AUTOTHROTTLE_DEBUG = True
 
 #  Enable and configure HTTP caching (disabled by default)
 HTTPCACHE_ENABLED = True
 HTTPCACHE_EXPIRATION_SECS = 14400
 HTTPCACHE_DIR = "/tmp"
-HTTPCACHE_IGNORE_HTTP_CODES = ["400", "401", "403", "404", "500", "504", "511"]
+HTTPCACHE_IGNORE_HTTP_CODES = ["400", "401", "403", "404", "499", "500", "504", "511"]
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
+
+#  Retry Middleware
+RETRY_ENABLED = True
+RETRY_HTTP_CODES = [500, 502, 503, 504, 522, 524, 408, 429, 499]
 
 #  Log related
 LOG_ENABLED = True
@@ -74,6 +81,6 @@ SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 
 #  Custom settings
 START_URLS_COUNT = 4
-RETRY_TIMES = 8
+RETRY_TIMES = 5
 DOWNLOAD_DELAY = 3  # Default: 0
 CONCURRENT_REQUESTS = 4  # Default: 16

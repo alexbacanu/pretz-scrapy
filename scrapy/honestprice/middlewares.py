@@ -1,6 +1,5 @@
 # Define here the models for your spider middleware
 #
-# pylint: disable=unused-argument
 import os
 
 from google.cloud import firestore
@@ -9,10 +8,27 @@ from scrapy.utils.project import get_project_settings
 
 
 class ScrapeAPIProxyMiddleware(object):
+    @classmethod
     def process_request(self, request, spider):
+        print(f"middlewares.py: Proxy ScrapeAPI on: {request.url}")
         request.meta[
             "proxy"
-        ] = f"http://scraperapi.autoparse=true:{os.getenv('SCRAPEAPI_KEY')}@proxy-server.scraperapi.com:8001"
+        ] = f"http://scraperapi.autoparse=true:{os.getenv('SCRAPERAPI_KEY')}@proxy-server.scraperapi.com:8001"
+
+
+class WebShareProxyMiddleware(object):
+    @classmethod
+    def process_request(self, request, spider):
+        print(f"middlewares.py: Proxy WebShare on: {request.url}")
+        request.meta[
+            "proxy"
+        ] = f"http://{os.getenv('WEBSHARE_USER')}:{os.getenv('WEBSHARE_PASS')}@p.webshare.io:80/"
+
+
+class EmagCookiesMiddleware(object):
+    @classmethod
+    def process_request(self, request, spider):
+        request.cookies["listingPerPage"] = 100
 
 
 class AmazonDynamoDBStartUrlsMiddleware:

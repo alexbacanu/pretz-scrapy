@@ -1,17 +1,17 @@
 from honestprice.items import EmagProductsItem
+from scrapy import signals
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from scrapy.spiders import CrawlSpider, Request, Rule
 
 
+# TODO: Disable robots.txt request
+# TODO: Fix 71/72 products
 class EmagProductsSpider(CrawlSpider):
-    # pylint: disable=abstract-method
     name = "emag_products"
     allowed_domains = ["emag.ro"]
-
     rules = (
         Rule(
-            # TODO: FIX THIS
             LinkExtractor(allow=(r"/c$"), restrict_css=("a.js-change-page")),
             callback="parse_page",
             follow=True,
@@ -19,21 +19,19 @@ class EmagProductsSpider(CrawlSpider):
     )
 
     custom_settings = {
-        "SPIDER_MIDDLEWARES": {
-            # "honestprice.middlewares.AmazonDynamoDBPipeline": 200,
-            # "honestprice.middlewares.AzureCosmosDBPipeline": 200,
-            "honestprice.middlewares.GoogleFirestoreStartUrlsMiddleware": 200,
-        },
         "ITEM_PIPELINES": {
             "honestprice.pipelines.DefaultValuesPipeline": 150,
-            # "honestprice.pipelines.AmazonDynamoDBPipeline": 250,
-            # "honestprice.pipelines.AzureCosmosDBPipeline": 250,
             "honestprice.pipelines.GoogleFirestoreProductsPipeline": 250,
-            "honestprice.pipelines.TypesenseProductsPipeline": 280,
+            # "honestprice.pipelines.TypesenseProductsPipeline": 280,
         },
     }
 
+    def __init__(self, *args, **kwargs):
+        super(EmagProductsSpider, self).__init__(*args, **kwargs)
+        self.start_urls = [kwargs.get("start_url")]
+
     def parse_start_url(self, response):
+
         self.logger.info("Getting header from: %s", response.url)
 
         header = response.css("div.js-head-title")
@@ -49,10 +47,12 @@ class EmagProductsSpider(CrawlSpider):
             self.items,
         )
 
-        return Request(url=response.url, callback=self.parse_page, dont_filter=True)
+        yield Request(response.url, self.parse_page)
 
     def parse_page(self, response):
         self.logger.info("Parsing page: %s", response.url)
+
+        print(f"emag_products.py: Crawling {response.url}")
 
         products = response.css("div.card-v2-wrapper")
 
@@ -88,17 +88,46 @@ class EmagProductsSpider(CrawlSpider):
             else:
                 itemloader.add_css("productImg", "div.bundle-image::attr(style)")
 
+            # Rating
+            ratings = product.css("div.card-v2-rating").get()
+            if ratings != None and "star-rating-text" in ratings:
+                itemloader.add_css("productStars", "span.average-rating.semibold::text")
+                itemloader.add_css(
+                    "productReviews", "span.visible-xs-inline-block::text"
+                )
+            else:
+                itemloader.add_value("productStars", 0)
+                itemloader.add_value("productReviews", 0)
+
             itemloader.add_value("crawledAt", "")
             itemloader.add_css("productID", "div.card-v2-atc::attr(data-pnk)")
             itemloader.add_css("productName", ".card-v2-title")
             itemloader.add_css("productLink", "a.card-v2-thumb::attr(href)")
             itemloader.add_value("productCategory", self.category)
-            itemloader.add_css("productStars", "span.average-rating.semibold::text")
-            itemloader.add_css("productReviews", "span.visible-xs-inline-block::text")
-            # TODO: Add more fields
-            # itemloader.add_value("productStock", "span.visible-xs-inline-block::text")
+
             itemloader.add_css("retailPrice", "span.rrp-lp30d-content:nth-child(1)")
             itemloader.add_css("slashedPrice", "span.rrp-lp30d-content:nth-child(2)")
 
+            # TODO: Add more fields
+            # itemloader.add_value("productStock", "span.visible-xs-inline-block::text")
+
             # Load items
             yield itemloader.load_item()
+
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        spider = super(EmagProductsSpider, cls).from_crawler(crawler, *args, **kwargs)
+        crawler.signals.connect(spider.spider_closed, signal=signals.spider_closed)
+        return spider
+
+    def spider_closed(self, spider):
+        stats = spider.crawler.stats.get_stats()
+        if "item_scraped_count" in stats:
+            numcount = str(stats["item_scraped_count"])
+            print(f"count_scrapy:   {numcount}")
+
+        try:
+            print(f"count_website:  {self.items}")
+        except:
+            print(f"count_website:  0")
+        print("---------------------------------")

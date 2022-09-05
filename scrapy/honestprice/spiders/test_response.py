@@ -3,17 +3,17 @@ import scrapy
 
 class TestResponseSpider(scrapy.Spider):
     name = "test_response"
-    allowed_domains = ["xhaus.com"]
+    allowed_domains = ["whatismybrowser.com"]
     start_urls = [
-        "http://www.xhaus.com/headers",
+        "https://www.whatismybrowser.com/",
     ]
     custom_settings = {
-        "SPIDER_MIDDLEWARES": {
-            "honestprice.middlewares.ScrapeAPIProxyMiddleware": 150,
+        "DOWNLOADER_MIDDLEWARES": {
+            "honestprice.middlewares.WebShareProxyMiddleware": 130,
+            # "honestprice.middlewares.ScrapeAPIProxyMiddleware": 150,
         }
     }
 
     def parse(self, response):
         self.logger.info("Parsing page: %s", response.url)
-
-        print(response.css("table").get())
+        print(response.css("#ip-address").get())
