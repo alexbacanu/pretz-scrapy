@@ -1,10 +1,33 @@
 # Define here the models for your spider middleware
 #
+import logging
 import os
 
 from google.cloud import firestore
+from scrapy.downloadermiddlewares.retry import RetryMiddleware
 from scrapy.http import Request
+from scrapy.spidermiddlewares.httperror import HttpError
 from scrapy.utils.project import get_project_settings
+
+
+class RetryHTTPErrors(RetryMiddleware):
+    def process_response(self, request, response, spider):
+        # test for captcha page
+        if response.status == 511:
+            spider.logger.error("511 error: %s", spider.name)
+            logger = logging.getLogger()
+            logger.error("511 Error")
+            reason = "511 Error"
+            return self._retry(request, reason, spider) or response
+        return response
+
+
+class HandleHTTPErrors(object):
+    def process_spider_input(self, response, spider):
+        if response.status == 511:
+            logging.warning("511 Error", exc_info=True)
+            raise HttpError(response, "511 Error")
+        return None
 
 
 class ScrapeAPIProxyMiddleware(object):
@@ -13,16 +36,15 @@ class ScrapeAPIProxyMiddleware(object):
         print(f"middlewares.py: Proxy ScrapeAPI on: {request.url}")
         request.meta[
             "proxy"
-        ] = f"http://scraperapi.autoparse=true:{os.getenv('SCRAPERAPI_KEY')}@proxy-server.scraperapi.com:8001"
+        ] = f"http://scraperapi.autoparse=true:{os.getenv('PROXY_SCRAPERAPI_KEY')}@proxy-server.scraperapi.com:8001"
 
 
 class WebShareProxyMiddleware(object):
-    @classmethod
     def process_request(self, request, spider):
         print(f"middlewares.py: Proxy WebShare on: {request.url}")
         request.meta[
             "proxy"
-        ] = f"http://{os.getenv('WEBSHARE_USER')}:{os.getenv('WEBSHARE_PASS')}@p.webshare.io:80/"
+        ] = f"http://{os.getenv('PROXY_WEBSHARE_USER')}:{os.getenv('PROXY_WEBSHARE_PASS')}@p.webshare.io:80/"
 
 
 class EmagCookiesMiddleware(object):

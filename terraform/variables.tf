@@ -1,5 +1,5 @@
 # Environment
-variable "SCRAPERAPI_KEY" {
+variable "PROXY_SCRAPERAPI_KEY" {
   sensitive = true
 }
 

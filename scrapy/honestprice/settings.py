@@ -20,12 +20,12 @@ COOKIES_ENABLED = True
 TELNETCONSOLE_ENABLED = False
 
 #  Enable or disable spider middlewares
-SPIDER_MIDDLEWARES = {
-    # "honestprice.middlewares.HonestpriceSpiderMiddleware": 543,
-}
+SPIDER_MIDDLEWARES = {}
 
 #  Enable or disable downloader middlewares
 DOWNLOADER_MIDDLEWARES = {
+    "honestprice.middlewares.RetryHTTPErrors": 100,
+    # "honestprice.middlewares.HandleHTTPErrors": 100,
     "honestprice.middlewares.WebShareProxyMiddleware": 120,
     # "honestprice.middlewares.ScrapeAPIProxyMiddleware": 130,
     "scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware": 170,
@@ -81,6 +81,6 @@ SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 
 #  Custom settings
 START_URLS_COUNT = 4
-RETRY_TIMES = 5
+RETRY_TIMES = 3
 DOWNLOAD_DELAY = 3  # Default: 0
 CONCURRENT_REQUESTS = 4  # Default: 16

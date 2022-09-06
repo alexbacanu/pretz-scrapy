@@ -1,5 +1,6 @@
 import defusedxml.ElementTree as ET
 from honestprice.items import EmagSitemapItem
+from scrapy.spidermiddlewares.httperror import HttpError
 from scrapy.spiders import CrawlSpider, Request
 
 
@@ -22,7 +23,9 @@ class EmagSitemapSpider(CrawlSpider):
         tree = ET.fromstring(response.text)
 
         for child in tree:
-            yield Request(child[0].text, self.parse)
+            yield Request(
+                url=child[0].text, callback=self.parse, errback=self.error_function
+            )
 
     def parse(self, response):
         """Get all links from request that contains /vendor/emag/c and laptop"""
@@ -31,10 +34,24 @@ class EmagSitemapSpider(CrawlSpider):
         tree = ET.fromstring(response.text)
 
         for child in tree:
-            if child[0].text.endswith("/vendor/emag/c"):  # TODO: temporary filter
-                item = EmagSitemapItem()
-                item["response_status"] = response.status
-                item["response_category"] = child[0].text.split("/")[3]
-                item["response_url"] = child[0].text
+            if child[0].text.endswith("/vendor/emag/c"):  # TODO: Temp
+                if "laptopuri" in child[0].text:  # TODO: Temp
+                    item = EmagSitemapItem()
+                    item["response_status"] = response.status
+                    item["response_category"] = child[0].text.split("/")[3]
+                    item["response_url"] = child[0].text
 
-                yield item
+                    yield item
+
+    def error_function(self, failure):
+        # log all failures
+        self.logger.error(repr(failure))
+
+        # in case you want to do something special for some errors,
+        # you may need the failure's type:
+
+        if failure.check(HttpError):
+            # these exceptions come from HttpError spider middleware
+            # you can get the non-200 response
+            response = failure.value.response
+            self.logger.error("HttpError on %s", response.url)

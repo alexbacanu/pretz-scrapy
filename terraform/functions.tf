@@ -55,7 +55,7 @@ resource "google_cloudfunctions_function" "sitemap_function" {
   source_archive_object = google_storage_bucket_object.zip.name
 
   environment_variables = {
-    SCRAPERAPI_KEY = var.SCRAPERAPI_KEY
+    PROXY_SCRAPERAPI_KEY = var.PROXY_SCRAPERAPI_KEY
   }
 }
 
@@ -74,7 +74,7 @@ resource "google_cloudfunctions_function" "products_function" {
   source_archive_object = google_storage_bucket_object.zip.name
 
   environment_variables = {
-    SCRAPERAPI_KEY = var.SCRAPERAPI_KEY
+    PROXY_SCRAPERAPI_KEY = var.PROXY_SCRAPERAPI_KEY
   }
 }
 

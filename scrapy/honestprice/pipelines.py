@@ -190,7 +190,7 @@ class GoogleTasksPipeline:
                     "ce-id": "1234567890",
                     "ce-specversion": "1.0",
                     "ce-type": "google.cloud.pubsub.topic.v1.messagePublished",
-                    "ce-source": "//pubsub.googleapis.com/projects/pretz-firebase/topics/scrapy-crawl-emag",
+                    "ce-source": "//pubsub.googleapis.com/projects/pretz-gcloud/topics/pub-crawl-emag",
                 }
 
             # The API expects a payload of type bytes.

@@ -2,6 +2,7 @@ from honestprice.items import EmagProductsItem
 from scrapy import signals
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
+from scrapy.spidermiddlewares.httperror import HttpError
 from scrapy.spiders import CrawlSpider, Request, Rule
 
 
@@ -14,6 +15,7 @@ class EmagProductsSpider(CrawlSpider):
         Rule(
             LinkExtractor(allow=(r"/c$"), restrict_css=("a.js-change-page")),
             callback="parse_page",
+            errback="error_function",
             follow=True,
         ),
     )
@@ -47,7 +49,9 @@ class EmagProductsSpider(CrawlSpider):
             self.items,
         )
 
-        yield Request(response.url, self.parse_page)
+        yield Request(
+            url=response.url, callback=self.parse_page, errback=self.error_function
+        )
 
     def parse_page(self, response):
         self.logger.info("Parsing page: %s", response.url)
@@ -113,6 +117,19 @@ class EmagProductsSpider(CrawlSpider):
 
             # Load items
             yield itemloader.load_item()
+
+    def error_function(self, failure):
+        # log all failures
+        self.logger.error(repr(failure))
+
+        # in case you want to do something special for some errors,
+        # you may need the failure's type:
+
+        if failure.check(HttpError):
+            # these exceptions come from HttpError spider middleware
+            # you can get the non-200 response
+            response = failure.value.response
+            self.logger.error("HttpError on %s", response.url)
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
