@@ -1,6 +1,6 @@
 # Define here the models for your scraped items
-import datetime
 import re
+from datetime import datetime
 
 from itemloaders.processors import MapCompose, TakeFirst
 from scrapy import Field, Item
@@ -8,7 +8,7 @@ from w3lib.html import remove_tags
 
 
 def current_date(text):
-    return datetime.datetime.now(tz=datetime.timezone.utc).timestamp() * 1000
+    return datetime.now().isoformat()
 
 
 def remove_newline(text):
@@ -44,31 +44,35 @@ class EmagProductsItem(Item):
         input_processor=MapCompose(current_date),
         output_processor=TakeFirst(),
     )
-    productID = Field(
+    pID = Field(
         input_processor=MapCompose(remove_tags),
         output_processor=TakeFirst(),
     )
-    productName = Field(
-        input_processor=MapCompose(remove_tags, remove_newline),
-        output_processor=TakeFirst(),
-    )
-    productLink = Field(
+    pStore = Field(
         input_processor=MapCompose(),
         output_processor=TakeFirst(),
     )
-    productImg = Field(
+    pName = Field(
+        input_processor=MapCompose(remove_tags, remove_newline),
+        output_processor=TakeFirst(),
+    )
+    pLink = Field(
+        input_processor=MapCompose(),
+        output_processor=TakeFirst(),
+    )
+    pImg = Field(
         input_processor=MapCompose(filter_image),
         output_processor=TakeFirst(),
     )
-    productCategory = Field(
+    pCategory = Field(
         input_processor=MapCompose(remove_vendor),
         output_processor=TakeFirst(),
     )
-    productStars = Field(
+    pStars = Field(
         input_processor=MapCompose(filter_text),
         output_processor=TakeFirst(),
     )
-    productReviews = Field(
+    pReviews = Field(
         input_processor=MapCompose(filter_text),
         output_processor=TakeFirst(),
     )
@@ -77,27 +81,27 @@ class EmagProductsItem(Item):
     #     input_processor=MapCompose(),
     #     output_processor=TakeFirst(),
     # )
-    productPrice = Field(
+    priceCurrent = Field(
         input_processor=MapCompose(filter_pricing),
         output_processor=TakeFirst(),
     )
-    retailPrice = Field(
+    priceRetail = Field(
         input_processor=MapCompose(filter_pricing),
         output_processor=TakeFirst(),
     )
-    slashedPrice = Field(
+    priceSlashed = Field(
         input_processor=MapCompose(filter_pricing),
         output_processor=TakeFirst(),
     )
-    usedPrice = Field(
+    priceUsed = Field(
         input_processor=MapCompose(filter_pricing),
         output_processor=TakeFirst(),
     )
-    usedTag = Field(
+    pUsedTag = Field(
         input_processor=MapCompose(),
         output_processor=TakeFirst(),
     )
-    geniusTag = Field(
+    pGeniusTag = Field(
         input_processor=MapCompose(),
         output_processor=TakeFirst(),
     )

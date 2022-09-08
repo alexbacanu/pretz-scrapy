@@ -1,92 +1,71 @@
 # Define here the models for your spider middleware
-#
-import logging
 import os
-
-from google.cloud import firestore
-from scrapy.downloadermiddlewares.retry import RetryMiddleware
-from scrapy.http import Request
-from scrapy.spidermiddlewares.httperror import HttpError
-from scrapy.utils.project import get_project_settings
-
-
-class RetryHTTPErrors(RetryMiddleware):
-    def process_response(self, request, response, spider):
-        # test for captcha page
-        if response.status == 511:
-            spider.logger.error("511 error: %s", spider.name)
-            logger = logging.getLogger()
-            logger.error("511 Error")
-            reason = "511 Error"
-            return self._retry(request, reason, spider) or response
-        return response
-
-
-class HandleHTTPErrors(object):
-    def process_spider_input(self, response, spider):
-        if response.status == 511:
-            logging.warning("511 Error", exc_info=True)
-            raise HttpError(response, "511 Error")
-        return None
-
-
-class ScrapeAPIProxyMiddleware(object):
-    @classmethod
-    def process_request(self, request, spider):
-        print(f"middlewares.py: Proxy ScrapeAPI on: {request.url}")
-        request.meta[
-            "proxy"
-        ] = f"http://scraperapi.autoparse=true:{os.getenv('PROXY_SCRAPERAPI_KEY')}@proxy-server.scraperapi.com:8001"
-
-
-class WebShareProxyMiddleware(object):
-    def process_request(self, request, spider):
-        print(f"middlewares.py: Proxy WebShare on: {request.url}")
-        request.meta[
-            "proxy"
-        ] = f"http://{os.getenv('PROXY_WEBSHARE_USER')}:{os.getenv('PROXY_WEBSHARE_PASS')}@p.webshare.io:80/"
 
 
 class EmagCookiesMiddleware(object):
     @classmethod
     def process_request(self, request, spider):
+        # Set cookies to display 100 items per page (for fewer requests)
         request.cookies["listingPerPage"] = 100
 
 
-class AmazonDynamoDBStartUrlsMiddleware:
-    pass
+class ScrapeAPIProxyMiddleware(object):
+    @classmethod
+    def process_request(self, request, spider):
+        # spider.logger.info(f"Proxy ScrapeAPI on: {request.url}")
+        request.meta[
+            "proxy"
+        ] = f"http://scraperapi.autoparse=true:{os.getenv('PROXY_SCRAPERAPI_KEY')}@proxy-server.scraperapi.com:8001"
 
 
-class AzureCosmosDBStartUrlsMiddleware:
-    pass
+class ScrapeDoProxyMiddleware(object):
+    @classmethod
+    def process_request(self, request, spider):
+        # spider.logger.info(f"Proxy ScrapeDo on: {request.url}")
+        request.meta[
+            "proxy"
+        ] = f"http://{os.getenv('PROXY_SCRAPEDO_KEY')}:render=false@proxy.scrape.do:8080"
 
 
-class GoogleFirestoreStartUrlsMiddleware:
-    def __init__(self):
-        # Initialize Firestore Client
-        self.fdb = firestore.Client()
-        self.batch = self.fdb.batch()
+class WebShareProxyMiddleware(object):
+    @classmethod
+    def process_request(self, request, spider):
+        # spider.logger.info(f"Proxy WebShare on: {request.url}")
+        request.meta[
+            "proxy"
+        ] = f"http://{os.getenv('PROXY_WEBSHARE_USER')}:{os.getenv('PROXY_WEBSHARE_PASS')}@p.webshare.io:80/"
 
-    def process_start_requests(self, start_requests, spider):
-        # Get url count from settings
-        url_count = get_project_settings().get("START_URLS_COUNT")
 
-        # Reference to startUrls collection
-        start_urls_ref = self.fdb.collection("startUrls").document("emgStart")
+# class RetryHTTPErrors(RetryMiddleware):
+#     def process_response(self, request, response, spider):
+#         if response.status == 511:
+#             spider.logger.info(f"Retrying with ScrapeAPI on: {request.url}")
 
-        # Retain only the first x(url_count) urls
-        start_urls_list = start_urls_ref.get().to_dict()["response_url"][:url_count]
+#             reason = "511 error"
+#             spider.logger.error("511 error")
 
-        for request in start_urls_list:
-            # Delete the array from firestore
-            # TODO: Temporary
-            # self.batch.update(
-            #     start_urls_ref, {"response_url": firestore.ArrayRemove([request])}
-            # )
-            yield Request(url=request)
+#             return self._retry(request, reason, spider) or response
+#         return response
 
-        # Commit batch
-        self.batch.commit()
+
+# class ProxyPageProxyMiddleware(object):
+#     @classmethod
+#     def process_request(self, request, spider):
+#         spider.logger.info(f"Proxy ProxyPage on: {request.url}")
+#         request.meta[
+#             "proxy"
+#         ] = f"https://api.proxypage.io/v1/tier2random?type=HTTP&latency=1000&ssl=True"
+#         request.headers["api_key"] = os.getenv("PROXY_PROXYPAGE_KEY")
+#         request.headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+
+# class ProxiesAPIProxyMiddleware(object):
+#     @classmethod
+#     def process_request(self, request, spider):
+#         spider.logger.info(f"Proxy ProxiesAPI on: {request.url}")
+#         request.meta[
+#             "proxy"
+#         ] = f"http://api.proxiesapi.com/?auth_key={os.getenv('PROXY_PROXIESAPI_KEY')}"
 
 
 # class HonestpriceSpiderMiddleware:

@@ -9,11 +9,13 @@ class TestResponseSpider(scrapy.Spider):
     ]
     custom_settings = {
         "DOWNLOADER_MIDDLEWARES": {
-            "honestprice.middlewares.WebShareProxyMiddleware": 130,
+            "honestprice.middlewares.ScrapeDoProxyMiddleware": 140,
+            # "honestprice.middlewares.WebShareProxyMiddleware": 130,
+            # "honestprice.middlewares.ProxyPageProxyMiddleware": 140,
             # "honestprice.middlewares.ScrapeAPIProxyMiddleware": 150,
         }
     }
 
     def parse(self, response):
-        self.logger.info("Parsing page: %s", response.url)
-        print(response.css("#ip-address").get())
+        self.logger.info(f"Parsing page: {response.url}")
+        self.logger.info(response.css("#ip-address").get())
