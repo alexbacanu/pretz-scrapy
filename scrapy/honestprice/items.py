@@ -40,10 +40,6 @@ def filter_image(text):
 
 
 class EmagProductsItem(Item):
-    crawledAt = Field(
-        input_processor=MapCompose(current_date),
-        output_processor=TakeFirst(),
-    )
     pID = Field(
         input_processor=MapCompose(remove_tags),
         output_processor=TakeFirst(),
@@ -68,19 +64,22 @@ class EmagProductsItem(Item):
         input_processor=MapCompose(remove_vendor),
         output_processor=TakeFirst(),
     )
-    pStars = Field(
-        input_processor=MapCompose(filter_text),
-        output_processor=TakeFirst(),
-    )
     pReviews = Field(
         input_processor=MapCompose(filter_text),
         output_processor=TakeFirst(),
     )
-    # TODO: Add more fields
-    # productStock = Field(
-    #     input_processor=MapCompose(),
-    #     output_processor=TakeFirst(),
-    # )
+    pStars = Field(
+        input_processor=MapCompose(filter_text),
+        output_processor=TakeFirst(),
+    )
+    pGeniusTag = Field(
+        input_processor=MapCompose(),
+        output_processor=TakeFirst(),
+    )
+    pUsedTag = Field(
+        input_processor=MapCompose(),
+        output_processor=TakeFirst(),
+    )
     priceCurrent = Field(
         input_processor=MapCompose(filter_pricing),
         output_processor=TakeFirst(),
@@ -97,14 +96,15 @@ class EmagProductsItem(Item):
         input_processor=MapCompose(filter_pricing),
         output_processor=TakeFirst(),
     )
-    pUsedTag = Field(
-        input_processor=MapCompose(),
+    crawledAt = Field(
+        input_processor=MapCompose(current_date),
         output_processor=TakeFirst(),
     )
-    pGeniusTag = Field(
-        input_processor=MapCompose(),
-        output_processor=TakeFirst(),
-    )
+    # TODO: Add more fields
+    # productStock = Field(
+    #     input_processor=MapCompose(),
+    #     output_processor=TakeFirst(),
+    # )
 
 
 class EmagSitemapItem(Item):

@@ -30,10 +30,10 @@ class EmagSitemapSpider(CrawlSpider):
 
         for child in tree:
             if child[0].text.endswith("/vendor/emag/c"):  # TODO: Temp
-                if "telefoane-mobile" in child[0].text:  # TODO: Temp
-                    item = EmagSitemapItem()
-                    item["response_status"] = response.status
-                    item["response_category"] = child[0].text.split("/")[3]
-                    item["response_url"] = child[0].text
+                # if "telefoane-mobile" in child[0].text:  # TODO: Temp
+                item = EmagSitemapItem()
+                item["response_status"] = response.status
+                item["response_category"] = child[0].text.split("/")[3]
+                item["response_url"] = child[0].text
 
-                    yield item
+                yield item
