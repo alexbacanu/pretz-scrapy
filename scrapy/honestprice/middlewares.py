@@ -1,6 +1,25 @@
 # Define here the models for your spider middleware
 import os
 
+import redis
+from scrapy.http import Request
+
+
+class FailedUrlsMiddleware(object):
+    def __init__(self):
+        self.r = redis.Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
+
+    def process_response(self, request, response, spider):
+        # Called with the response returned from the downloader.
+        if response.status not in range(200, 399):
+            # Key name seen in Redis
+            spider_key = f"{spider.name}:failed_urls"
+
+            # Add urls to Redis using sets (pipeline)
+            self.r.sadd(spider_key, response.url)
+
+        return response
+
 
 class EmagCookiesMiddleware(object):
     @classmethod
@@ -34,6 +53,20 @@ class WebShareProxyMiddleware(object):
         request.meta[
             "proxy"
         ] = f"http://{os.getenv('PROXY_WEBSHARE_USER')}:{os.getenv('PROXY_WEBSHARE_PASS')}@p.webshare.io:80/"
+
+
+class StartUrlsMiddleware:
+    def __init__(self):
+        self.r = redis.Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
+
+    def process_start_requests(self, start_requests, spider):
+        # Key name seen in Redis
+        url_key = "emag_sitemap:start_urls"
+
+        # Remove entry(ies - watch count) from Redis and get their value
+        start_requests = self.r.spop(url_key, count=1)
+        for request in start_requests:
+            yield Request(url=request)
 
 
 # class RetryHTTPErrors(RetryMiddleware):

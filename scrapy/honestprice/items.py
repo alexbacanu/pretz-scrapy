@@ -1,6 +1,6 @@
 # Define here the models for your scraped items
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 from itemloaders.processors import MapCompose, TakeFirst
 from scrapy import Field, Item
@@ -8,7 +8,8 @@ from w3lib.html import remove_tags
 
 
 def current_date(text):
-    return datetime.now().isoformat()
+    # Return as 2022-12-31T23:59:59.123456+00:00
+    return datetime.now(timezone.utc).isoformat()
 
 
 def remove_newline(text):

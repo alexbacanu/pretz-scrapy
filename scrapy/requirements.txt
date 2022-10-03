@@ -1,21 +1,16 @@
-# Editor
-# pylint
-# black
+# Crawling
+Scrapy
+scrapydo
+spidermon
+defusedxml
 
-# Local requirements
-Scrapy>=2.6.2
-defusedxml>=0.7.1
-scrapydo>=0.2.2
-typesense>=0.14.0
-spidermon>=1.16.2
-supabase>=0.5.8
+# Oracle cloud
+borneo
+oci
 
-# Amazon AWS
-# boto3>=1.21.23
+# Google cloud
+functions_framework
 
-# Microsoft Azure
-
-# Google Cloud
-functions-framework
-google-cloud-firestore
-google-cloud-tasks
+# Redis cloud
+redis
+redis[hiredis]

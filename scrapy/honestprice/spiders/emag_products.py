@@ -7,6 +7,8 @@ from scrapy.spiders import CrawlSpider, Request, Rule
 class EmagProductsSpider(CrawlSpider):
     name = "emag_products"
     allowed_domains = ["emag.ro"]
+    start_urls = []
+
     rules = (
         Rule(
             LinkExtractor(allow=(r"/c$"), restrict_css=("a.js-change-page")),
@@ -18,14 +20,17 @@ class EmagProductsSpider(CrawlSpider):
     custom_settings = {
         "ITEM_PIPELINES": {
             "honestprice.pipelines.DefaultValuesPipeline": 150,
-            "honestprice.pipelines.SupabaseProductsPipeline": 250,
-            # "honestprice.pipelines.GoogleFirestoreProductsPipeline": 250,
+            "honestprice.pipelines.OracleProductsPipeline": 250,
+            # "honestprice.pipelines.PrismaProductsPipeline": 250,
+        },
+        "SPIDER_MIDDLEWARES": {
+            "honestprice.middlewares.StartUrlsMiddleware": 110,
         },
     }
 
-    def __init__(self, *args, **kwargs):
-        super(EmagProductsSpider, self).__init__(*args, **kwargs)
-        self.start_urls = [kwargs.get("start_url")]
+    # def __init__(self, *args, **kwargs):
+    #     super(EmagProductsSpider, self).__init__(*args, **kwargs)
+    #     self.start_urls = [kwargs.get("start_url")]
 
     def parse_start_url(self, response):
         self.logger.info(f"Getting headers from {response.url}")
@@ -40,7 +45,7 @@ class EmagProductsSpider(CrawlSpider):
         self.logger.info(f"Items: {self.items}")
 
         # Return
-        yield Request(url=response.url, callback=self.parse_page)
+        yield Request(url=response.url, callback=self.parse_page, dont_filter=True)
 
     def parse_page(self, response):
         # Logs
@@ -51,7 +56,7 @@ class EmagProductsSpider(CrawlSpider):
 
         for product in products:
             # Skip objects with no ID
-            if product.css("div.card-v2-atc::attr(data-pnk)").get() == None:
+            if product.css("div.card-v2-atc::attr(data-pnk)").get() is None:
                 return
 
             # Define selectors
@@ -71,7 +76,7 @@ class EmagProductsSpider(CrawlSpider):
 
             # pImg
             image = product.css("img.w-100::attr(src)").get()
-            if image != None:
+            if image is not None:
                 itemloader.add_css("pImg", "img.w-100::attr(src)")
             else:
                 itemloader.add_css("pImg", "div.bundle-image::attr(style)")
@@ -81,7 +86,7 @@ class EmagProductsSpider(CrawlSpider):
 
             # pReviews / pStars
             ratings = product.css("div.card-v2-rating").get()
-            if ratings != None and "star-rating-text" in ratings:
+            if ratings is not None and "star-rating-text" in ratings:
                 itemloader.add_css("pReviews", "span.visible-xs-inline-block::text")
                 itemloader.add_css("pStars", "span.average-rating.semibold::text")
             else:
@@ -90,7 +95,7 @@ class EmagProductsSpider(CrawlSpider):
 
             # pGeniusTag
             genius = product.css("div.card-v2-badges").get()
-            if genius != None and "badge-genius" in genius:
+            if genius is not None and "badge-genius" in genius:
                 itemloader.add_value("pGeniusTag", True)
             else:
                 itemloader.add_value("pGeniusTag", False)

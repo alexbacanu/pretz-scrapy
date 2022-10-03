@@ -11,7 +11,8 @@ class EmagSitemapSpider(CrawlSpider):
 
     custom_settings = {
         "ITEM_PIPELINES": {
-            "honestprice.pipelines.GoogleTasksPipeline": 650,
+            # "honestprice.pipelines.GoogleTasksPipeline": 650,
+            "honestprice.pipelines.RedisSitemapPipeline": 650,
         },
     }
 

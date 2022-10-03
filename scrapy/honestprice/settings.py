@@ -23,8 +23,9 @@ TELNETCONSOLE_ENABLED = False
 
 #  Enable or disable downloader middlewares
 DOWNLOADER_MIDDLEWARES = {
-    "honestprice.middlewares.EmagCookiesMiddleware": 200,
     "honestprice.middlewares.ScrapeDoProxyMiddleware": 120,
+    "honestprice.middlewares.EmagCookiesMiddleware": 200,
+    "honestprice.middlewares.FailedUrlsMiddleware": 250,
     # "honestprice.middlewares.ScrapeAPIProxyMiddleware": 120,
     # "honestprice.middlewares.WebShareProxyMiddleware": 120,
     # "honestprice.middlewares.ProxyPageProxyMiddleware": 120,
@@ -77,7 +78,7 @@ RETRY_TIMES = 6
 #  Log related
 LOG_ENABLED = True
 LOG_LEVEL = "INFO"
-# LOG_FILE = "scrapy.log"
+LOG_FILE = "scrapy.log"
 
 #  Disable redirect
 REDIRECT_ENABLED = False

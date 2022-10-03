@@ -1,8 +1,5 @@
-import asyncio
-import base64
 import logging
 
-import functions_framework
 import scrapydo
 
 from scrapy.exceptions import CloseSpider
@@ -11,22 +8,13 @@ from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
 
 
-async def crawl_async(cloud_event):
+def crawl(spider_name):
     try:
         # Enable scrapy logs
         configure_logging({"LOG_FORMAT": "%(levelname)s: %(message)s"})
 
-        # Decode spider_name
-        spider_name = base64.b64decode(cloud_event["message"]["data"]).decode()
-
-        # Decode url (if exists)
-        if "url" in cloud_event["message"]:
-            url = base64.b64decode(cloud_event["message"]["url"]).decode()
-        else:
-            url = cloud_event["message"]["url"] = ""
-
         # Log start of script
-        logging.info(f"Crawling {spider_name} on {url}")
+        logging.info(f"Crawling {spider_name}")
 
         # Initialize Scrapydo
         scrapydo.setup()
@@ -42,7 +30,7 @@ async def crawl_async(cloud_event):
         results = scrapydo.run_spider(
             spider_run,
             settings=project_settings,
-            start_url=url,
+            # start_url=url,
             return_crawler=True,
         )
 
@@ -51,7 +39,6 @@ async def crawl_async(cloud_event):
 
         # Log number of items scraped
         # This check keeps running the whole duration for bot
-        # This helps Google Tasks
         if results_count > 0:
             logging.info(f"Length of items are: {results_count}")
             return results
@@ -63,31 +50,11 @@ async def crawl_async(cloud_event):
         logging.error(error)
 
 
-# Triggered from a message on a Cloud Pub/Sub topic.
-@functions_framework.cloud_event
-def crawl_pubsub(cloud_event):
-    # Make crawling async (TODO: does it work?)
-    async_task = crawl_async(cloud_event)
-    asyncio.run(async_task)
-
-
 if __name__ == "__main__":
-    # Testing script locally, need to fix replacing .data
     spider_name = "emag_products"
-    url = "https://www.emag.ro/docking-stations/c"
+    # url = "https://www.emag.ro/hard-disk-uri-notebook/vendor/emag/c"
 
-    # Encode spider and url names
-    spider_b64 = base64.b64encode(spider_name.encode("utf-8")).decode("ascii")
-    url_b64 = base64.b64encode(url.encode("utf-8")).decode("ascii")
-
-    # Simulate cloud function event
-    cloud_event = {
-        "message": {
-            "data": spider_b64,
-            "url": url_b64,
-        }
-    }
-
-    # Start crawling
-    async_task = crawl_async(cloud_event)
-    asyncio.run(async_task)
+    try:
+        crawl(spider_name)
+    except Exception as error:
+        logging.error(error)

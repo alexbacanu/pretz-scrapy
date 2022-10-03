@@ -188,3 +188,5 @@ logs/
 scrapy/log.txt
 scrapy/crawl.json
 crawls/
+
+.dccache
