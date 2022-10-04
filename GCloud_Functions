@@ -1,2 +1,0 @@
-Deploy
-gcloud functions deploy fnc-scrapy-stores --gen2 --runtime=python310 --region=europe-west3 --source=. --entry-point=crawl_pubsub --trigger-topic=pub-crawl-emag --memory=512 --timeout=600 --max-instances=4 --env-vars-file .env.yaml

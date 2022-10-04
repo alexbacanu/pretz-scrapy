@@ -6,12 +6,12 @@ import redis
 from borneo import GetRequest, NoSQLHandle, NoSQLHandleConfig, PutRequest
 from borneo.http import SimpleRateLimiter
 from borneo.iam import SignatureProvider
+from constants import EMAG_ORACLE_TABLE
 
 
 class DefaultValuesPipeline(object):
     def process_item(self, item, spider):
         # Set default values to null for all fields
-        # TODO: Postgress might not need it
         for field in item.fields:
             item.setdefault(field, None)
             item.setdefault("pStars", 0)
@@ -30,9 +30,11 @@ class OracleProductsPipeline:
             pass_phrase=os.getenv("ORACLE_PASS_PHRASE"),
         )
 
+        # Set region and compartment (default)
         region = "eu-frankfurt-1"
         compartment = "alexbacanu"
 
+        # Initializa NoSqlHandle
         config = NoSQLHandleConfig(region, provider)
         config.set_default_compartment(compartment)
 
@@ -42,23 +44,21 @@ class OracleProductsPipeline:
         # Read and write units (equivalent to 50 R/W)
         runits = 0.8 * 10
         wunits = 0.8 * 10
-
-        # Limits
         rlim = SimpleRateLimiter(runits, 1)
         wlim = SimpleRateLimiter(wunits, 1)
 
         self.handle = NoSQLHandle(config)
 
+        # Get and Put request with rate limiter
         self.get_request = (
             GetRequest()
-            .set_table_name("products_emag")
+            .set_table_name(EMAG_ORACLE_TABLE)
             .set_read_rate_limiter(rlim)
             .set_write_rate_limiter(wlim)
         )
-
         self.put_request = (
             PutRequest()
-            .set_table_name("products_emag")
+            .set_table_name(EMAG_ORACLE_TABLE)
             .set_read_rate_limiter(rlim)
             .set_write_rate_limiter(wlim)
         )
@@ -98,21 +98,25 @@ class OracleProductsPipeline:
             # Update the dict with the timeseries
             product_dict["timeseries"] = {**timeseries_old, **timeseries_new}
         else:
+            # Insert timeseries in dict
             product_dict["timeseries"] = timeseries_new
 
         # Put new row
         self.put_request.set_value(product_dict)
+
+        # Commit
         self.handle.put(self.put_request)
 
         return item
 
     def close_spider(self, spider):
+        # Close connection
         self.handle.close()
 
 
 class RedisSitemapPipeline:
     def __init__(self):
-        # Initialize Firestore Client
+        # Initialize Redis
         r = redis.Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
         self.pipe = r.pipeline()
 

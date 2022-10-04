@@ -1,3 +1,6 @@
+import re
+
+from constants import EMAG_SPIDER_PRODUCTS
 from honestprice.items import EmagProductsItem
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
@@ -5,7 +8,7 @@ from scrapy.spiders import CrawlSpider, Request, Rule
 
 
 class EmagProductsSpider(CrawlSpider):
-    name = "emag_products"
+    name = EMAG_SPIDER_PRODUCTS
     allowed_domains = ["emag.ro"]
     start_urls = []
 
@@ -21,35 +24,36 @@ class EmagProductsSpider(CrawlSpider):
         "ITEM_PIPELINES": {
             "honestprice.pipelines.DefaultValuesPipeline": 150,
             "honestprice.pipelines.OracleProductsPipeline": 250,
-            # "honestprice.pipelines.PrismaProductsPipeline": 250,
         },
         "SPIDER_MIDDLEWARES": {
             "honestprice.middlewares.StartUrlsMiddleware": 110,
         },
     }
 
-    # def __init__(self, *args, **kwargs):
-    #     super(EmagProductsSpider, self).__init__(*args, **kwargs)
-    #     self.start_urls = [kwargs.get("start_url")]
-
     def parse_start_url(self, response):
-        self.logger.info(f"Getting headers from {response.url}")
+        self.logger.info("─" * 82)
+        self.logger.info(f"[Spider->Products] Getting headers from {response.url}")
 
         # Select category and items
         header = response.css("div.js-head-title")
         self.category = header.css("span.title-phrasing-xl::text").get()
-        self.items = header.css("span.title-phrasing-sm::text").get()
+
+        reported_items = header.css("span.title-phrasing-sm::text").get()
+        reported_items_number = int(re.findall("\d+", reported_items)[0])
+
+        # Custom stat reported_items
+        self.crawler.stats.set_value("item_reported_count", reported_items_number)
 
         # Logs again
-        self.logger.info(f"Category: {self.category}")
-        self.logger.info(f"Items: {self.items}")
+        self.logger.info(f"[Spider->Products] Category: {self.category}")
+        self.logger.info(f"[Spider->Products] Items: {reported_items}")
 
         # Return
         yield Request(url=response.url, callback=self.parse_page, dont_filter=True)
 
     def parse_page(self, response):
         # Logs
-        self.logger.info(f"Crawling {response.url}")
+        self.logger.info(f"[Spider->Products] Crawling {response.url}")
 
         # Define selectors
         products = response.css("div.card-v2-wrapper")

@@ -63,7 +63,6 @@ DOWNLOAD_DELAY = 5  # Default: 0
 CONCURRENT_REQUESTS = 4  # Default: 16
 
 #  Enable and configure HTTP caching (disabled by default)
-#  TODO: Test, might not see a difference in Cloud Functions
 HTTPCACHE_ENABLED = True
 HTTPCACHE_EXPIRATION_SECS = 14400
 HTTPCACHE_DIR = "/tmp"
@@ -88,6 +87,3 @@ METAREFRESH_ENABLED = False
 DEPTH_PRIORITY = 1
 SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
 SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
-
-#  Custom settings
-# START_URLS_COUNT = 4

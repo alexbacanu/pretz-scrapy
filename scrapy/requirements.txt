@@ -9,7 +9,7 @@ borneo
 oci
 
 # Google cloud
-functions_framework
+# functions_framework
 
 # Redis cloud
 redis

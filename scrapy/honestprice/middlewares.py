@@ -1,8 +1,22 @@
-# Define here the models for your spider middleware
 import os
 
 import redis
+from constants import EMAG_REDIS_URL_KEY
 from scrapy.http import Request
+
+
+class StartUrlsMiddleware(object):
+    def __init__(self):
+        self.r = redis.Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
+
+    def process_start_requests(self, start_requests, spider):
+        # Key name seen in Redis
+        url_key = EMAG_REDIS_URL_KEY
+
+        # Remove entry(ies - watch count) from Redis and get their value
+        start_requests = self.r.spop(url_key, count=1)
+        for request in start_requests:
+            yield Request(url=request)
 
 
 class FailedUrlsMiddleware(object):
@@ -21,22 +35,6 @@ class FailedUrlsMiddleware(object):
         return response
 
 
-class EmagCookiesMiddleware(object):
-    @classmethod
-    def process_request(self, request, spider):
-        # Set cookies to display 100 items per page (for fewer requests)
-        request.cookies["listingPerPage"] = 100
-
-
-class ScrapeAPIProxyMiddleware(object):
-    @classmethod
-    def process_request(self, request, spider):
-        # spider.logger.info(f"Proxy ScrapeAPI on: {request.url}")
-        request.meta[
-            "proxy"
-        ] = f"http://scraperapi.autoparse=true:{os.getenv('PROXY_SCRAPERAPI_KEY')}@proxy-server.scraperapi.com:8001"
-
-
 class ScrapeDoProxyMiddleware(object):
     @classmethod
     def process_request(self, request, spider):
@@ -46,27 +44,29 @@ class ScrapeDoProxyMiddleware(object):
         ] = f"http://{os.getenv('PROXY_SCRAPEDO_KEY')}:render=false@proxy.scrape.do:8080"
 
 
-class WebShareProxyMiddleware(object):
+class EmagCookiesMiddleware(object):
     @classmethod
     def process_request(self, request, spider):
-        # spider.logger.info(f"Proxy WebShare on: {request.url}")
-        request.meta[
-            "proxy"
-        ] = f"http://{os.getenv('PROXY_WEBSHARE_USER')}:{os.getenv('PROXY_WEBSHARE_PASS')}@p.webshare.io:80/"
+        # Set cookies to display 100 items per page (for fewer requests)
+        request.cookies["listingPerPage"] = 100
 
 
-class StartUrlsMiddleware:
-    def __init__(self):
-        self.r = redis.Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
+# class ScrapeAPIProxyMiddleware(object):
+#     @classmethod
+#     def process_request(self, request, spider):
+#         # spider.logger.info(f"Proxy ScrapeAPI on: {request.url}")
+#         request.meta[
+#             "proxy"
+#         ] = f"http://scraperapi.autoparse=true:{os.getenv('PROXY_SCRAPERAPI_KEY')}@proxy-server.scraperapi.com:8001"
 
-    def process_start_requests(self, start_requests, spider):
-        # Key name seen in Redis
-        url_key = "emag_sitemap:start_urls"
 
-        # Remove entry(ies - watch count) from Redis and get their value
-        start_requests = self.r.spop(url_key, count=1)
-        for request in start_requests:
-            yield Request(url=request)
+# class WebShareProxyMiddleware(object):
+#     @classmethod
+#     def process_request(self, request, spider):
+#         # spider.logger.info(f"Proxy WebShare on: {request.url}")
+#         request.meta[
+#             "proxy"
+#         ] = f"http://{os.getenv('PROXY_WEBSHARE_USER')}:{os.getenv('PROXY_WEBSHARE_PASS')}@p.webshare.io:80/"
 
 
 # class RetryHTTPErrors(RetryMiddleware):
