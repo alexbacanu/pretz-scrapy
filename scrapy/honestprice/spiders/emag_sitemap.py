@@ -1,13 +1,13 @@
 import defusedxml.ElementTree as ET
-from constants import EMAG_SPIDER_SITEMAP
+from constants import SPIDER_DOMAINS, SPIDER_SITEMAP, SPIDER_START_URLS
 from honestprice.items import EmagSitemapItem
 from scrapy.spiders import CrawlSpider, Request
 
 
 class EmagSitemapSpider(CrawlSpider):
-    name = EMAG_SPIDER_SITEMAP
-    allowed_domains = ["emag.ro"]
-    start_urls = ["https://www.emag.ro/sitemaps/category-filters-index.xml"]
+    name = SPIDER_SITEMAP
+    allowed_domains = [SPIDER_DOMAINS]
+    start_urls = [SPIDER_START_URLS]
 
     custom_settings = {
         "ITEM_PIPELINES": {

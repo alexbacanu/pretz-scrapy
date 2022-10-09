@@ -1,11 +1,11 @@
 import logging
 
-from constants import EMAG_SPIDER_SITEMAP
+from constants import SPIDER_SITEMAP
 from main import crawl
 
 if __name__ == "__main__":
     # Spider name
-    spider_name = EMAG_SPIDER_SITEMAP
+    spider_name = SPIDER_SITEMAP
 
     # Crawl all sitemaps
     try:

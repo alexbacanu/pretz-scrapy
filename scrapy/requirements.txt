@@ -4,13 +4,10 @@ scrapydo
 spidermon
 defusedxml
 
-# Oracle cloud
-borneo
-oci
-
-# Google cloud
-# functions_framework
-
 # Redis cloud
 redis
 redis[hiredis]
+
+# MongoDB
+mongodb
+mongodb[srv]

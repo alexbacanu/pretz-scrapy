@@ -1,10 +1,17 @@
-# Scrapy
-EMAG_SPIDER_PRODUCTS = "emag_products"
-EMAG_SPIDER_SITEMAP = "emag_sitemap"
+# Dev tag
+STORE_NAME = "emag"
+DEV_TAG = "_dev"
 
-# Oracle
-EMAG_ORACLE_TABLE = "products_emag_test"
+# Scrapy
+SPIDER_SITEMAP = f"{STORE_NAME}_sitemap"
+SPIDER_DOMAINS = f"{STORE_NAME}.ro"
+SPIDER_START_URLS = "https://www.emag.ro/sitemaps/category-filters-index.xml"
+
+SPIDER_PRODUCTS = f"{STORE_NAME}_products"
 
 # Redis
-EMAG_REDIS_URL_KEY = "emag_sitemap:start_urls"
-# EMAG_REDIS_FAILED_KEY = "emag_sitemap:failed_urls"
+REDIS_URL_KEY = f"{STORE_NAME}_sitemap{DEV_TAG}:start_urls"
+
+# MongoDB
+MONGODB_DB = f"pretz{DEV_TAG}"
+MONGODB_COLL = f"{STORE_NAME}{DEV_TAG}"

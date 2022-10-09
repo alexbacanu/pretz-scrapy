@@ -1,6 +1,6 @@
 import re
 
-from constants import EMAG_SPIDER_PRODUCTS
+from constants import SPIDER_DOMAINS, SPIDER_PRODUCTS
 from honestprice.items import EmagProductsItem
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
@@ -8,8 +8,8 @@ from scrapy.spiders import CrawlSpider, Request, Rule
 
 
 class EmagProductsSpider(CrawlSpider):
-    name = EMAG_SPIDER_PRODUCTS
-    allowed_domains = ["emag.ro"]
+    name = SPIDER_PRODUCTS
+    allowed_domains = [SPIDER_DOMAINS]
     start_urls = []
 
     rules = (
@@ -23,7 +23,7 @@ class EmagProductsSpider(CrawlSpider):
     custom_settings = {
         "ITEM_PIPELINES": {
             "honestprice.pipelines.DefaultValuesPipeline": 150,
-            "honestprice.pipelines.OracleProductsPipeline": 250,
+            "honestprice.pipelines.MongoDBProductsPipeline": 250,
         },
         "SPIDER_MIDDLEWARES": {
             "honestprice.middlewares.StartUrlsMiddleware": 110,
@@ -70,7 +70,7 @@ class EmagProductsSpider(CrawlSpider):
             itemloader.add_css("pID", "div.card-v2-atc::attr(data-pnk)")
 
             # pStore
-            itemloader.add_value("pStore", "emag")
+            # itemloader.add_value("pStore", "emag")
 
             # pName
             itemloader.add_css("pName", ".card-v2-title")

@@ -45,10 +45,10 @@ class EmagProductsItem(Item):
         input_processor=MapCompose(remove_tags),
         output_processor=TakeFirst(),
     )
-    pStore = Field(
-        input_processor=MapCompose(),
-        output_processor=TakeFirst(),
-    )
+    # pStore = Field(
+    #     input_processor=MapCompose(),
+    #     output_processor=TakeFirst(),
+    # )
     pName = Field(
         input_processor=MapCompose(remove_tags, remove_newline),
         output_processor=TakeFirst(),

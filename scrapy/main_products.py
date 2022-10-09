@@ -3,16 +3,18 @@ import os
 
 import redis
 
-from constants import EMAG_REDIS_URL_KEY, EMAG_SPIDER_PRODUCTS
+from constants import REDIS_URL_KEY, SPIDER_PRODUCTS
 from main import crawl
 
 if __name__ == "__main__":
     # Spider name
-    spider_name = EMAG_SPIDER_PRODUCTS
+    spider_name = SPIDER_PRODUCTS
 
     # Redis check for urls to crawl
+    # TODO: Do this realtime
+    # Something like While len > 0, try scrape
     r = redis.Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
-    url_key = EMAG_REDIS_URL_KEY
+    url_key = REDIS_URL_KEY
     count = r.scard(url_key)
 
     # Crawl all in queue
