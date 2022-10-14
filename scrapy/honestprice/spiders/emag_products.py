@@ -70,7 +70,7 @@ class EmagProductsSpider(CrawlSpider):
             itemloader.add_css("pID", "div.card-v2-atc::attr(data-pnk)")
 
             # pStore
-            # itemloader.add_value("pStore", "emag")
+            itemloader.add_value("pStore", "emag")
 
             # pName
             itemloader.add_css("pName", ".card-v2-title")

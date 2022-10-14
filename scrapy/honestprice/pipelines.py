@@ -1,12 +1,10 @@
 # Define your item pipelines here
-import logging
 import os
 from datetime import datetime
 
 import redis
 from constants import DEV_TAG, MONGODB_COLL, MONGODB_DB
 from pymongo import MongoClient, UpdateOne
-from pymongo.errors import BulkWriteError
 
 
 class DefaultValuesPipeline(object):
@@ -38,20 +36,119 @@ class RedisSitemapPipeline(object):
 
     def close_spider(self, spider):
         # Commit pipeline
-        try:
-            self.pipe.execute()
-        except redis.ResponseError as ex:
-            logging.error(ex)
+        self.pipe.execute()
 
 
 class MongoDBProductsPipeline(object):
     def __init__(self):
         # Initialize MongoDB
-        client = MongoClient(os.getenv("MONGODB_URI"))
+        client = MongoClient(os.getenv("MONGODB_URIX"))
+
+        validator = {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": ["pID", "pName"],
+                "properties": {
+                    "pID": {
+                        "bsonType": "string",
+                        "description": "Product ID - Required.",
+                        "uniqueItems": True,
+                    },
+                    "pStore": {
+                        "bsonType": "string",
+                        "description": "Product Store - Optional.",
+                    },
+                    "pName": {
+                        "bsonType": "string",
+                        "description": "Product Name - Required.",
+                    },
+                    "pLink": {
+                        "bsonType": "string",
+                        "description": "Product Link - Optional.",
+                    },
+                    "pImg": {
+                        "bsonType": ["string", "null"],
+                        "description": "Product Image - Optional.",
+                    },
+                    "pCategory": {
+                        "bsonType": "string",
+                        "description": "Product Category - Optional.",
+                    },
+                    "pReviews": {
+                        "bsonType": ["number", "null"],
+                        "description": "Product Reviews - Optional.",
+                    },
+                    "pStars": {
+                        "bsonType": ["number", "null"],
+                        "description": "Product Stars - Optional.",
+                    },
+                    "pGeniusTag": {
+                        "bsonType": ["bool", "null"],
+                        "description": "Product Genius Tag - Optional.",
+                    },
+                    "pUsedTag": {
+                        "bsonType": ["bool", "null"],
+                        "description": "Product Used Tag - Optional.",
+                    },
+                    "priceCurrent": {
+                        "bsonType": ["number", "null"],
+                        "description": "Price Current - Optional.",
+                    },
+                    "priceRetail": {
+                        "bsonType": ["number", "null"],
+                        "description": "Price Retail - Optional.",
+                    },
+                    "priceSlashed": {
+                        "bsonType": ["number", "null"],
+                        "description": "Price Slashed - Optional.",
+                    },
+                    "priceUsed": {
+                        "bsonType": ["number", "null"],
+                        "description": "Price Used - Optional.",
+                    },
+                    "crawledAt": {
+                        "bsonType": "date",
+                        "description": "Crawled At - Optional.",
+                    },
+                    "timeseries": {
+                        "bsonType": "object",
+                        "description": "Product Timeseries - Optional.",
+                        "properties": {
+                            "priceDate": {
+                                "bsonType": "date",
+                                "description": "Price Date - Optional.",
+                            },
+                            "priceCurrent": {
+                                "bsonType": ["number", "null"],
+                                "description": "Price Current - Optional.",
+                            },
+                            "priceRetail": {
+                                "bsonType": ["number", "null"],
+                                "description": "Price Retail - Optional.",
+                            },
+                            "priceSlashed": {
+                                "bsonType": ["number", "null"],
+                                "description": "Price Slashed - Optional.",
+                            },
+                            "priceUsed": {
+                                "bsonType": ["number", "null"],
+                                "description": "Price Used - Optional.",
+                            },
+                        },
+                    },
+                },
+            }
+        }
 
         # Select database and collection
         db = client[MONGODB_DB]
         self.collection = db[MONGODB_COLL]
+
+        try:
+            db.validate_collection(MONGODB_COLL)["valid"]
+        except:
+            print("Creating collection using schema validation")
+            db.create_collection(MONGODB_COLL, validator=validator)
 
         # Init an empty array for bulk operations
         self.requests = []
@@ -77,13 +174,13 @@ class MongoDBProductsPipeline(object):
 
         # Append an UpdateOne request to the array (item dictionary)
         self.requests.append(
-            UpdateOne({"pid": product_id}, {"$set": product_dict}, upsert=True),
+            UpdateOne({"pID": product_id}, {"$set": product_dict}, upsert=True),
         )
 
         # Append an UpdateOne request to the array (update only timeseries inside item dictionary)
         self.requests.append(
             UpdateOne(
-                {"pid": product_id},
+                {"pID": product_id},
                 {"$set": {f"timeseries.{date_time}": timeseries}},
             ),
         )
@@ -91,10 +188,7 @@ class MongoDBProductsPipeline(object):
         return item
 
     def close_spider(self, spider):
-        try:
-            self.collection.bulk_write(self.requests, ordered=True)
-        except BulkWriteError as bwe:
-            logging.error(bwe.details)
+        self.collection.bulk_write(self.requests, ordered=True)
 
 
 class HonestpricePipeline:

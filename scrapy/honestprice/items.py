@@ -1,6 +1,6 @@
 # Define here the models for your scraped items
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 
 from itemloaders.processors import MapCompose, TakeFirst
 from scrapy import Field, Item
@@ -9,7 +9,8 @@ from w3lib.html import remove_tags
 
 def current_date(text):
     # Return as 2022-12-31T23:59:59.123456+00:00
-    return datetime.now(timezone.utc).isoformat()
+    # return datetime.now(timezone.utc).isoformat()
+    return datetime.utcnow()
 
 
 def remove_newline(text):
@@ -31,8 +32,8 @@ def filter_pricing(text):
 
 
 def filter_text(text):
-    digits_only = re.findall("(\d+)", str(text))[0]
-    return int(digits_only)
+    digits_only = re.findall(r"-?\d+\.?\d*", str(text))[0]
+    return float(digits_only)
 
 
 def filter_image(text):
@@ -45,10 +46,10 @@ class EmagProductsItem(Item):
         input_processor=MapCompose(remove_tags),
         output_processor=TakeFirst(),
     )
-    # pStore = Field(
-    #     input_processor=MapCompose(),
-    #     output_processor=TakeFirst(),
-    # )
+    pStore = Field(
+        input_processor=MapCompose(),
+        output_processor=TakeFirst(),
+    )
     pName = Field(
         input_processor=MapCompose(remove_tags, remove_newline),
         output_processor=TakeFirst(),

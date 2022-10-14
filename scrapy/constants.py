@@ -1,6 +1,6 @@
 # Dev tag
 STORE_NAME = "emag"
-DEV_TAG = "_dev"
+DEV_TAG = ""
 
 # Scrapy
 SPIDER_SITEMAP = f"{STORE_NAME}_sitemap"
