@@ -42,7 +42,7 @@ class RedisSitemapPipeline(object):
 class MongoDBProductsPipeline(object):
     def __init__(self):
         # Initialize MongoDB
-        client = MongoClient(os.getenv("MONGODB_URIX"))
+        client = MongoClient(os.getenv("MONGODB_URI"))
 
         validator = {
             "$jsonSchema": {

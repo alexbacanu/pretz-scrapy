@@ -9,5 +9,5 @@ redis
 redis[hiredis]
 
 # MongoDB
-mongodb
-mongodb[srv]
+pymongo
+pymongo[srv]
