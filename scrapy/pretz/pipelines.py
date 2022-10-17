@@ -1,5 +1,7 @@
 # Define your item pipelines here
+import json
 import os
+import time
 from datetime import datetime
 
 import redis
@@ -30,13 +32,17 @@ class RedisSitemapPipeline(object):
         # Key name seen in Redis
         spider_key = f"{spider.name}{DEV_TAG}:start_urls"
 
+        # Format url to be compatible with Scrapy-Redis
+        url = {"url": item["response_url"]}
+
         # Add urls to Redis using sets (pipeline)
-        self.pipe.sadd(spider_key, item["response_url"])
+        self.pipe.lpush(spider_key, json.dumps(url))
 
         return item
 
     def close_spider(self, spider):
         # Commit pipeline
+        self.pipe.delete(f"emag_products{DEV_TAG}:dupefilter")
         self.pipe.execute()
 
 
@@ -153,6 +159,8 @@ class MongoDBProductsPipeline(object):
 
         # Init an empty array for bulk operations
         self.requests = []
+        self.batch_size = 2 * 1000
+        self.start = time.time()
 
     def process_item(self, item, spider):
         # Get current time as "2022-09-07"
@@ -186,10 +194,19 @@ class MongoDBProductsPipeline(object):
             ),
         )
 
+        if (len(self.requests) % self.batch_size) == 0:
+            self.collection.bulk_write(self.requests, ordered=True)
+            print(f"Inserted {len(self.requests)} items")
+            self.requests.clear()
+
         return item
 
     def close_spider(self, spider):
         self.collection.bulk_write(self.requests, ordered=True)
+        print(f"Inserted {len(self.requests)} items")
+        self.requests.clear()
+        self.end = time.time()
+        print(f"{self.end - self.start}s elapsed")
 
 
 class PretzPipeline:

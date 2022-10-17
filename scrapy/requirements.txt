@@ -1,8 +1,8 @@
 # Crawling
 Scrapy
-scrapydo
 spidermon
 defusedxml
+scrapy-redis
 
 # Redis cloud
 redis

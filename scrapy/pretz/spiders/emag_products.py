@@ -1,16 +1,15 @@
-import re
-
 from pretz.items import EmagProductsItem
-from pretz.settings import SPIDER_DOMAINS, SPIDER_PRODUCTS
+from pretz.settings import REDIS_URL_KEY, SPIDER_DOMAINS, SPIDER_PRODUCTS
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
-from scrapy.spiders import CrawlSpider, Request, Rule
+from scrapy.spiders import Request, Rule
+from scrapy_redis.spiders import RedisCrawlSpider
 
 
-class EmagProductsSpider(CrawlSpider):
+class EmagProductsSpider(RedisCrawlSpider):
     name = SPIDER_PRODUCTS
     allowed_domains = [SPIDER_DOMAINS]
-    start_urls = []
+    redis_key = REDIS_URL_KEY
 
     rules = (
         Rule(
@@ -25,9 +24,9 @@ class EmagProductsSpider(CrawlSpider):
             "pretz.pipelines.DefaultValuesPipeline": 150,
             "pretz.pipelines.MongoDBProductsPipeline": 250,
         },
-        "SPIDER_MIDDLEWARES": {
-            "pretz.middlewares.StartUrlsMiddleware": 110,
-        },
+        # "SPIDER_MIDDLEWARES": {
+        #     "pretz.middlewares.StartUrlsMiddleware": 110,
+        # },
     }
 
     def parse_start_url(self, response):
@@ -39,17 +38,17 @@ class EmagProductsSpider(CrawlSpider):
         self.category = header.css("span.title-phrasing-xl::text").get()
 
         reported_items = header.css("span.title-phrasing-sm::text").get()
-        reported_items_number = int(re.findall("\d+", reported_items)[0])
+        # reported_items_number = int(re.findall("\d+", reported_items)[0])
 
         # Custom stat reported_items
-        self.crawler.stats.set_value("item_reported_count", reported_items_number)
+        # self.crawler.stats.set_value("item_reported_count", total_items_reported)
 
         # Logs again
         self.logger.info(f"[Spider->Products] Category: {self.category}")
         self.logger.info(f"[Spider->Products] Items: {reported_items}")
 
         # Return
-        yield Request(url=response.url, callback=self.parse_page, dont_filter=True)
+        yield Request(url=response.url, callback=self.parse_page)
 
     def parse_page(self, response):
         # Logs

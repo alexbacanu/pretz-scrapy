@@ -1,5 +1,7 @@
 #  Scrapy settings for pretz project
 
+import os
+
 BOT_NAME = "pretz"
 
 SPIDER_MODULES = ["pretz.spiders"]
@@ -37,7 +39,7 @@ EXTENSIONS = {
 }
 
 #  Enable Spidermon
-SPIDERMON_ENABLED = True
+SPIDERMON_ENABLED = False
 SPIDERMON_SPIDER_CLOSE_MONITORS = "pretz.monitors.SpiderCloseMonitorSuite"
 
 #  Configure item pipelines
@@ -46,17 +48,17 @@ SPIDERMON_SPIDER_CLOSE_MONITORS = "pretz.monitors.SpiderCloseMonitorSuite"
 #  Enable and configure the AutoThrottle extension (disabled by default)
 AUTOTHROTTLE_ENABLED = True
 #  The initial download delay
-AUTOTHROTTLE_START_DELAY = 5
+AUTOTHROTTLE_START_DELAY = 4
 #  The maximum download delay to be set in case of high latencies
-AUTOTHROTTLE_MAX_DELAY = 60
+AUTOTHROTTLE_MAX_DELAY = 20
 #  The average number of requests Scrapy should be sending in parallel
 # AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
 #  Enable showing throttling stats for every response received:
 # AUTOTHROTTLE_DEBUG = True
 
 #  Settings for requests (between requests)
-DOWNLOAD_DELAY = 5  # Default: 0
-CONCURRENT_REQUESTS = 4  # Default: 16
+DOWNLOAD_DELAY = 4  # Default: 0
+CONCURRENT_REQUESTS = 1  # Default: 16
 
 #  Enable and configure HTTP caching (disabled by default)
 HTTPCACHE_ENABLED = True
@@ -97,8 +99,27 @@ SPIDER_PRODUCTS = f"{STORE_NAME}_products"
 
 # Redis
 REDIS_URL_KEY = f"{STORE_NAME}_sitemap{DEV_TAG}:start_urls"
-REDIS_URL_COUNT = 1
 
 # MongoDB
 MONGODB_DB = f"pretz{DEV_TAG}"
 MONGODB_COLL = f"{STORE_NAME}{DEV_TAG}"
+
+# Scrapy-Redis
+# Specify the full Redis URL for connecting (optional).
+# If set, this takes precedence over the REDIS_HOST and REDIS_PORT settings.
+REDIS_URL = os.getenv("REDIS_URL")
+
+# Spider idles number of seconds then closes if there are no more urls
+MAX_IDLE_TIME_BEFORE_CLOSE = 30
+
+# Enables scheduling storing requests queue in redis.
+SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+
+# Ensure all spiders share same duplicates filter through redis.
+DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+
+# Don't cleanup redis queues, allows to pause/resume crawls.
+SCHEDULER_PERSIST = True
+
+# Alternative queues.
+SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.FifoQueue"

@@ -11,8 +11,10 @@ if __name__ == "__main__":
     try:
         crawl(spider_name)
         logging.info(f"[Main->Sitemap] Finished crawling {spider_name}")
+        logging.info("─" * 82)
 
     except Exception as error:
+        logging.warning(f"[Main->Sitemap] {spider_name} has encountered an error!")
         logging.error(error)
 
     # EOF

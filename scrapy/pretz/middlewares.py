@@ -1,9 +1,10 @@
+import json
 import os
 
 import redis
 from scrapy.http import Request
 
-from pretz.settings import DEV_TAG, REDIS_URL_COUNT, REDIS_URL_KEY
+from pretz.settings import DEV_TAG, REDIS_URL_KEY
 
 
 class StartUrlsMiddleware(object):
@@ -16,7 +17,7 @@ class StartUrlsMiddleware(object):
         url_key = REDIS_URL_KEY
 
         # Pop entry(ies) from Redis and get their value
-        start_requests = self.r.spop(url_key, count=REDIS_URL_COUNT)
+        start_requests = self.r.spop(url_key, 1)
         for request in start_requests:
             yield Request(url=request)
 
@@ -32,8 +33,11 @@ class FailedUrlsMiddleware(object):
             # Key name to store failed urls
             spider_key = f"{spider.name}{DEV_TAG}:failed_urls"
 
+            # Format url to be compatible with Scrapy-Redis
+            url = {"url": response.url}
+
             # Add failed urls
-            self.r.sadd(spider_key, response.url)
+            self.r.lpush(spider_key, json.dumps(url))
 
         return response
 

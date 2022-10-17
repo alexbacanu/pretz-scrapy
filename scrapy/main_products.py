@@ -8,16 +8,14 @@ if __name__ == "__main__":
     spider_name = SPIDER_PRODUCTS
 
     # Crawl all products
-    while True:
-        try:
-            crawl(spider_name)
-            logging.info(f"[Main->Products] Finished crawling {spider_name}")
-            logging.info("─" * 82)
+    try:
+        crawl(spider_name)
+        logging.info(f"[Main->Products] Finished crawling {spider_name}")
+        logging.info("─" * 82)
 
-        except Exception as error:
-            logging.warning(f"[Main->Products] {spider_name} has no urls to crawl!")
-            logging.error(error)
-            break
+    except Exception as error:
+        logging.warning(f"[Main->Products] {spider_name} has encountered an error!")
+        logging.error(error)
 
     # EOF
     logging.info("─" * 91)
