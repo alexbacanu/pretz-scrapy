@@ -3,8 +3,9 @@ import os
 from datetime import datetime
 
 import redis
-from constants import DEV_TAG, MONGODB_COLL, MONGODB_DB
 from pymongo import MongoClient, UpdateOne
+
+from pretz.settings import DEV_TAG, MONGODB_COLL, MONGODB_DB
 
 
 class DefaultValuesPipeline(object):
@@ -191,6 +192,6 @@ class MongoDBProductsPipeline(object):
         self.collection.bulk_write(self.requests, ordered=True)
 
 
-class HonestpricePipeline:
+class PretzPipeline:
     def process_item(self, item, spider):
         return item

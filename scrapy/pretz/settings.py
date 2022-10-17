@@ -1,12 +1,12 @@
-#  Scrapy settings for honestprice project
+#  Scrapy settings for pretz project
 
-BOT_NAME = "honestprice"
+BOT_NAME = "pretz"
 
-SPIDER_MODULES = ["honestprice.spiders"]
-NEWSPIDER_MODULE = "honestprice.spiders"
+SPIDER_MODULES = ["pretz.spiders"]
+NEWSPIDER_MODULE = "pretz.spiders"
 
 #  Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = "honestprice/0.9 (Windows NT 10.0; Win64; x64)"
+USER_AGENT = "pretz/0.9 (Windows NT 10.0; Win64; x64)"
 
 #  Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -23,11 +23,11 @@ TELNETCONSOLE_ENABLED = False
 
 #  Enable or disable downloader middlewares
 DOWNLOADER_MIDDLEWARES = {
-    "honestprice.middlewares.ScrapeDoProxyMiddleware": 120,
-    "honestprice.middlewares.EmagCookiesMiddleware": 200,
-    "honestprice.middlewares.FailedUrlsMiddleware": 250,
+    "pretz.middlewares.ScrapeDoProxyMiddleware": 120,
+    "pretz.middlewares.EmagCookiesMiddleware": 200,
+    "pretz.middlewares.FailedUrlsMiddleware": 250,
     # "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
-    # "honestprice.middlewares.RetryHTTPErrors": 300,
+    # "pretz.middlewares.RetryHTTPErrors": 300,
 }
 
 #  Enable or disable extensions
@@ -38,7 +38,7 @@ EXTENSIONS = {
 
 #  Enable Spidermon
 SPIDERMON_ENABLED = True
-SPIDERMON_SPIDER_CLOSE_MONITORS = "honestprice.monitors.SpiderCloseMonitorSuite"
+SPIDERMON_SPIDER_CLOSE_MONITORS = "pretz.monitors.SpiderCloseMonitorSuite"
 
 #  Configure item pipelines
 # ITEM_PIPELINES = {}
@@ -83,3 +83,22 @@ METAREFRESH_ENABLED = False
 DEPTH_PRIORITY = 1
 SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
 SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
+
+# Dev tag
+STORE_NAME = "emag"
+DEV_TAG = ""
+
+# Scrapy
+SPIDER_SITEMAP = f"{STORE_NAME}_sitemap"
+SPIDER_DOMAINS = f"{STORE_NAME}.ro"
+SPIDER_START_URLS = "https://www.emag.ro/sitemaps/category-filters-index.xml"
+
+SPIDER_PRODUCTS = f"{STORE_NAME}_products"
+
+# Redis
+REDIS_URL_KEY = f"{STORE_NAME}_sitemap{DEV_TAG}:start_urls"
+REDIS_URL_COUNT = 1
+
+# MongoDB
+MONGODB_DB = f"pretz{DEV_TAG}"
+MONGODB_COLL = f"{STORE_NAME}{DEV_TAG}"

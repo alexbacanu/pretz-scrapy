@@ -1,6 +1,6 @@
 import defusedxml.ElementTree as ET
-from constants import SPIDER_DOMAINS, SPIDER_SITEMAP, SPIDER_START_URLS
-from honestprice.items import EmagSitemapItem
+from pretz.items import EmagSitemapItem
+from pretz.settings import SPIDER_DOMAINS, SPIDER_SITEMAP, SPIDER_START_URLS
 from scrapy.spiders import CrawlSpider, Request
 
 
@@ -11,7 +11,7 @@ class EmagSitemapSpider(CrawlSpider):
 
     custom_settings = {
         "ITEM_PIPELINES": {
-            "honestprice.pipelines.RedisSitemapPipeline": 650,
+            "pretz.pipelines.RedisSitemapPipeline": 650,
         },
         "SPIDERMON_ENABLED": False,
     }

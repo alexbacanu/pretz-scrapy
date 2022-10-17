@@ -1,7 +1,7 @@
 import re
 
-from constants import SPIDER_DOMAINS, SPIDER_PRODUCTS
-from honestprice.items import EmagProductsItem
+from pretz.items import EmagProductsItem
+from pretz.settings import SPIDER_DOMAINS, SPIDER_PRODUCTS
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from scrapy.spiders import CrawlSpider, Request, Rule
@@ -22,11 +22,11 @@ class EmagProductsSpider(CrawlSpider):
 
     custom_settings = {
         "ITEM_PIPELINES": {
-            "honestprice.pipelines.DefaultValuesPipeline": 150,
-            "honestprice.pipelines.MongoDBProductsPipeline": 250,
+            "pretz.pipelines.DefaultValuesPipeline": 150,
+            "pretz.pipelines.MongoDBProductsPipeline": 250,
         },
         "SPIDER_MIDDLEWARES": {
-            "honestprice.middlewares.StartUrlsMiddleware": 110,
+            "pretz.middlewares.StartUrlsMiddleware": 110,
         },
     }
 

@@ -1,7 +1,7 @@
 import logging
 
-from constants import SPIDER_PRODUCTS
 from main import crawl
+from pretz.settings import SPIDER_PRODUCTS
 
 if __name__ == "__main__":
     # Spider name

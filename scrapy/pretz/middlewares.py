@@ -1,8 +1,9 @@
 import os
 
 import redis
-from constants import DEV_TAG, REDIS_URL_KEY
 from scrapy.http import Request
+
+from pretz.settings import DEV_TAG, REDIS_URL_COUNT, REDIS_URL_KEY
 
 
 class StartUrlsMiddleware(object):
@@ -15,7 +16,7 @@ class StartUrlsMiddleware(object):
         url_key = REDIS_URL_KEY
 
         # Pop entry(ies) from Redis and get their value
-        start_requests = self.r.spop(url_key, count=1)
+        start_requests = self.r.spop(url_key, count=REDIS_URL_COUNT)
         for request in start_requests:
             yield Request(url=request)
 

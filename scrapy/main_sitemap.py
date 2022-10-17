@@ -1,7 +1,7 @@
 import logging
 
-from constants import SPIDER_SITEMAP
 from main import crawl
+from pretz.settings import SPIDER_SITEMAP
 
 if __name__ == "__main__":
     # Spider name
