@@ -1,4 +1,3 @@
-# Define here the models for your scraped items
 import re
 from datetime import datetime
 
@@ -7,14 +6,13 @@ from scrapy import Field, Item
 from w3lib.html import remove_tags
 
 
-def current_date(text):
-    # Return as 2022-12-31T23:59:59.123456+00:00
-    # return datetime.now(timezone.utc).isoformat()
-    return datetime.utcnow()
-
-
 def remove_newline(text):
     return text.replace("\n", "")
+
+
+def filter_image(text):
+    url = re.findall("https?://[^)]+", text)[0]
+    return url
 
 
 def remove_vendor(text):
@@ -23,22 +21,22 @@ def remove_vendor(text):
     return clean_category
 
 
-def filter_pricing(text):
-    remove_tags_re = (
-        re.sub(re.compile("<.*?>"), "", text).replace(".", "").replace(",", ".")
-    )
-    digits_only = [float(s) for s in re.findall(r"-?\d+\.?\d*", remove_tags_re)]
-    return digits_only
-
-
 def filter_text(text):
     digits_only = re.findall(r"-?\d+\.?\d*", str(text))[0]
     return float(digits_only)
 
 
-def filter_image(text):
-    url = re.findall("https?://[^)]+", text)[0]
-    return url
+def filter_pricing(text):
+    remove_tags_re = (
+        re.sub(re.compile("<.*?>"), "", text).replace(".", "").replace(",", ".")
+    )
+    digits_only= [float(s) for s in re.findall(r"-?\d+\.?\d*", remove_tags_re)]
+    return digits_only
+
+
+def current_date(text):
+    # Return as 2022-12-31T23:59:59.123456+00:00
+    return datetime.utcnow()
 
 
 class EmagProductsItem(Item):

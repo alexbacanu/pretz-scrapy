@@ -1,5 +1,3 @@
-#  Scrapy settings for pretz project
-
 import os
 
 BOT_NAME = "pretz"
@@ -7,119 +5,103 @@ BOT_NAME = "pretz"
 SPIDER_MODULES = ["pretz.spiders"]
 NEWSPIDER_MODULE = "pretz.spiders"
 
-#  Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = "pretz/0.9 (Windows NT 10.0; Win64; x64)"
 
-#  Obey robots.txt rules
+# Crawl responsibly by identifying yourself (and your website) on the user-agent
+USER_AGENT = "pretz/1.0 (Windows NT 10.0; Win64; x64)"
+
+# Obey robots.txt rules
 ROBOTSTXT_OBEY = True
 
 #  Enable cookies
 COOKIES_ENABLED = True
 # COOKIES_DEBUG = True
 
-#  Disable Telnet Console (enabled by default)
+# Disable Telnet Console (enabled by default)
 TELNETCONSOLE_ENABLED = False
 
-#  Enable or disable spider middlewares
-# SPIDER_MIDDLEWARES = {}
+# Override the default request headers:
+# DEFAULT_REQUEST_HEADERS = {
+#   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+#   'Accept-Language': 'en',
+# }
 
-#  Enable or disable downloader middlewares
+# Enable or disable spider middlewares
+# SPIDER_MIDDLEWARES = {
+#    'pretz.middlewares.PretzSpiderMiddleware': 543,
+# }
+
+# Enable or disable downloader middlewares
 DOWNLOADER_MIDDLEWARES = {
-    "pretz.middlewares.ScrapeDoProxyMiddleware": 120,
+    "pretz.middlewares.ScrapeDoMiddleware": 120,
     "pretz.middlewares.EmagCookiesMiddleware": 200,
     "pretz.middlewares.FailedUrlsMiddleware": 250,
-    # "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
-    # "pretz.middlewares.RetryHTTPErrors": 300,
 }
 
-#  Enable or disable extensions
+# Enable or disable extensions
 EXTENSIONS = {
     "scrapy.extensions.telnet.TelnetConsole": None,
-    "spidermon.contrib.scrapy.extensions.Spidermon": 500,
 }
 
-#  Enable Spidermon
-SPIDERMON_ENABLED = False
-SPIDERMON_SPIDER_CLOSE_MONITORS = "pretz.monitors.SpiderCloseMonitorSuite"
+# Configure item pipelines
+# ITEM_PIPELINES = {
+#    'pretz.pipelines.PretzPipeline': 300,
+# }
 
-#  Configure item pipelines
-# ITEM_PIPELINES = {}
+# Configure maximum concurrent requests performed by Scrapy (default: 16)
+CONCURRENT_REQUESTS = 1
+DOWNLOAD_DELAY = 4
 
-#  Enable and configure the AutoThrottle extension (disabled by default)
+# Enable and configure the AutoThrottle extension (disabled by default)
 AUTOTHROTTLE_ENABLED = True
-#  The initial download delay
+# The initial download delay
 AUTOTHROTTLE_START_DELAY = 4
-#  The maximum download delay to be set in case of high latencies
+# The maximum download delay to be set in case of high latencies
 AUTOTHROTTLE_MAX_DELAY = 20
-#  The average number of requests Scrapy should be sending in parallel
+# The average number of requests Scrapy should be sending in parallel to each remote server
 # AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
-#  Enable showing throttling stats for every response received:
-# AUTOTHROTTLE_DEBUG = True
+# Enable showing throttling stats for every response received:
+# AUTOTHROTTLE_DEBUG = False
 
-#  Settings for requests (between requests)
-DOWNLOAD_DELAY = 4  # Default: 0
-CONCURRENT_REQUESTS = 1  # Default: 16
-
-#  Enable and configure HTTP caching (disabled by default)
+# Enable and configure HTTP caching (disabled by default)
 HTTPCACHE_ENABLED = True
-HTTPCACHE_EXPIRATION_SECS = 14400
+HTTPCACHE_EXPIRATION_SECS = 25200
 HTTPCACHE_DIR = "/tmp"
 HTTPCACHE_IGNORE_HTTP_CODES = ["400", "401", "403", "404", "499", "500", "504", "511"]
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 
-#  Retry Middleware
+# Set settings whose default value is deprecated to a future-proof value
+REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
+TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
+
+# Retry Middleware
 RETRY_ENABLED = True
 RETRY_HTTP_CODES = [500, 502, 503, 504, 511, 522, 524, 408, 429, 499]
 RETRY_TIMES = 6
 
-#  Log related
+# Log related
 LOG_ENABLED = True
 LOG_LEVEL = "INFO"
 LOG_FILE = "scrapy.log"
 
-#  Disable redirect
+# Disable redirect
 REDIRECT_ENABLED = False
 METAREFRESH_ENABLED = False
 
-#  Crawl in BFO order to save memory
+# Crawl in BFO order to save memory
 DEPTH_PRIORITY = 1
 SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
 SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 
-# Dev tag
-STORE_NAME = "emag"
+# App specific
 DEV_TAG = ""
+SCRAPEDO_KEY = f"{os.getenv('SCRAPEDO_KEY')}"
 
-# Scrapy
-SPIDER_SITEMAP = f"{STORE_NAME}_sitemap"
-SPIDER_DOMAINS = f"{STORE_NAME}.ro"
-SPIDER_START_URLS = "https://www.emag.ro/sitemaps/category-filters-index.xml"
+MONGO_URI = f"{os.getenv('MONGO_URI')}"
+MONGO_DB = f"{os.getenv('MONGO_DB')}{DEV_TAG}"
+MONGO_COLL = f"{os.getenv('MONGO_COLL')}{DEV_TAG}"
 
-SPIDER_PRODUCTS = f"{STORE_NAME}_products"
+REDIS_URI = f"{os.getenv('REDIS_URI')}"
+REDIS_START_URLS = f"emag_sitemap{DEV_TAG}:start_urls"
+REDIS_FAILED_URLS = f"emag_products{DEV_TAG}:failed_urls"
 
-# Redis
-REDIS_URL_KEY = f"{STORE_NAME}_sitemap{DEV_TAG}:start_urls"
-
-# MongoDB
-MONGODB_DB = f"pretz{DEV_TAG}"
-MONGODB_COLL = f"{STORE_NAME}{DEV_TAG}"
-
-# Scrapy-Redis
-# Specify the full Redis URL for connecting (optional).
-# If set, this takes precedence over the REDIS_HOST and REDIS_PORT settings.
-REDIS_URL = os.getenv("REDIS_URL")
-
-# Spider idles number of seconds then closes if there are no more urls
-MAX_IDLE_TIME_BEFORE_CLOSE = 30
-
-# Enables scheduling storing requests queue in redis.
-SCHEDULER = "scrapy_redis.scheduler.Scheduler"
-
-# Ensure all spiders share same duplicates filter through redis.
-DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
-
-# Don't cleanup redis queues, allows to pause/resume crawls.
-SCHEDULER_PERSIST = True
-
-# Alternative queues.
-SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.FifoQueue"
+MAX_IDLE_TIME = 60

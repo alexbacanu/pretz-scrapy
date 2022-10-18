@@ -1,57 +1,44 @@
-# Define your item pipelines here
-import json
-import os
-import time
 from datetime import datetime
 
-import redis
 from pymongo import MongoClient, UpdateOne
+from redis import Redis
 
-from pretz.settings import DEV_TAG, MONGODB_COLL, MONGODB_DB
 
-
-class DefaultValuesPipeline(object):
+# emag_products uses this
+class DefaultValuesPipeline:
     def process_item(self, item, spider):
-        # Set default values to null for all fields
         for field in item.fields:
+            # Set default values to null for all fields
             item.setdefault(field, None)
+
+            # Set default values to 0 for these fields
             item.setdefault("pStars", 0)
             item.setdefault("pReviews", 0)
         return item
 
 
-class RedisSitemapPipeline(object):
-    def __init__(self):
-        # Initialize Redis
-        r = redis.Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
-        r.delete(f"emag_sitemap{DEV_TAG}:dupefilter")
+# emag_products uses this
+class MongoPipeline:
+    def __init__(self, mongo_uri, mongo_db, mongo_coll):
+        self.mongo_uri = mongo_uri
+        self.mongo_db = mongo_db
+        self.mongo_coll = mongo_coll
 
-        # Set up pipeline for bulk operations
-        self.pipe = r.pipeline()
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            mongo_uri=crawler.settings.get("MONGO_URI"),
+            mongo_db=crawler.settings.get("MONGO_DB"),
+            mongo_coll=crawler.settings.get("MONGO_COLL"),
+        )
 
-    def process_item(self, item, spider):
-        # Key name seen in Redis
-        spider_key = f"{spider.name}{DEV_TAG}:start_urls"
-
-        # Format url to be compatible with Scrapy-Redis
-        url = {"url": item["response_url"]}
-
-        # Add urls to Redis using sets (pipeline)
-        self.pipe.lpush(spider_key, json.dumps(url))
-
-        return item
-
-    def close_spider(self, spider):
-        # Commit pipeline
-        self.pipe.delete(f"emag_products{DEV_TAG}:dupefilter")
-        self.pipe.execute()
-
-
-class MongoDBProductsPipeline(object):
-    def __init__(self):
+    def open_spider(self, spider):
         # Initialize MongoDB
-        client = MongoClient(os.getenv("MONGODB_URI"))
+        self.client = MongoClient(self.mongo_uri)
+        self.db = self.client[self.mongo_db]
+        self.coll = self.db[self.mongo_coll]
 
+        # Schema validation
         validator = {
             "$jsonSchema": {
                 "bsonType": "object",
@@ -148,30 +135,29 @@ class MongoDBProductsPipeline(object):
             }
         }
 
-        # Select database and collection
-        db = client[MONGODB_DB]
-        self.collection = db[MONGODB_COLL]
-
+        # Validate or create collection
         try:
-            db.validate_collection(MONGODB_COLL)["valid"]
+            self.db.validate_collection(self.mongo_coll)["valid"]
         except:
-            print("Creating collection using schema validation")
-            db.create_collection(MONGODB_COLL, validator=validator)
+            self.db.create_collection(self.mongo_coll, validator=validator)
 
         # Init an empty array for bulk operations
         self.requests = []
         self.batch_size = 2 * 1000
-        self.start = time.time()
+
+    def close_spider(self, spider):
+        # Commit bulk operations
+        self.coll.bulk_write(self.requests, ordered=True)
+
+        # Clear array after commit
+        self.requests.clear()
 
     def process_item(self, item, spider):
         # Get current time as "2022-09-07"
         date_time = datetime.now().astimezone().strftime("%Y-%m-%d")
 
-        # Create a new product dictionary
+        # Create a new dictionary
         product_dict = dict(item)
-
-        # Product id
-        product_id = item["pID"]
 
         # Define timeseries
         timeseries = {
@@ -184,32 +170,54 @@ class MongoDBProductsPipeline(object):
 
         # Append an UpdateOne request to the array (item dictionary)
         self.requests.append(
-            UpdateOne({"pID": product_id}, {"$set": product_dict}, upsert=True),
-        )
-
-        # Append an UpdateOne request to the array (update only timeseries inside item dictionary)
-        self.requests.append(
             UpdateOne(
-                {"pID": product_id},
-                {"$set": {f"timeseries.{date_time}": timeseries}},
+                {"pID": item["pID"]},
+                [
+                    {"$set": product_dict},
+                    {"$set": {f"timeseries.{date_time}": timeseries}},
+                ],
+                upsert=True,
             ),
         )
 
+        # Commit when reach batch size
         if (len(self.requests) % self.batch_size) == 0:
-            self.collection.bulk_write(self.requests, ordered=True)
-            print(f"Inserted {len(self.requests)} items")
+            self.coll.bulk_write(self.requests, ordered=True)
+
+            # Clear array after commit
             self.requests.clear()
 
         return item
 
+
+# emag_sitemap uses this
+class RedisPipeline:
+    def __init__(self, redis_url, spider_key):
+        self.redis_url = redis_url
+        self.spider_key = spider_key
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            redis_url=crawler.settings.get("REDIS_URI"),
+            spider_key=crawler.settings.get("REDIS_START_URLS"),
+        )
+
+    def open_spider(self, spider):
+        # Initialize Redis
+        self.r = Redis.from_url(self.redis_url, decode_responses=True)
+
+        # Set up pipeline for bulk operations
+        self.pipe = self.r.pipeline()
+
     def close_spider(self, spider):
-        self.collection.bulk_write(self.requests, ordered=True)
-        print(f"Inserted {len(self.requests)} items")
-        self.requests.clear()
-        self.end = time.time()
-        print(f"{self.end - self.start}s elapsed")
+        # Commit pipeline
+        self.pipe.execute()
 
-
-class PretzPipeline:
     def process_item(self, item, spider):
+        # Format url to be compatible with Scrapy-Redis
+        # url = {"url": item["response_url"]}
+
+        self.pipe.sadd(self.spider_key, item["response_url"])
+
         return item

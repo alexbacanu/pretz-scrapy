@@ -1,15 +1,13 @@
+from pretz.custom import SimpleRedisCrawlSpider
 from pretz.items import EmagProductsItem
-from pretz.settings import REDIS_URL_KEY, SPIDER_DOMAINS, SPIDER_PRODUCTS
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from scrapy.spiders import Request, Rule
-from scrapy_redis.spiders import RedisCrawlSpider
 
 
-class EmagProductsSpider(RedisCrawlSpider):
-    name = SPIDER_PRODUCTS
-    allowed_domains = [SPIDER_DOMAINS]
-    redis_key = REDIS_URL_KEY
+class EmagProductsSpider(SimpleRedisCrawlSpider):
+    name = "emag_products"
+    allowed_domains = ["emag.ro"]
 
     rules = (
         Rule(
@@ -22,39 +20,22 @@ class EmagProductsSpider(RedisCrawlSpider):
     custom_settings = {
         "ITEM_PIPELINES": {
             "pretz.pipelines.DefaultValuesPipeline": 150,
-            "pretz.pipelines.MongoDBProductsPipeline": 250,
-        },
-        # "SPIDER_MIDDLEWARES": {
-        #     "pretz.middlewares.StartUrlsMiddleware": 110,
-        # },
+            "pretz.pipelines.MongoPipeline": 250,
+        }
     }
 
     def parse_start_url(self, response):
-        self.logger.info("─" * 82)
         self.logger.info(f"[Spider->Products] Getting headers from {response.url}")
 
-        # Select category and items
         header = response.css("div.js-head-title")
+        # header_items = header.css("span.title-phrasing-sm::text").get()
         self.category = header.css("span.title-phrasing-xl::text").get()
 
-        reported_items = header.css("span.title-phrasing-sm::text").get()
-        # reported_items_number = int(re.findall("\d+", reported_items)[0])
-
-        # Custom stat reported_items
-        # self.crawler.stats.set_value("item_reported_count", total_items_reported)
-
-        # Logs again
-        self.logger.info(f"[Spider->Products] Category: {self.category}")
-        self.logger.info(f"[Spider->Products] Items: {reported_items}")
-
-        # Return
         yield Request(url=response.url, callback=self.parse_page)
 
     def parse_page(self, response):
-        # Logs
         self.logger.info(f"[Spider->Products] Crawling {response.url}")
 
-        # Define selectors
         products = response.css("div.card-v2-wrapper")
 
         for product in products:
@@ -62,7 +43,6 @@ class EmagProductsSpider(RedisCrawlSpider):
             if product.css("div.card-v2-atc::attr(data-pnk)").get() is None:
                 return
 
-            # Define selectors
             itemloader = ItemLoader(item=EmagProductsItem(), selector=product)
 
             # pID

@@ -1,59 +1,51 @@
-import json
-import os
-
-import redis
-from scrapy.http import Request
-
-from pretz.settings import DEV_TAG, REDIS_URL_KEY
+from redis import Redis
 
 
-class StartUrlsMiddleware(object):
-    def __init__(self):
-        # Initialize Redis
-        self.r = redis.Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
+# emag_products uses this
+class ScrapeDoMiddleware:
+    def __init__(self, scrapedo_key):
+        self.scrapedo_key = scrapedo_key
 
-    def process_start_requests(self, start_requests, spider):
-        # Key name to fetch start urls
-        url_key = REDIS_URL_KEY
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            scrapedo_key=crawler.settings.get("SCRAPEDO_KEY"),
+        )
 
-        # Pop entry(ies) from Redis and get their value
-        start_requests = self.r.spop(url_key, 1)
-        for request in start_requests:
-            yield Request(url=request)
+    def process_request(self, request, spider):
+        # Set proxy
+        request.meta[
+            "proxy"
+        ] = f"http://{self.scrapedo_key}:render=false@proxy.scrape.do:8080"
+        return None
 
 
-class FailedUrlsMiddleware(object):
-    def __init__(self):
-        # Initialize Redis
-        self.r = redis.Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
+# emag_products uses this
+class FailedUrlsMiddleware:
+    def __init__(self, redis_url, spider_key):
+        self.redis_url = redis_url
+        self.spider_key = spider_key
+        self.r = Redis.from_url(self.redis_url, decode_responses=True)
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            redis_url=crawler.settings.get("REDIS_URI"),
+            spider_key=crawler.settings.get("REDIS_FAILED_URLS"),
+        )
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
         if response.status not in range(200, 399):
-            # Key name to store failed urls
-            spider_key = f"{spider.name}{DEV_TAG}:failed_urls"
-
-            # Format url to be compatible with Scrapy-Redis
-            url = {"url": response.url}
-
             # Add failed urls
-            self.r.lpush(spider_key, json.dumps(url))
+            self.r.sadd(self.spider_key, response.url)
 
         return response
 
 
-class ScrapeDoProxyMiddleware(object):
-    @classmethod
+# emag_products uses this
+class EmagCookiesMiddleware:
     def process_request(self, request, spider):
-        # Set proxy to ScrapeDo
-        # spider.logger.info(f"Proxy ScrapeDo on: {request.url}")
-        request.meta[
-            "proxy"
-        ] = f"http://{os.getenv('PROXY_SCRAPEDO_KEY')}:render=false@proxy.scrape.do:8080"
-
-
-class EmagCookiesMiddleware(object):
-    @classmethod
-    def process_request(self, request, spider):
-        # Set cookies to display 100 items per page (reduces requests)
+        # Set cookies to display 100 items per page
         request.cookies["listingPerPage"] = 100
+        return None
