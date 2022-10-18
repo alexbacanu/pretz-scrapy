@@ -24,6 +24,7 @@ class RedisSitemapPipeline(object):
     def __init__(self):
         # Initialize Redis
         r = redis.Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
+        r.delete(f"emag_sitemap{DEV_TAG}:dupefilter")
 
         # Set up pipeline for bulk operations
         self.pipe = r.pipeline()
