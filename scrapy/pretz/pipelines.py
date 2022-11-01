@@ -62,7 +62,7 @@ class MongoPipeline:
                         "description": "Product Link - Optional.",
                     },
                     "pImg": {
-                        "bsonType": ["string", "null"],
+                        "bsonType": "string",
                         "description": "Product Image - Optional.",
                     },
                     "pCategory": {
@@ -70,35 +70,35 @@ class MongoPipeline:
                         "description": "Product Category - Optional.",
                     },
                     "pReviews": {
-                        "bsonType": ["number", "null"],
+                        "bsonType": "number",
                         "description": "Product Reviews - Optional.",
                     },
                     "pStars": {
-                        "bsonType": ["number", "null"],
+                        "bsonType": "number",
                         "description": "Product Stars - Optional.",
                     },
                     "pGeniusTag": {
-                        "bsonType": ["bool", "null"],
+                        "bsonType": "bool",
                         "description": "Product Genius Tag - Optional.",
                     },
                     "pUsedTag": {
-                        "bsonType": ["bool", "null"],
+                        "bsonType": "bool",
                         "description": "Product Used Tag - Optional.",
                     },
                     "priceCurrent": {
-                        "bsonType": ["number", "null"],
+                        "bsonType": "number",
                         "description": "Price Current - Optional.",
                     },
                     "priceRetail": {
-                        "bsonType": ["number", "null"],
+                        "bsonType": "number",
                         "description": "Price Retail - Optional.",
                     },
                     "priceSlashed": {
-                        "bsonType": ["number", "null"],
+                        "bsonType": "number",
                         "description": "Price Slashed - Optional.",
                     },
                     "priceUsed": {
-                        "bsonType": ["number", "null"],
+                        "bsonType": "number",
                         "description": "Price Used - Optional.",
                     },
                     "crawledAt": {
@@ -114,20 +114,64 @@ class MongoPipeline:
                                 "description": "Price Date - Optional.",
                             },
                             "priceCurrent": {
-                                "bsonType": ["number", "null"],
+                                "bsonType": "number",
                                 "description": "Price Current - Optional.",
                             },
                             "priceRetail": {
-                                "bsonType": ["number", "null"],
+                                "bsonType": "number",
                                 "description": "Price Retail - Optional.",
                             },
                             "priceSlashed": {
-                                "bsonType": ["number", "null"],
+                                "bsonType": "number",
                                 "description": "Price Slashed - Optional.",
                             },
                             "priceUsed": {
-                                "bsonType": ["number", "null"],
+                                "bsonType": "number",
                                 "description": "Price Used - Optional.",
+                            },
+                        },
+                    },
+                    "minPrice": {
+                        "bsonType": "object",
+                        "description": "Product Minimum Prices - Optional.",
+                        "properties": {
+                            "last7": {
+                                "bsonType": "number",
+                                "description": "Last 7 days - Optional.",
+                            },
+                            "last30": {
+                                "bsonType": "number",
+                                "description": "Last 30 days - Optional.",
+                            },
+                            "last90": {
+                                "bsonType": "number",
+                                "description": "Last 90 days - Optional.",
+                            },
+                            "allTime": {
+                                "bsonType": "number",
+                                "description": "All time - Optional.",
+                            },
+                        },
+                    },
+                    "discount": {
+                        "bsonType": "object",
+                        "description": "Product Minimum Prices - Optional.",
+                        "properties": {
+                            "best7": {
+                                "bsonType": "number",
+                                "description": "Best 7 days - Optional.",
+                            },
+                            "best30": {
+                                "bsonType": "number",
+                                "description": "Best 30 days - Optional.",
+                            },
+                            "best90": {
+                                "bsonType": "number",
+                                "description": "Best 90 days - Optional.",
+                            },
+                            "allTime": {
+                                "bsonType": "number",
+                                "description": "All time - Optional.",
                             },
                         },
                     },
@@ -160,18 +204,21 @@ class MongoPipeline:
         product_dict = dict(item)
 
         # Define timeseries
-        timeseries = {
-            "priceDate": item["crawledAt"],
-            "priceCurrent": item["priceCurrent"],
-            "priceRetail": item["priceRetail"],
-            "priceSlashed": item["priceSlashed"],
-            "priceUsed": item["priceUsed"],
+        timeseries_all = {
+            "priceDate": item.get("crawledAt"),
+            "priceCurrent": item.get("priceCurrent"),
+            "priceRetail": item.get("priceRetail"),
+            "priceSlashed": item.get("priceSlashed"),
+            "priceUsed": item.get("priceUsed"),
         }
+
+        # Remove null values
+        timeseries = {k: v for k, v in timeseries_all.items() if v is not None}
 
         # Append an UpdateOne request to the array (item dictionary)
         self.requests.append(
             UpdateOne(
-                {"pID": item["pID"]},
+                {"pID": item.get("pID")},
                 [
                     {"$set": product_dict},
                     {"$set": {f"timeseries.{date_time}": timeseries}},
@@ -218,6 +265,6 @@ class RedisPipeline:
         # Format url to be compatible with Scrapy-Redis
         # url = {"url": item["response_url"]}
 
-        self.pipe.sadd(self.spider_key, item["response_url"])
+        self.pipe.sadd(self.spider_key, item.get("response_url"))
 
         return item

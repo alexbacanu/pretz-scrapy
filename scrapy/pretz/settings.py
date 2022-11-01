@@ -93,7 +93,7 @@ SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
 SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 
 # App specific
-DEV_TAG = "_dev"
+DEV_TAG = ""
 SCRAPEDO_KEY = f"{os.getenv('SCRAPEDO_KEY')}"
 
 MONGO_URI = f"{os.getenv('MONGO_URI')}"

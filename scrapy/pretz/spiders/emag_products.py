@@ -19,7 +19,6 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
 
     custom_settings = {
         "ITEM_PIPELINES": {
-            "pretz.pipelines.DefaultValuesPipeline": 150,
             "pretz.pipelines.MongoPipeline": 250,
         }
     }
