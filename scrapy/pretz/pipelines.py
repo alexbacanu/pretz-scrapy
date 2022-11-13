@@ -51,63 +51,63 @@ class MongoPipeline:
                     },
                     "pStore": {
                         "bsonType": "string",
-                        "description": "Product Store - Optional.",
+                        "description": "Product store - Optional.",
                     },
                     "pName": {
                         "bsonType": "string",
-                        "description": "Product Name - Required.",
+                        "description": "Product name - Required.",
                     },
                     "pLink": {
                         "bsonType": "string",
-                        "description": "Product Link - Optional.",
+                        "description": "Product link - Optional.",
                     },
                     "pImg": {
                         "bsonType": "string",
-                        "description": "Product Image - Optional.",
+                        "description": "Product image - Optional.",
                     },
                     "pCategory": {
                         "bsonType": "string",
-                        "description": "Product Category - Optional.",
+                        "description": "Product category - Optional.",
                     },
                     "pReviews": {
                         "bsonType": "number",
-                        "description": "Product Reviews - Optional.",
+                        "description": "Product reviews - Optional.",
                     },
                     "pStars": {
                         "bsonType": "number",
-                        "description": "Product Stars - Optional.",
+                        "description": "Product stars - Optional.",
                     },
                     "pGeniusTag": {
                         "bsonType": "bool",
-                        "description": "Product Genius Tag - Optional.",
+                        "description": "Product genius tag - Optional.",
                     },
                     "pUsedTag": {
                         "bsonType": "bool",
-                        "description": "Product Used Tag - Optional.",
+                        "description": "Product used tag - Optional.",
                     },
                     "priceCurrent": {
                         "bsonType": "number",
-                        "description": "Price Current - Optional.",
+                        "description": "Price current - Optional.",
                     },
                     "priceRetail": {
                         "bsonType": "number",
-                        "description": "Price Retail - Optional.",
+                        "description": "Price retail - Optional.",
                     },
                     "priceSlashed": {
                         "bsonType": "number",
-                        "description": "Price Slashed - Optional.",
+                        "description": "Price slashed - Optional.",
                     },
                     "priceUsed": {
                         "bsonType": "number",
-                        "description": "Price Used - Optional.",
+                        "description": "Price used - Optional.",
                     },
                     "crawledAt": {
                         "bsonType": "date",
-                        "description": "Crawled At - Optional.",
+                        "description": "Crawled at - Optional.",
                     },
                     "timeseries": {
                         "bsonType": "object",
-                        "description": "Product Timeseries - Optional.",
+                        "description": "Product timeseries - Optional.",
                         "properties": {
                             "priceDate": {
                                 "bsonType": "date",
@@ -131,47 +131,161 @@ class MongoPipeline:
                             },
                         },
                     },
-                    "minPrice": {
+                    "stats": {
                         "bsonType": "object",
-                        "description": "Product Minimum Prices - Optional.",
+                        "description": "Price stats - Optional.",
                         "properties": {
-                            "last7": {
-                                "bsonType": "number",
-                                "description": "Last 7 days - Optional.",
+                            "lowest7": {
+                                "bsonType": "object",
+                                "description": "Minimum new price of 7 days - Optional.",
+                                "properties": {
+                                    "k": {
+                                        "bsonType": "date",
+                                        "description": "Key - Optional",
+                                    },
+                                    "v": {
+                                        "bsonType": "number",
+                                        "description": "Value - Optional",
+                                    },
+                                },
                             },
-                            "last30": {
-                                "bsonType": "number",
-                                "description": "Last 30 days - Optional.",
+                            "lowest30": {
+                                "bsonType": "object",
+                                "description": "Minimum new price of 30 days - Optional.",
+                                "properties": {
+                                    "k": {
+                                        "bsonType": "date",
+                                        "description": "Key - Optional",
+                                    },
+                                    "v": {
+                                        "bsonType": "number",
+                                        "description": "Value - Optional",
+                                    },
+                                },
                             },
-                            "last90": {
-                                "bsonType": "number",
-                                "description": "Last 90 days - Optional.",
+                            "lowest90": {
+                                "bsonType": "object",
+                                "description": "Minimum new price of 90 days - Optional.",
+                                "properties": {
+                                    "k": {
+                                        "bsonType": "date",
+                                        "description": "Key - Optional",
+                                    },
+                                    "v": {
+                                        "bsonType": "number",
+                                        "description": "Value - Optional",
+                                    },
+                                },
                             },
-                            "allTime": {
-                                "bsonType": "number",
-                                "description": "All time - Optional.",
+                            "lowestAll": {
+                                "bsonType": "object",
+                                "description": "Minimum new price of all time - Optional.",
+                                "properties": {
+                                    "k": {
+                                        "bsonType": "date",
+                                        "description": "Key - Optional",
+                                    },
+                                    "v": {
+                                        "bsonType": "number",
+                                        "description": "Value - Optional",
+                                    },
+                                },
                             },
-                        },
-                    },
-                    "discount": {
-                        "bsonType": "object",
-                        "description": "Product Minimum Prices - Optional.",
-                        "properties": {
-                            "best7": {
-                                "bsonType": "number",
-                                "description": "Best 7 days - Optional.",
+                            "highest7": {
+                                "bsonType": "object",
+                                "description": "Highest new price of 7 days - Optional.",
+                                "properties": {
+                                    "k": {
+                                        "bsonType": "date",
+                                        "description": "Key - Optional",
+                                    },
+                                    "v": {
+                                        "bsonType": "number",
+                                        "description": "Value - Optional",
+                                    },
+                                },
                             },
-                            "best30": {
-                                "bsonType": "number",
-                                "description": "Best 30 days - Optional.",
+                            "highest30": {
+                                "bsonType": "object",
+                                "description": "Highest new price of 30 days - Optional.",
+                                "properties": {
+                                    "k": {
+                                        "bsonType": "date",
+                                        "description": "Key - Optional",
+                                    },
+                                    "v": {
+                                        "bsonType": "number",
+                                        "description": "Value - Optional",
+                                    },
+                                },
                             },
-                            "best90": {
-                                "bsonType": "number",
-                                "description": "Best 90 days - Optional.",
+                            "highest90": {
+                                "bsonType": "object",
+                                "description": "Highest new price of 90 days - Optional.",
+                                "properties": {
+                                    "k": {
+                                        "bsonType": "date",
+                                        "description": "Key - Optional",
+                                    },
+                                    "v": {
+                                        "bsonType": "number",
+                                        "description": "Value - Optional",
+                                    },
+                                },
                             },
-                            "allTime": {
-                                "bsonType": "number",
-                                "description": "All time - Optional.",
+                            "highestAll": {
+                                "bsonType": "object",
+                                "description": "Highest new price of all time - Optional.",
+                                "properties": {
+                                    "k": {
+                                        "bsonType": "date",
+                                        "description": "Key - Optional",
+                                    },
+                                    "v": {
+                                        "bsonType": "number",
+                                        "description": "Value - Optional",
+                                    },
+                                },
+                            },
+                            "deal7": {
+                                "bsonType": "object",
+                                "description": "Deal new price of 7 days - Optional.",
+                                "properties": {
+                                    "v": {
+                                        "bsonType": "number",
+                                        "description": "Value - Optional",
+                                    }
+                                },
+                            },
+                            "deal30": {
+                                "bsonType": "object",
+                                "description": "Deal new price of 30 days - Optional.",
+                                "properties": {
+                                    "v": {
+                                        "bsonType": "number",
+                                        "description": "Value - Optional",
+                                    }
+                                },
+                            },
+                            "deal90": {
+                                "bsonType": "object",
+                                "description": "Deal new price of 90 days - Optional.",
+                                "properties": {
+                                    "v": {
+                                        "bsonType": "number",
+                                        "description": "Value - Optional",
+                                    }
+                                },
+                            },
+                            "dealAll": {
+                                "bsonType": "object",
+                                "description": "Deal new price of all time - Optional.",
+                                "properties": {
+                                    "v": {
+                                        "bsonType": "number",
+                                        "description": "Value - Optional",
+                                    }
+                                },
                             },
                         },
                     },
@@ -181,8 +295,10 @@ class MongoPipeline:
 
         # Validate or create collection
         try:
+            # Check for DB/Collection
             self.db.validate_collection(self.mongo_coll)["valid"]
         except:
+            # Create DB/Collection
             self.db.create_collection(self.mongo_coll, validator=validator)
 
         # Init an empty array for bulk operations

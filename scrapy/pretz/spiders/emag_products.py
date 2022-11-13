@@ -1,5 +1,6 @@
 from pretz.custom import SimpleRedisCrawlSpider
 from pretz.items import EmagProductsItem
+
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
 from scrapy.spiders import Request, Rule
