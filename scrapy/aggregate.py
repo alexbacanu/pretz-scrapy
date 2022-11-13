@@ -852,7 +852,7 @@ def main():
         },
         {
             "$merge": {
-                "into": "emag_dev",
+                "into": f"emag{DEV_TAG}",
                 "on": "_id",
                 "whenMatched": "replace",
                 "whenNotMatched": "insert",
