@@ -2,6 +2,7 @@ from collections.abc import Iterable
 from time import time
 
 from redis import Redis
+
 from scrapy import signals
 from scrapy.exceptions import DontCloseSpider
 from scrapy.http import FormRequest
