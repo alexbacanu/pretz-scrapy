@@ -1,3 +1,5 @@
+import json
+
 from pretz.custom import SimpleRedisCrawlSpider
 from pretz.items import EmagProductsItem
 
@@ -27,16 +29,22 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
     def parse_start_url(self, response):
         self.logger.info(f"[Spider->Products] Getting headers from {response.url}")
 
-        header = response.css("div.js-head-title")
+        # TODO: Remove parse_start_url
+        # header = response.css("div.js-head-title")
         # header_items = header.css("span.title-phrasing-sm::text").get()
-        self.category = header.css("span.title-phrasing-xl::text").get()
+        # self.category = header.css("span.title-phrasing-xl::text").get()
 
         yield Request(url=response.url, callback=self.parse_page)
 
     def parse_page(self, response):
         self.logger.info(f"[Spider->Products] Crawling {response.url}")
 
-        products = response.css("div.card-v2-wrapper")
+        # Get offers inside script tag
+        pattern = r"(?:items\s=\s)(\[[\S\s]+\])(?:;)"
+        json_data = response.css("script[type]::text").re_first(pattern)
+        objects = json.loads(json_data)
+
+        products = response.css("div.js-product-data")
 
         for product in products:
             # Skip objects with no ID
@@ -47,9 +55,6 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
 
             # pID
             itemloader.add_css("pID", "div.card-v2-atc::attr(data-pnk)")
-
-            # pStore
-            itemloader.add_value("pStore", "emag")
 
             # pName
             itemloader.add_css("pName", ".card-v2-title")
@@ -64,8 +69,29 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
             else:
                 itemloader.add_css("pImg", "div.bundle-image::attr(style)")
 
+            # pCategoryTrail
+            itemloader.add_css(
+                "pCategoryTrail", "div.js-product-data::attr(data-category-trail)"
+            )
+
             # pCategory
-            itemloader.add_value("pCategory", self.category)
+            itemloader.add_css(
+                "pCategory", "div.js-product-data::attr(data-category-name)"
+            )
+
+            data_product = int(
+                product.css("button.add-to-favorites::attr(data-productid)").get()
+            )
+
+            for o in objects:
+                if data_product == o["id"]:
+                    # pVendor
+                    itemloader.add_value(
+                        "pVendor", o["offer"]["vendor"]["name"]["display"]
+                    )
+
+                    # pStock
+                    itemloader.add_value("pStock", o["offer"]["availability"]["text"])
 
             # pReviews / pStars
             ratings = product.css("div.card-v2-rating").get()
@@ -102,9 +128,6 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
 
             # crawledAt
             itemloader.add_value("crawledAt", "")
-
-            # TODO: Add more fields
-            # itemloader.add_value("productStock", "span.visible-xs-inline-block::text")
 
             # Load items
             yield itemloader.load_item()

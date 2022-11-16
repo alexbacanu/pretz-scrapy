@@ -49,10 +49,6 @@ class MongoPipeline:
                         "description": "Product ID - Required.",
                         "uniqueItems": True,
                     },
-                    "pStore": {
-                        "bsonType": "string",
-                        "description": "Product store - Optional.",
-                    },
                     "pName": {
                         "bsonType": "string",
                         "description": "Product name - Required.",
@@ -65,9 +61,21 @@ class MongoPipeline:
                         "bsonType": "string",
                         "description": "Product image - Optional.",
                     },
+                    "pCategoryTrail": {
+                        "bsonType": "string",
+                        "description": "Product category trail - Optional.",
+                    },
                     "pCategory": {
                         "bsonType": "string",
                         "description": "Product category - Optional.",
+                    },
+                    "pVendor": {
+                        "bsonType": "string",
+                        "description": "Product vendor - Optional.",
+                    },
+                    "pStock": {
+                        "bsonType": "string",
+                        "description": "Product stock - Optional.",
                     },
                     "pReviews": {
                         "bsonType": "number",
