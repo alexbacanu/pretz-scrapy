@@ -17,6 +17,7 @@ def main():
     coll = f"{os.environ.get('MONGO_COLL')}{DEV_TAG}"
 
     # Get today's date as 2022-13-11T00:00:00.000
+    # *This is UTC
     today = datetime.utcnow().replace(
         hour=0, minute=0, second=0, microsecond=0
     ) + timedelta(days=0)
@@ -801,32 +802,32 @@ def main():
                 "stats.deal7": {
                     "v": {
                         "$subtract": [
-                            1,
                             {"$divide": ["$priceCurrent", "$stats.lowest7.v"]},
+                            1,
                         ]
                     }
                 },
                 "stats.deal30": {
                     "v": {
                         "$subtract": [
-                            1,
                             {"$divide": ["$priceCurrent", "$stats.lowest30.v"]},
+                            1,
                         ]
                     }
                 },
                 "stats.deal90": {
                     "v": {
                         "$subtract": [
-                            1,
                             {"$divide": ["$priceCurrent", "$stats.lowest90.v"]},
+                            1,
                         ]
                     }
                 },
                 "stats.dealAll": {
                     "v": {
                         "$subtract": [
-                            1,
                             {"$divide": ["$priceCurrent", "$stats.lowestAll.v"]},
+                            1,
                         ]
                     }
                 },
@@ -842,6 +843,19 @@ def main():
                 "stats.averageAll": {
                     "v": {"$avg": "$stats.averageAllArr.v.priceCurrent"}
                 },
+                "stats.cash7": {
+                    "v": {"$subtract": ["$priceCurrent", "$stats.lowest7.v"]}
+                },
+                "stats.cash30": {
+                    "v": {"$subtract": ["$priceCurrent", "$stats.lowest30.v"]}
+                },
+                "stats.cash90": {
+                    "v": {"$subtract": ["$priceCurrent", "$stats.lowest90.v"]}
+                },
+                "stats.cashAll": {
+                    "v": {"$subtract": ["$priceCurrent", "$stats.lowestAll.v"]}
+                },
+                # *This is UTC
                 "stats.updatedAt": "$$NOW",
                 "timeseriesArr": "$$REMOVE",
                 "stats.average7Arr": "$$REMOVE",

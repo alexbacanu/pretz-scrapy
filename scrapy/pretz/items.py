@@ -37,6 +37,7 @@ def filter_pricing(text):
 
 def current_date(text):
     # Return as 2022-12-31T23:59:59.123456+00:00
+    # *This is UTC
     return datetime.utcnow()
 
 

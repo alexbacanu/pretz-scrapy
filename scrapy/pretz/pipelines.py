@@ -295,6 +295,90 @@ class MongoPipeline:
                                     }
                                 },
                             },
+                            "average7": {
+                                "bsonType": "object",
+                                "description": "Average price of 7 days - Optional.",
+                                "properties": {
+                                    "v": {
+                                        "bsonType": ["number", "null"],
+                                        "description": "Value - Optional",
+                                    }
+                                },
+                            },
+                            "average30": {
+                                "bsonType": "object",
+                                "description": "Average price of 30 days - Optional.",
+                                "properties": {
+                                    "v": {
+                                        "bsonType": ["number", "null"],
+                                        "description": "Value - Optional",
+                                    }
+                                },
+                            },
+                            "average90": {
+                                "bsonType": "object",
+                                "description": "Average price of 90 days - Optional.",
+                                "properties": {
+                                    "v": {
+                                        "bsonType": ["number", "null"],
+                                        "description": "Value - Optional",
+                                    }
+                                },
+                            },
+                            "averageAll": {
+                                "bsonType": "object",
+                                "description": "Average price of all time - Optional.",
+                                "properties": {
+                                    "v": {
+                                        "bsonType": ["number", "null"],
+                                        "description": "Value - Optional",
+                                    }
+                                },
+                            },
+                            "cash7": {
+                                "bsonType": "object",
+                                "description": "Cash price of 7 days - Optional.",
+                                "properties": {
+                                    "v": {
+                                        "bsonType": ["number", "null"],
+                                        "description": "Value - Optional",
+                                    }
+                                },
+                            },
+                            "cash30": {
+                                "bsonType": "object",
+                                "description": "Cash price of 30 days - Optional.",
+                                "properties": {
+                                    "v": {
+                                        "bsonType": ["number", "null"],
+                                        "description": "Value - Optional",
+                                    }
+                                },
+                            },
+                            "cash90": {
+                                "bsonType": "object",
+                                "description": "Cash price of 90 days - Optional.",
+                                "properties": {
+                                    "v": {
+                                        "bsonType": ["number", "null"],
+                                        "description": "Value - Optional",
+                                    }
+                                },
+                            },
+                            "cashAll": {
+                                "bsonType": "object",
+                                "description": "Cash price of all time - Optional.",
+                                "properties": {
+                                    "v": {
+                                        "bsonType": ["number", "null"],
+                                        "description": "Value - Optional",
+                                    }
+                                },
+                            },
+                            "updatedAt": {
+                                "bsonType": "date",
+                                "description": "Updated at value for stats",
+                            },
                         },
                     },
                 },
@@ -322,6 +406,7 @@ class MongoPipeline:
 
     def process_item(self, item, spider):
         # Get current time as "2022-09-07"
+        # !This is not UTC
         date_time = datetime.now().astimezone().strftime("%Y-%m-%d")
 
         # Create a new dictionary
