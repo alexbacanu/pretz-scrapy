@@ -1,5 +1,9 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 BOT_NAME = "pretz"
 
 SPIDER_MODULES = ["pretz.spiders"]
@@ -33,7 +37,6 @@ TELNETCONSOLE_ENABLED = False
 # Enable or disable downloader middlewares
 DOWNLOADER_MIDDLEWARES = {
     "pretz.middlewares.ScrapeDoMiddleware": 120,
-    "pretz.middlewares.EmagCookiesMiddleware": 200,
     "pretz.middlewares.FailedUrlsMiddleware": 250,
 }
 
@@ -93,7 +96,7 @@ SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
 SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 
 # App specific
-DEV_TAG = ""
+DEV_TAG = "_dev"  # !DEV TAG
 SCRAPEDO_KEY = f"{os.getenv('SCRAPEDO_KEY')}"
 
 MONGO_URI = f"{os.getenv('MONGO_URI')}"
@@ -101,7 +104,5 @@ MONGO_DB = f"{os.getenv('MONGO_DB')}{DEV_TAG}"
 MONGO_COLL = f"{os.getenv('MONGO_COLL')}{DEV_TAG}"
 
 REDIS_URI = f"{os.getenv('REDIS_URI')}"
-REDIS_START_URLS = f"emag_sitemap{DEV_TAG}:start_urls"
-REDIS_FAILED_URLS = f"emag_products{DEV_TAG}:failed_urls"
 
-MAX_IDLE_TIME = 60
+MAX_IDLE_TIME = 5

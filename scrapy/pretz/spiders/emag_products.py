@@ -1,133 +1,143 @@
-import json
+from datetime import datetime
 
 from pretz.custom import SimpleRedisCrawlSpider
-from pretz.items import EmagProductsItem
+from pretz.items import GenericProductsItem
+from pretz.settings import DEV_TAG
 
-from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
-from scrapy.spiders import Request, Rule
+from scrapy.spiders import Request
 
 
 class EmagProductsSpider(SimpleRedisCrawlSpider):
-    name = "emag_products"
-    allowed_domains = ["emag.ro"]
+    name = f"emag_products{DEV_TAG}"
 
-    rules = (
-        Rule(
-            LinkExtractor(allow=(r"/c$"), restrict_css=("a.js-change-page")),
-            callback="parse_page",
-            follow=True,
-        ),
-    )
+    sitemap_name = f"emag_sitemap{DEV_TAG}"
+    database_name = f"products{DEV_TAG}"
+    api_website = "https://www.emag.ro/search-by-url?source_id=7&page[limit]=100&url=/"
+
+    allowed_domains = ["emag.ro"]
 
     custom_settings = {
         "ITEM_PIPELINES": {
             "pretz.pipelines.MongoPipeline": 250,
-        }
+        },
     }
 
     def parse_start_url(self, response):
         self.logger.info(f"[Spider->Products] Getting headers from {response.url}")
 
-        # TODO: Remove parse_start_url
-        # header = response.css("div.js-head-title")
-        # header_items = header.css("span.title-phrasing-sm::text").get()
-        # self.category = header.css("span.title-phrasing-xl::text").get()
+        # JSON response
+        json_response = response.json()
 
-        yield Request(url=response.url, callback=self.parse_page)
+        # Get total pages
+        total_pages = (
+            json_response.get("data").get("pagination").get("pages")[-1].get("id")
+        )
+
+        if total_pages == 1:
+            yield Request(url=response.url, callback=self.parse_page)
+
+        if total_pages > 1:
+            # Strip /c from the end
+            new_response = response.url.rsplit("/", 1)[0]
+
+            # Generate requests based on number of pages
+            requests_array = [
+                f"{new_response}/p{i}/c" for i in range(2, total_pages + 1)
+            ]
+
+            # Insert first page (not using /p{i}/c)
+            requests_array.insert(0, response.url)
+
+            for request in requests_array:
+                yield Request(url=request, callback=self.parse_page)
 
     def parse_page(self, response):
         self.logger.info(f"[Spider->Products] Crawling {response.url}")
 
-        # Get offers inside script tag
-        pattern = r"(?:items\s=\s)(\[[\S\s]+\])(?:;)"
-        json_data = response.css("script[type]::text").re_first(pattern)
-        objects = json.loads(json_data)
+        # JSON response
+        json_response = response.json()
 
-        products = response.css("div.js-product-data")
+        # Get products
+        products = json_response.get("data").get("items")
+
+        # Get category
+        category = json_response.get("data").get("category").get("name")
+
+        # Get breadcrumbs
+        breadcrumbs_list = (
+            json_response.get("data").get("category").get("trail").split("/")
+        )
 
         for product in products:
-            # Skip objects with no ID
-            if product.css("div.card-v2-atc::attr(data-pnk)").get() is None:
-                return
-
-            itemloader = ItemLoader(item=EmagProductsItem(), selector=product)
+            itemloader = ItemLoader(item=GenericProductsItem(), selector=product)
 
             # pID
-            itemloader.add_css("pID", "div.card-v2-atc::attr(data-pnk)")
+            itemloader.add_value("pID", f"emg:{product.get('part_number_key')}")
 
             # pName
-            itemloader.add_css("pName", ".card-v2-title")
+            itemloader.add_value("pName", product.get("name"))
+
+            # # pNameTags
+            # itemloader.add_value("pNameTags", product.get("name"))
 
             # pLink
-            itemloader.add_css("pLink", "a.card-v2-thumb::attr(href)")
+            itemloader.add_value(
+                "pLink", f"https://emag.ro/{product.get('url').get('path')}"
+            )
 
             # pImg
-            image = product.css("img.w-100::attr(src)").get()
-            if image is not None:
-                itemloader.add_css("pImg", "img.w-100::attr(src)")
-            else:
-                itemloader.add_css("pImg", "div.bundle-image::attr(style)")
+            itemloader.add_value("pImg", product.get("image").get("original"))
 
             # pCategoryTrail
-            itemloader.add_css(
-                "pCategoryTrail", "div.js-product-data::attr(data-category-trail)"
-            )
+            itemloader.add_value("pCategoryTrail", breadcrumbs_list)
 
             # pCategory
-            itemloader.add_css(
-                "pCategory", "div.js-product-data::attr(data-category-name)"
+            itemloader.add_value("pCategory", category)
+
+            # pVendor
+            itemloader.add_value(
+                "pVendor", product.get("offer").get("vendor").get("name").get("display")
             )
 
-            data_product = int(
-                product.css("button.add-to-favorites::attr(data-productid)").get()
+            # pStock
+            itemloader.add_value(
+                "pStock", product.get("offer").get("availability").get("text")
             )
 
-            for o in objects:
-                if data_product == o["id"]:
-                    # pVendor
-                    itemloader.add_value(
-                        "pVendor", o["offer"]["vendor"]["name"]["display"]
-                    )
+            # pReviews
+            itemloader.add_value(
+                "pReviews", product.get("feedback").get("reviews").get("count")
+            )
 
-                    # pStock
-                    itemloader.add_value("pStock", o["offer"]["availability"]["text"])
+            # pStars
+            itemloader.add_value("pStars", product.get("feedback").get("rating"))
 
-            # pReviews / pStars
-            ratings = product.css("div.card-v2-rating").get()
-            if ratings is not None and "star-rating-text" in ratings:
-                itemloader.add_css("pReviews", "span.visible-xs-inline-block::text")
-                itemloader.add_css("pStars", "span.average-rating.semibold::text")
-            else:
-                itemloader.add_value("pReviews", 0)
-                itemloader.add_value("pStars", 0)
-
-            # pGeniusTag
-            genius = product.css("div.card-v2-badges").get()
-            if genius is not None and "badge-genius" in genius:
-                itemloader.add_value("pGeniusTag", True)
-            else:
-                itemloader.add_value("pGeniusTag", False)
-
-            # pUsedTag / priceCurrent / priceUsed
-            used = product.css(
-                "div.mrg-btm-xxs.semibold.font-size-sm.text-success::text"
-            ).get()
-            if used == "RESIGILAT":
-                itemloader.add_value("pUsedTag", True)
-                itemloader.add_css("priceUsed", "p.product-new-price")
-            else:
-                itemloader.add_value("pUsedTag", False)
-                itemloader.add_css("priceCurrent", "p.product-new-price")
+            # priceCurrent
+            itemloader.add_value(
+                "priceCurrent", product.get("offer").get("price").get("current")
+            )
 
             # priceRetail
-            itemloader.add_css("priceRetail", "span.rrp-lp30d-content:nth-child(1)")
+            itemloader.add_value(
+                "priceRetail",
+                product.get("offer")
+                .get("price")
+                .get("recommended_retail_price")
+                .get("amount"),
+            )
 
             # priceSlashed
-            itemloader.add_css("priceSlashed", "span.rrp-lp30d-content:nth-child(2)")
+            itemloader.add_value(
+                "priceSlashed",
+                product.get("offer")
+                .get("price")
+                .get("lowest_price_30_days")
+                .get("amount"),
+            )
 
             # crawledAt
-            itemloader.add_value("crawledAt", "")
+            itemloader.add_value("crawledAt", datetime.utcnow())
 
             # Load items
             yield itemloader.load_item()

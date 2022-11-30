@@ -22,23 +22,21 @@ class ScrapeDoMiddleware:
 
 # emag_products uses this
 class FailedUrlsMiddleware:
-    def __init__(self, redis_url, spider_key):
+    def __init__(self, redis_url):
         self.redis_url = redis_url
-        self.spider_key = spider_key
         self.r = Redis.from_url(self.redis_url, decode_responses=True)
 
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
             redis_url=crawler.settings.get("REDIS_URI"),
-            spider_key=crawler.settings.get("REDIS_FAILED_URLS"),
         )
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
         if response.status not in range(200, 399):
             # Add failed urls
-            self.r.sadd(self.spider_key, response.url)
+            self.r.sadd(f"{spider.name}:failed_urls", response.url)
 
         return response
 

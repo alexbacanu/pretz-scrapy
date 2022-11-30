@@ -1,15 +1,14 @@
 import defusedxml.ElementTree as ET
-from pretz.items import EmagSitemapItem
-from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Request, Rule
+from pretz.items import GenericSitemapItem
+from pretz.settings import DEV_TAG
+
+from scrapy.spiders import Spider, Request
 
 
-class EmagSitemapSpider(CrawlSpider):
-    name = "emag_sitemap"
+class EmagSitemapSpider(Spider):
+    name = f"emag_sitemap{DEV_TAG}"
     allowed_domains = ["emag.ro"]
     start_urls = ["https://www.emag.ro/sitemaps/category-filters-index.xml"]
-
-    rules = (Rule(LinkExtractor(), callback="parse_item", follow=True),)
 
     custom_settings = {
         "ITEM_PIPELINES": {
@@ -17,7 +16,7 @@ class EmagSitemapSpider(CrawlSpider):
         },
     }
 
-    def parse_start_url(self, response):
+    def parse(self, response):
         self.logger.info(f"[Spider->Sitemap] Getting xml from {response.url}")
 
         tree = ET.fromstring(response.text)
@@ -32,9 +31,9 @@ class EmagSitemapSpider(CrawlSpider):
 
         for child in tree:
             if child[0].text.endswith("/vendor/emag/c"):
-                item = EmagSitemapItem()
-                item["response_status"] = response.status
-                item["response_category"] = child[0].text.split("/")[3]
-                item["response_url"] = child[0].text
 
+                item = GenericSitemapItem()
+                item["response_status"] = response.status
+                item["response_category"] = child[0].text.split("/", 3)[3]
+                item["response_url"] = child[0].text
                 yield item

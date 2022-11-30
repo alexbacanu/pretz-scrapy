@@ -3,6 +3,7 @@ import time
 from datetime import datetime, timedelta
 from decimal import ROUND_DOWN, Decimal
 
+from pretz.settings import DEV_TAG
 from pymongo import MongoClient
 
 
@@ -11,7 +12,6 @@ def main():
     start = time.time()
 
     # Initialize PyMongo
-    DEV_TAG = ""
     client = MongoClient(os.environ.get("MONGO_URI"))
     db = f"{os.environ.get('MONGO_DB')}{DEV_TAG}"
     coll = f"{os.environ.get('MONGO_COLL')}{DEV_TAG}"

@@ -20,6 +20,8 @@ class RedisMixin(object):
 
     # Redis client
     r = None
+    sitemap_name = None
+    api_website = None
     redis_url = None
     redis_key = None
     redis_batch_size = None
@@ -40,10 +42,15 @@ class RedisMixin(object):
         if self.redis_url is None:
             raise ValueError("REDIS_URI settings is required")
 
-        # Get REDIS_START_URLS
-        self.redis_key = crawler.settings.get("REDIS_START_URLS")
+        # Get spider name
+        self.redis_key = f"{self.sitemap_name}:start_urls"
         if self.redis_key is None:
-            raise ValueError("REDIS_START_URLS settings is required")
+            raise ValueError("Spider name is missing")
+
+        # Get api website name
+        self.api_website = self.api_website
+        if self.api_website is None:
+            raise ValueError("api_website from spider is missing")
 
         # Get CONCURRENT_REQUESTS
         self.redis_batch_size = crawler.settings.get("CONCURRENT_REQUESTS")
@@ -72,15 +79,22 @@ class RedisMixin(object):
             raise ValueError("Redis connection settings are required")
 
         if self.redis_key is None:
-            raise ValueError("REDIS_START_URLS settings is required")
+            raise ValueError("Spider name is missing")
 
         requests_found = 0
         requests = self.r.spop(self.redis_key, self.redis_batch_size)
 
         if requests is not None and isinstance(requests, Iterable):
             for request in requests:
-                yield FormRequest(request, dont_filter=True)
-                requests_found += 1
+                if isinstance(request, str) and "http://" in request:
+                    yield FormRequest(request, dont_filter=True)
+                    requests_found += 1
+                else:
+                    yield FormRequest(
+                        f"{self.api_website}{request}",
+                        dont_filter=True,
+                    )
+                    requests_found += 1
 
         if requests_found:
             self.logger.info(f"Read {requests_found} requests from '{self.redis_key}'")  # type: ignore
@@ -94,7 +108,7 @@ class RedisMixin(object):
 
     def spider_idle(self):
         if self.redis_key is None:
-            raise ValueError("REDIS_START_URLS settings is required")
+            raise ValueError("Spider name is missing")
 
         self.schedule_next_requests()
 
