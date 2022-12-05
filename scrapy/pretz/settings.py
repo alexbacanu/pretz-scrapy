@@ -101,7 +101,6 @@ SCRAPEDO_KEY = f"{os.getenv('SCRAPEDO_KEY')}"
 
 MONGO_URI = f"{os.getenv('MONGO_URI')}"
 MONGO_DB = f"{os.getenv('MONGO_DB')}{DEV_TAG}"
-MONGO_COLL = f"{os.getenv('MONGO_COLL')}{DEV_TAG}"
 
 REDIS_URI = f"{os.getenv('REDIS_URI')}"
 
