@@ -14,9 +14,7 @@ class ScrapeDoMiddleware:
 
     def process_request(self, request, spider):
         # Set proxy
-        request.meta[
-            "proxy"
-        ] = f"http://{self.scrapedo_key}:render=false@proxy.scrape.do:8080"
+        request.meta["proxy"] = f"http://{self.scrapedo_key}:render=false@proxy.scrape.do:8080"
         return None
 
 

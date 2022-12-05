@@ -5,7 +5,6 @@ from pretz.items import GenericProductsItem
 from pretz.settings import DEV_TAG
 from rapidfuzz import process
 from rapidfuzz.fuzz import partial_ratio
-
 from scrapy.loader import ItemLoader
 from scrapy.spiders import Request
 
@@ -32,9 +31,7 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
         json_response = response.json()
 
         # Get total pages
-        total_pages = (
-            json_response.get("data").get("pagination").get("pages")[-1].get("id")
-        )
+        total_pages = json_response.get("data").get("pagination").get("pages")[-1].get("id")
 
         if total_pages == 1:
             yield Request(url=response.url, callback=self.parse_page)
@@ -44,9 +41,7 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
             new_response = response.url.rsplit("/", 1)[0]
 
             # Generate requests based on number of pages
-            requests_array = [
-                f"{new_response}/p{i}/c" for i in range(2, total_pages + 1)
-            ]
+            requests_array = [f"{new_response}/p{i}/c" for i in range(2, total_pages + 1)]
 
             # Insert first page (not using /p{i}/c)
             requests_array.insert(0, response.url)
@@ -67,15 +62,11 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
         category = json_response.get("data").get("category").get("name")
 
         # Get brands
-        brands_array = (
-            json_response.get("data").get("filters").get("items")[5].get("items")
-        )
+        brands_array = json_response.get("data").get("filters").get("items")[5].get("items")
         choices = [o.get("name") for o in brands_array]
 
         # Get breadcrumbs
-        breadcrumbs_list = (
-            json_response.get("data").get("category").get("trail").split("/")
-        )
+        breadcrumbs_list = json_response.get("data").get("category").get("trail").split("/")
 
         for product in products:
             itemloader = ItemLoader(item=GenericProductsItem(), selector=product)
@@ -90,9 +81,7 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
             # itemloader.add_value("pNameTags", product.get("name"))
 
             # pLink
-            itemloader.add_value(
-                "pLink", f"https://emag.ro/{product.get('url').get('path')}"
-            )
+            itemloader.add_value("pLink", f"https://emag.ro/{product.get('url').get('path')}")
 
             # pImg
             itemloader.add_value("pImg", product.get("image").get("original"))
@@ -104,50 +93,34 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
             itemloader.add_value("pCategory", category)
 
             # pBrand
-            extracted_brand = process.extractOne(
-                product.get("name"), choices, scorer=partial_ratio
-            )
+            extracted_brand = process.extractOne(product.get("name"), choices, scorer=partial_ratio)
             itemloader.add_value("pBrand", extracted_brand[0])
 
             # pVendor
-            itemloader.add_value(
-                "pVendor", product.get("offer").get("vendor").get("name").get("display")
-            )
+            itemloader.add_value("pVendor", product.get("offer").get("vendor").get("name").get("display"))
 
             # pStock
-            itemloader.add_value(
-                "pStock", product.get("offer").get("availability").get("text")
-            )
+            itemloader.add_value("pStock", product.get("offer").get("availability").get("text"))
 
             # pReviews
-            itemloader.add_value(
-                "pReviews", product.get("feedback").get("reviews").get("count")
-            )
+            itemloader.add_value("pReviews", product.get("feedback").get("reviews").get("count"))
 
             # pStars
             itemloader.add_value("pStars", product.get("feedback").get("rating"))
 
             # priceCurrent
-            itemloader.add_value(
-                "priceCurrent", product.get("offer").get("price").get("current")
-            )
+            itemloader.add_value("priceCurrent", product.get("offer").get("price").get("current"))
 
             # priceRetail
             itemloader.add_value(
                 "priceRetail",
-                product.get("offer")
-                .get("price")
-                .get("recommended_retail_price")
-                .get("amount"),
+                product.get("offer").get("price").get("recommended_retail_price").get("amount"),
             )
 
             # priceSlashed
             itemloader.add_value(
                 "priceSlashed",
-                product.get("offer")
-                .get("price")
-                .get("lowest_price_30_days")
-                .get("amount"),
+                product.get("offer").get("price").get("lowest_price_30_days").get("amount"),
             )
 
             # crawledAt

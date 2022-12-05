@@ -2,11 +2,11 @@ from collections.abc import Iterable
 from time import time
 
 from redis import Redis
-
-from scrapy import signals
 from scrapy.exceptions import DontCloseSpider
 from scrapy.http import FormRequest
 from scrapy.spiders import CrawlSpider, Spider
+
+from scrapy import signals
 
 
 # A ultra minimal implementation of Scrapy-Redis
@@ -67,9 +67,7 @@ class RedisMixin(object):
 
         # spider_idle method called when spider has no requests left
         crawler.signals.connect(self.spider_idle, signal=signals.spider_idle)
-        crawler.signals.connect(
-            self.response_received, signal=signals.response_received
-        )
+        crawler.signals.connect(self.response_received, signal=signals.response_received)
 
     def start_requests(self):
         return self.next_requests()

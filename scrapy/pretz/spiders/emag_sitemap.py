@@ -1,8 +1,7 @@
 import defusedxml.ElementTree as ET
 from pretz.items import GenericSitemapItem
 from pretz.settings import DEV_TAG
-
-from scrapy.spiders import Spider, Request
+from scrapy.spiders import Request, Spider
 
 
 class EmagSitemapSpider(Spider):

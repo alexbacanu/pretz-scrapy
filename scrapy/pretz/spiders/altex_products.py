@@ -3,7 +3,6 @@ from datetime import datetime
 from pretz.custom import SimpleRedisCrawlSpider
 from pretz.items import GenericProductsItem
 from pretz.settings import DEV_TAG
-
 from scrapy.loader import ItemLoader
 from scrapy.spiders import Request
 
@@ -88,28 +87,16 @@ class AltexProductsSpider(SimpleRedisCrawlSpider):
             itemloader.add_value("pVendor", product.get("price_seller_name"))
 
             # pStock
-            if (
-                product.get("stock_status") == 1
-                and product.get("pickup_is_in_stock") == 1
-            ):
+            if product.get("stock_status") == 1 and product.get("pickup_is_in_stock") == 1:
                 itemloader.add_value("pStock", "În stoc")
 
-            if (
-                product.get("stock_status") == 1
-                and product.get("pickup_is_in_stock") == 0
-            ):
+            if product.get("stock_status") == 1 and product.get("pickup_is_in_stock") == 0:
                 itemloader.add_value("pStock", "Exclusiv online")
 
-            if (
-                product.get("stock_status") == 0
-                and product.get("pickup_is_in_stock") == 1
-            ):
+            if product.get("stock_status") == 0 and product.get("pickup_is_in_stock") == 1:
                 itemloader.add_value("pStock", "În anumite magazine")
 
-            if (
-                product.get("stock_status") == 0
-                and product.get("pickup_is_in_stock") == 0
-            ):
+            if product.get("stock_status") == 0 and product.get("pickup_is_in_stock") == 0:
                 itemloader.add_value("pStock", "Stoc epuizat")
 
             # pReviews
