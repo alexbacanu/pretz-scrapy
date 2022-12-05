@@ -1,6 +1,7 @@
 # Crawling
 Scrapy
 defusedxml
+rapidfuzz
 
 # Redis cloud
 redis

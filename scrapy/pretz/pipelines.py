@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from pretz.helpers import cleanup, generate_stats, timeseries_array, validator
-from pymongo import MongoClient, UpdateOne
+from pretz.helpers import cleanup, generate_stats, timeseries_to_arr, validator
+from pymongo import ASCENDING, DESCENDING, TEXT, MongoClient, UpdateOne
 from redis import Redis
 
 
@@ -12,9 +12,6 @@ class DefaultValuesPipeline:
             # Set default values to null for all fields
             item.setdefault(field, None)
 
-            # Set default values to 0 for these fields
-            item.setdefault("pStars", 0)
-            item.setdefault("pReviews", 0)
         return item
 
 
@@ -35,26 +32,35 @@ class MongoPipeline:
         # Initialize MongoDB
         self.client = MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
-        self.coll = self.db[spider.database_name]
+        collections = self.db.list_collection_names()
 
-        # Validate or create collection
-        try:
-            # Check for DB/Collection
-            self.db.validate_collection(spider.database_name)["valid"]
-        except:
-            # Create DB/Collection
+        if spider.database_name in collections:
+            # Get a reference to the "products" collection
+            self.products = self.db[spider.database_name]
+        else:
+            # Create the "products" collection if it does not exist
             self.db.create_collection(spider.database_name, validator=validator)
 
+            self.products = self.db[spider.database_name]
+
+            self.products.create_index([("pName", TEXT)])
+            self.products.create_index([("pID", ASCENDING)], sparse=True)
+            self.products.create_index([("priceCurrent", ASCENDING)], sparse=True)
+            self.products.create_index([("crawledAt", DESCENDING)], sparse=True)
+            self.products.create_index([("stats.updatedAt", DESCENDING)], sparse=True)
+
         # Init an empty array for bulk operations
-        self.requests = []
+        self.product_requests = []
+        # self.store_requests = []
+        # self.prices_requests = []
         self.batch_size = 2 * 1000
 
     def close_spider(self, spider):
         # Commit bulk operations
-        self.coll.bulk_write(self.requests, ordered=True)
+        self.products.bulk_write(self.product_requests, ordered=True)
 
         # Clear array after commit
-        self.requests.clear()
+        self.product_requests.clear()
 
     def process_item(self, item, spider):
         # Get current time as "2022-09-07"
@@ -77,29 +83,36 @@ class MongoPipeline:
         # Remove null values
         timeseries = {k: v for k, v in timeseries_all.items() if v is not None}
 
-        # Append an UpdateOne request to the array (item dictionary)
-        self.requests.append(
+        self.product_requests.append(
             UpdateOne(
                 {"pID": item.get("pID")},
                 [
-                    {"$set": product_dict},
+                    {
+                        "$set": product_dict,
+                    },
                     {
                         "$set": {f"timeseries.{date_time}": timeseries},
                     },
-                    timeseries_array,
-                    generate_stats,
-                    cleanup,
+                    {
+                        "$set": timeseries_to_arr,
+                    },
+                    {
+                        "$set": generate_stats,
+                    },
+                    {
+                        "$set": cleanup,
+                    },
                 ],
                 upsert=True,
             ),
         )
 
         # Commit when reach batch size
-        if (len(self.requests) % self.batch_size) == 0:
-            self.coll.bulk_write(self.requests, ordered=True)
+        if (len(self.product_requests) % self.batch_size) == 0:
+            self.products.bulk_write(self.product_requests, ordered=True)
 
             # Clear array after commit
-            self.requests.clear()
+            self.product_requests.clear()
 
         return item
 

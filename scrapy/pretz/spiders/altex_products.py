@@ -81,6 +81,9 @@ class AltexProductsSpider(SimpleRedisCrawlSpider):
             # pCategory
             itemloader.add_value("pCategory", category)
 
+            # pBrand
+            itemloader.add_value("pBrand", product.get("brand_name"))
+
             # pVendor
             itemloader.add_value("pVendor", product.get("price_seller_name"))
 

@@ -3,6 +3,8 @@ from datetime import datetime
 from pretz.custom import SimpleRedisCrawlSpider
 from pretz.items import GenericProductsItem
 from pretz.settings import DEV_TAG
+from rapidfuzz import process
+from rapidfuzz.fuzz import partial_ratio
 
 from scrapy.loader import ItemLoader
 from scrapy.spiders import Request
@@ -64,6 +66,12 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
         # Get category
         category = json_response.get("data").get("category").get("name")
 
+        # Get brands
+        brands_array = (
+            json_response.get("data").get("filters").get("items")[5].get("items")
+        )
+        choices = [o.get("name") for o in brands_array]
+
         # Get breadcrumbs
         breadcrumbs_list = (
             json_response.get("data").get("category").get("trail").split("/")
@@ -94,6 +102,12 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
 
             # pCategory
             itemloader.add_value("pCategory", category)
+
+            # pBrand
+            extracted_brand = process.extractOne(
+                product.get("name"), choices, scorer=partial_ratio
+            )
+            itemloader.add_value("pBrand", extracted_brand[0])
 
             # pVendor
             itemloader.add_value(

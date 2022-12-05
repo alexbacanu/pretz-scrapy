@@ -5,37 +5,13 @@ from itemloaders.processors import MapCompose, TakeFirst
 from scrapy import Field, Item
 
 
-def remove_newline(text):
-    return text.replace("\n", "").strip()
+def to_lowercase(text):
+    return text.lower()
 
 
 def generate_tags(text):
     stripped_text = re.sub(r"[^A-Za-z0-9 ]+", "", text)
     return stripped_text.split(" ")
-
-
-def filter_image(text):
-    url = re.findall(r"https?://[^)]+", text)[0]
-    return url
-
-
-def remove_vendor(text):
-    remove_vendor = text.split("-")
-    clean_category = remove_vendor[0].strip()
-    return clean_category
-
-
-def filter_text(text):
-    digits_only = re.findall(r"-?\d+\.?\d*", str(text))[0]
-    return float(digits_only)
-
-
-def filter_pricing(text):
-    remove_tags_re = (
-        re.sub(re.compile(r"<.*?>"), "", text).replace(".", "").replace(",", ".")
-    )
-    digits_only = [float(s) for s in re.findall(r"-?\d+\.?\d*", remove_tags_re)]
-    return digits_only
 
 
 class GenericProductsItem(Item):
@@ -63,6 +39,10 @@ class GenericProductsItem(Item):
     )
     pCategory = Field(
         input_processor=MapCompose(),
+        output_processor=TakeFirst(),
+    )
+    pBrand = Field(
+        input_processor=MapCompose(to_lowercase),
         output_processor=TakeFirst(),
     )
     pVendor = Field(

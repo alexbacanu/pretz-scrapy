@@ -33,6 +33,10 @@ validator = {
                 "bsonType": "string",
                 "description": "Product category - Optional.",
             },
+            "pBrand": {
+                "bsonType": "string",
+                "description": "Product brand - Optional.",
+            },
             "pVendor": {
                 "bsonType": "string",
                 "description": "Product vendor - Optional.",
@@ -350,717 +354,498 @@ validator = {
 }
 
 # Pipeline
-timeseries_array = {
-    "$set": {
-        "timeseriesArr": {"$objectToArray": "$timeseries"},
-    },
+timeseries_to_arr = {
+    "timeseriesArr": {"$objectToArray": "$timeseries"},
 }
+
 generate_stats = {
-    "$set": {
-        "stats": {
-            "lowest7": {
-                "$reduce": {
-                    "input": {"$reverseArray": "$timeseriesArr"},
-                    "initialValue": {
-                        "k": "$crawledAt",
-                        "v": {"$max": "$timeseriesArr.v.priceCurrent"},
-                    },
-                    "in": {
-                        "$cond": [
-                            {
-                                "$and": [
-                                    {
-                                        "$lt": [
-                                            "$$this.v.priceDate",
-                                            "$$value.k",
-                                        ]
-                                    },
-                                    {
-                                        "$gte": [
-                                            "$$this.v.priceDate",
-                                            {
-                                                "$dateTrunc": {
-                                                    "date": {
-                                                        "$dateSubtract": {
-                                                            "startDate": "$crawledAt",
-                                                            "amount": 7,
-                                                            "unit": "day",
-                                                        }
-                                                    },
-                                                    "unit": "day",
-                                                }
-                                            },
-                                        ]
-                                    },
-                                    {"$toBool": "$$this.v.priceCurrent"},
-                                    {
-                                        "$lte": [
-                                            "$$this.v.priceCurrent",
-                                            "$$value.v",
-                                        ]
-                                    },
-                                    {
-                                        "$ne": [
-                                            "$$this.v.priceCurrent",
-                                            "$priceCurrent",
-                                        ]
-                                    },
-                                ]
-                            },
-                            {
-                                "k": "$$this.v.priceDate",
-                                "v": "$$this.v.priceCurrent",
-                            },
-                            "$$value",
-                        ]
-                    },
-                }
+    "stats": {
+        "$let": {
+            "vars": {
+                "dateTrunc7": {
+                    "$dateTrunc": {
+                        "date": {
+                            "$dateSubtract": {
+                                "startDate": "$crawledAt",
+                                "amount": 7,
+                                "unit": "day",
+                            }
+                        },
+                        "unit": "day",
+                    }
+                },
+                "dateTrunc30": {
+                    "$dateTrunc": {
+                        "date": {
+                            "$dateSubtract": {
+                                "startDate": "$crawledAt",
+                                "amount": 30,
+                                "unit": "day",
+                            }
+                        },
+                        "unit": "day",
+                    }
+                },
+                "dateTrunc90": {
+                    "$dateTrunc": {
+                        "date": {
+                            "$dateSubtract": {
+                                "startDate": "$crawledAt",
+                                "amount": 90,
+                                "unit": "day",
+                            }
+                        },
+                        "unit": "day",
+                    }
+                },
+                "dateTruncAll": {
+                    "$dateTrunc": {
+                        "date": {
+                            "$dateSubtract": {
+                                "startDate": "$crawledAt",
+                                "amount": 3650,
+                                "unit": "day",
+                            }
+                        },
+                        "unit": "day",
+                    }
+                },
             },
-            "lowest30": {
-                "$reduce": {
-                    "input": {"$reverseArray": "$timeseriesArr"},
-                    "initialValue": {
-                        "k": "$crawledAt",
-                        "v": {"$max": "$timeseriesArr.v.priceCurrent"},
-                    },
-                    "in": {
-                        "$cond": [
-                            {
-                                "$and": [
-                                    {
-                                        "$lt": [
-                                            "$$this.v.priceDate",
-                                            "$$value.k",
-                                        ]
-                                    },
-                                    {
-                                        "$gte": [
-                                            "$$this.v.priceDate",
-                                            {
-                                                "$dateTrunc": {
-                                                    "date": {
-                                                        "$dateSubtract": {
-                                                            "startDate": "$crawledAt",
-                                                            "amount": 30,
-                                                            "unit": "day",
-                                                        }
-                                                    },
-                                                    "unit": "day",
-                                                }
-                                            },
-                                        ]
-                                    },
-                                    {"$toBool": "$$this.v.priceCurrent"},
-                                    {
-                                        "$lte": [
-                                            "$$this.v.priceCurrent",
-                                            "$$value.v",
-                                        ]
-                                    },
-                                    {
-                                        "$ne": [
-                                            "$$this.v.priceCurrent",
-                                            "$priceCurrent",
-                                        ]
-                                    },
-                                ]
-                            },
-                            {
-                                "k": "$$this.v.priceDate",
-                                "v": "$$this.v.priceCurrent",
-                            },
-                            "$$value",
-                        ]
-                    },
-                }
+            "in": {
+                "lowest7": {
+                    "$reduce": {
+                        "input": {"$reverseArray": "$timeseriesArr"},
+                        "initialValue": {
+                            "k": "$crawledAt",
+                            "v": {"$max": "$timeseriesArr.v.priceCurrent"},
+                        },
+                        "in": {
+                            "$cond": [
+                                {
+                                    "$and": [
+                                        {"$lt": ["$$this.v.priceDate", "$$value.k"]},
+                                        {"$gte": ["$$this.v.priceDate", "$$dateTrunc7"]},
+                                        {"$ne": ["$$this.v.priceCurrent", None]},
+                                        {"$lte": ["$$this.v.priceCurrent", "$$value.v"]},
+                                        {"$ne": ["$$this.v.priceCurrent", "$priceCurrent"]},
+                                    ]
+                                },
+                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                "$$value",
+                            ]
+                        },
+                    }
+                },
+                "lowest30": {
+                    "$reduce": {
+                        "input": {"$reverseArray": "$timeseriesArr"},
+                        "initialValue": {
+                            "k": "$crawledAt",
+                            "v": {"$max": "$timeseriesArr.v.priceCurrent"},
+                        },
+                        "in": {
+                            "$cond": [
+                                {
+                                    "$and": [
+                                        {"$lt": ["$$this.v.priceDate", "$$value.k"]},
+                                        {"$gte": ["$$this.v.priceDate", "$$dateTrunc30"]},
+                                        {"$ne": ["$$this.v.priceCurrent", None]},
+                                        {"$lte": ["$$this.v.priceCurrent", "$$value.v"]},
+                                        {"$ne": ["$$this.v.priceCurrent", "$priceCurrent"]},
+                                    ]
+                                },
+                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                "$$value",
+                            ]
+                        },
+                    }
+                },
+                "lowest90": {
+                    "$reduce": {
+                        "input": {"$reverseArray": "$timeseriesArr"},
+                        "initialValue": {
+                            "k": "$crawledAt",
+                            "v": {"$max": "$timeseriesArr.v.priceCurrent"},
+                        },
+                        "in": {
+                            "$cond": [
+                                {
+                                    "$and": [
+                                        {"$lt": ["$$this.v.priceDate", "$$value.k"]},
+                                        {"$gte": ["$$this.v.priceDate", "$$dateTrunc90"]},
+                                        {"$ne": ["$$this.v.priceCurrent", None]},
+                                        {"$lte": ["$$this.v.priceCurrent", "$$value.v"]},
+                                        {"$ne": ["$$this.v.priceCurrent", "$priceCurrent"]},
+                                    ]
+                                },
+                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                "$$value",
+                            ]
+                        },
+                    }
+                },
+                "lowestAll": {
+                    "$reduce": {
+                        "input": {"$reverseArray": "$timeseriesArr"},
+                        "initialValue": {
+                            "k": "$crawledAt",
+                            "v": {"$max": "$timeseriesArr.v.priceCurrent"},
+                        },
+                        "in": {
+                            "$cond": [
+                                {
+                                    "$and": [
+                                        {"$lt": ["$$this.v.priceDate", "$$value.k"]},
+                                        {"$gte": ["$$this.v.priceDate", "$$dateTruncAll"]},
+                                        {"$ne": ["$$this.v.priceCurrent", None]},
+                                        {"$lte": ["$$this.v.priceCurrent", "$$value.v"]},
+                                        {"$ne": ["$$this.v.priceCurrent", "$priceCurrent"]},
+                                    ]
+                                },
+                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                "$$value",
+                            ]
+                        },
+                    }
+                },
+                "highest7": {
+                    "$reduce": {
+                        "input": {"$reverseArray": "$timeseriesArr"},
+                        "initialValue": {
+                            "k": "$crawledAt",
+                            "v": {"$min": "$timeseriesArr.v.priceCurrent"},
+                        },
+                        "in": {
+                            "$cond": [
+                                {
+                                    "$and": [
+                                        {"$lt": ["$$this.v.priceDate", "$$value.k"]},
+                                        {"$gte": ["$$this.v.priceDate", "$$dateTrunc7"]},
+                                        {"$ne": ["$$this.v.priceCurrent", None]},
+                                        {"$gte": ["$$this.v.priceCurrent", "$$value.v"]},
+                                    ]
+                                },
+                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                "$$value",
+                            ]
+                        },
+                    }
+                },
+                "highest30": {
+                    "$reduce": {
+                        "input": {"$reverseArray": "$timeseriesArr"},
+                        "initialValue": {
+                            "k": "$crawledAt",
+                            "v": {"$min": "$timeseriesArr.v.priceCurrent"},
+                        },
+                        "in": {
+                            "$cond": [
+                                {
+                                    "$and": [
+                                        {"$lt": ["$$this.v.priceDate", "$$value.k"]},
+                                        {"$gte": ["$$this.v.priceDate", "$$dateTrunc30"]},
+                                        {"$ne": ["$$this.v.priceCurrent", None]},
+                                        {"$gte": ["$$this.v.priceCurrent", "$$value.v"]},
+                                    ]
+                                },
+                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                "$$value",
+                            ]
+                        },
+                    }
+                },
+                "highest90": {
+                    "$reduce": {
+                        "input": {"$reverseArray": "$timeseriesArr"},
+                        "initialValue": {
+                            "k": "$crawledAt",
+                            "v": {"$min": "$timeseriesArr.v.priceCurrent"},
+                        },
+                        "in": {
+                            "$cond": [
+                                {
+                                    "$and": [
+                                        {"$lt": ["$$this.v.priceDate", "$$value.k"]},
+                                        {"$gte": ["$$this.v.priceDate", "$$dateTrunc90"]},
+                                        {"$ne": ["$$this.v.priceCurrent", None]},
+                                        {"$gte": ["$$this.v.priceCurrent", "$$value.v"]},
+                                    ]
+                                },
+                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                "$$value",
+                            ]
+                        },
+                    }
+                },
+                "highestAll": {
+                    "$reduce": {
+                        "input": {"$reverseArray": "$timeseriesArr"},
+                        "initialValue": {
+                            "k": "$crawledAt",
+                            "v": {"$min": "$timeseriesArr.v.priceCurrent"},
+                        },
+                        "in": {
+                            "$cond": [
+                                {
+                                    "$and": [
+                                        {"$lt": ["$$this.v.priceDate", "$$value.k"]},
+                                        {"$gte": ["$$this.v.priceDate", "$$dateTruncAll"]},
+                                        {"$ne": ["$$this.v.priceCurrent", None]},
+                                        {"$gte": ["$$this.v.priceCurrent", "$$value.v"]},
+                                    ]
+                                },
+                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                "$$value",
+                            ]
+                        },
+                    }
+                },
+                "average7Arr": {
+                    "$filter": {
+                        "input": {"$reverseArray": "$timeseriesArr"},
+                        "as": "obj",
+                        "cond": {
+                            "$and": [
+                                {"$lt": ["$$obj.v.priceDate", "$crawledAt"]},
+                                {"$gte": ["$$obj.v.priceDate", "$$dateTrunc7"]},
+                                {"$ne": ["$$obj.v.priceCurrent", None]},
+                            ]
+                        },
+                    }
+                },
+                "average30Arr": {
+                    "$filter": {
+                        "input": {"$reverseArray": "$timeseriesArr"},
+                        "as": "obj",
+                        "cond": {
+                            "$and": [
+                                {"$lt": ["$$obj.v.priceDate", "$crawledAt"]},
+                                {"$gte": ["$$obj.v.priceDate", "$$dateTrunc30"]},
+                                {"$ne": ["$$obj.v.priceCurrent", None]},
+                            ]
+                        },
+                    }
+                },
+                "average90Arr": {
+                    "$filter": {
+                        "input": {"$reverseArray": "$timeseriesArr"},
+                        "as": "obj",
+                        "cond": {
+                            "$and": [
+                                {"$lt": ["$$obj.v.priceDate", "$crawledAt"]},
+                                {"$gte": ["$$obj.v.priceDate", "$$dateTrunc90"]},
+                                {"$ne": ["$$obj.v.priceCurrent", None]},
+                            ]
+                        },
+                    }
+                },
+                "averageAllArr": {
+                    "$filter": {
+                        "input": {"$reverseArray": "$timeseriesArr"},
+                        "as": "obj",
+                        "cond": {
+                            "$and": [
+                                {"$lt": ["$$obj.v.priceDate", "$crawledAt"]},
+                                {"$gte": ["$$obj.v.priceDate", "$$dateTruncAll"]},
+                                {"$ne": ["$$obj.v.priceCurrent", None]},
+                            ]
+                        },
+                    }
+                },
             },
-            "lowest90": {
-                "$reduce": {
-                    "input": {"$reverseArray": "$timeseriesArr"},
-                    "initialValue": {
-                        "k": "$crawledAt",
-                        "v": {"$max": "$timeseriesArr.v.priceCurrent"},
-                    },
-                    "in": {
-                        "$cond": [
-                            {
-                                "$and": [
-                                    {
-                                        "$lt": [
-                                            "$$this.v.priceDate",
-                                            "$$value.k",
-                                        ]
-                                    },
-                                    {
-                                        "$gte": [
-                                            "$$this.v.priceDate",
-                                            {
-                                                "$dateTrunc": {
-                                                    "date": {
-                                                        "$dateSubtract": {
-                                                            "startDate": "$crawledAt",
-                                                            "amount": 90,
-                                                            "unit": "day",
-                                                        }
-                                                    },
-                                                    "unit": "day",
-                                                }
-                                            },
-                                        ]
-                                    },
-                                    {"$toBool": "$$this.v.priceCurrent"},
-                                    {
-                                        "$lte": [
-                                            "$$this.v.priceCurrent",
-                                            "$$value.v",
-                                        ]
-                                    },
-                                    {
-                                        "$ne": [
-                                            "$$this.v.priceCurrent",
-                                            "$priceCurrent",
-                                        ]
-                                    },
-                                ]
-                            },
-                            {
-                                "k": "$$this.v.priceDate",
-                                "v": "$$this.v.priceCurrent",
-                            },
-                            "$$value",
-                        ]
-                    },
-                }
-            },
-            "lowestAll": {
-                "$reduce": {
-                    "input": {"$reverseArray": "$timeseriesArr"},
-                    "initialValue": {
-                        "k": "$crawledAt",
-                        "v": {"$max": "$timeseriesArr.v.priceCurrent"},
-                    },
-                    "in": {
-                        "$cond": [
-                            {
-                                "$and": [
-                                    {
-                                        "$lt": [
-                                            "$$this.v.priceDate",
-                                            "$$value.k",
-                                        ]
-                                    },
-                                    {
-                                        "$gte": [
-                                            "$$this.v.priceDate",
-                                            {
-                                                "$dateTrunc": {
-                                                    "date": {
-                                                        "$dateSubtract": {
-                                                            "startDate": "$crawledAt",
-                                                            "amount": 3650,
-                                                            "unit": "day",
-                                                        }
-                                                    },
-                                                    "unit": "day",
-                                                }
-                                            },
-                                        ]
-                                    },
-                                    {"$toBool": "$$this.v.priceCurrent"},
-                                    {
-                                        "$lte": [
-                                            "$$this.v.priceCurrent",
-                                            "$$value.v",
-                                        ]
-                                    },
-                                    {
-                                        "$ne": [
-                                            "$$this.v.priceCurrent",
-                                            "$priceCurrent",
-                                        ]
-                                    },
-                                ]
-                            },
-                            {
-                                "k": "$$this.v.priceDate",
-                                "v": "$$this.v.priceCurrent",
-                            },
-                            "$$value",
-                        ]
-                    },
-                }
-            },
-            "highest7": {
-                "$reduce": {
-                    "input": {"$reverseArray": "$timeseriesArr"},
-                    "initialValue": {
-                        "k": "$crawledAt",
-                        "v": {"$min": "$timeseriesArr.v.priceCurrent"},
-                    },
-                    "in": {
-                        "$cond": [
-                            {
-                                "$and": [
-                                    {
-                                        "$lt": [
-                                            "$$this.v.priceDate",
-                                            "$$value.k",
-                                        ]
-                                    },
-                                    {
-                                        "$gte": [
-                                            "$$this.v.priceDate",
-                                            {
-                                                "$dateTrunc": {
-                                                    "date": {
-                                                        "$dateSubtract": {
-                                                            "startDate": "$crawledAt",
-                                                            "amount": 7,
-                                                            "unit": "day",
-                                                        }
-                                                    },
-                                                    "unit": "day",
-                                                }
-                                            },
-                                        ]
-                                    },
-                                    {"$toBool": "$$this.v.priceCurrent"},
-                                    {
-                                        "$gte": [
-                                            "$$this.v.priceCurrent",
-                                            "$$value.v",
-                                        ]
-                                    },
-                                ]
-                            },
-                            {
-                                "k": "$$this.v.priceDate",
-                                "v": "$$this.v.priceCurrent",
-                            },
-                            "$$value",
-                        ]
-                    },
-                }
-            },
-            "highest30": {
-                "$reduce": {
-                    "input": {"$reverseArray": "$timeseriesArr"},
-                    "initialValue": {
-                        "k": "$crawledAt",
-                        "v": {"$min": "$timeseriesArr.v.priceCurrent"},
-                    },
-                    "in": {
-                        "$cond": [
-                            {
-                                "$and": [
-                                    {
-                                        "$lt": [
-                                            "$$this.v.priceDate",
-                                            "$$value.k",
-                                        ]
-                                    },
-                                    {
-                                        "$gte": [
-                                            "$$this.v.priceDate",
-                                            {
-                                                "$dateTrunc": {
-                                                    "date": {
-                                                        "$dateSubtract": {
-                                                            "startDate": "$crawledAt",
-                                                            "amount": 30,
-                                                            "unit": "day",
-                                                        }
-                                                    },
-                                                    "unit": "day",
-                                                }
-                                            },
-                                        ]
-                                    },
-                                    {"$toBool": "$$this.v.priceCurrent"},
-                                    {
-                                        "$gte": [
-                                            "$$this.v.priceCurrent",
-                                            "$$value.v",
-                                        ]
-                                    },
-                                ]
-                            },
-                            {
-                                "k": "$$this.v.priceDate",
-                                "v": "$$this.v.priceCurrent",
-                            },
-                            "$$value",
-                        ]
-                    },
-                }
-            },
-            "highest90": {
-                "$reduce": {
-                    "input": {"$reverseArray": "$timeseriesArr"},
-                    "initialValue": {
-                        "k": "$crawledAt",
-                        "v": {"$min": "$timeseriesArr.v.priceCurrent"},
-                    },
-                    "in": {
-                        "$cond": [
-                            {
-                                "$and": [
-                                    {
-                                        "$lt": [
-                                            "$$this.v.priceDate",
-                                            "$$value.k",
-                                        ]
-                                    },
-                                    {
-                                        "$gte": [
-                                            "$$this.v.priceDate",
-                                            {
-                                                "$dateTrunc": {
-                                                    "date": {
-                                                        "$dateSubtract": {
-                                                            "startDate": "$crawledAt",
-                                                            "amount": 90,
-                                                            "unit": "day",
-                                                        }
-                                                    },
-                                                    "unit": "day",
-                                                }
-                                            },
-                                        ]
-                                    },
-                                    {"$toBool": "$$this.v.priceCurrent"},
-                                    {
-                                        "$gte": [
-                                            "$$this.v.priceCurrent",
-                                            "$$value.v",
-                                        ]
-                                    },
-                                ]
-                            },
-                            {
-                                "k": "$$this.v.priceDate",
-                                "v": "$$this.v.priceCurrent",
-                            },
-                            "$$value",
-                        ]
-                    },
-                }
-            },
-            "highestAll": {
-                "$reduce": {
-                    "input": {"$reverseArray": "$timeseriesArr"},
-                    "initialValue": {
-                        "k": "$crawledAt",
-                        "v": {"$min": "$timeseriesArr.v.priceCurrent"},
-                    },
-                    "in": {
-                        "$cond": [
-                            {
-                                "$and": [
-                                    {
-                                        "$lt": [
-                                            "$$this.v.priceDate",
-                                            "$$value.k",
-                                        ]
-                                    },
-                                    {
-                                        "$gte": [
-                                            "$$this.v.priceDate",
-                                            {
-                                                "$dateTrunc": {
-                                                    "date": {
-                                                        "$dateSubtract": {
-                                                            "startDate": "$crawledAt",
-                                                            "amount": 3650,
-                                                            "unit": "day",
-                                                        }
-                                                    },
-                                                    "unit": "day",
-                                                }
-                                            },
-                                        ]
-                                    },
-                                    {"$toBool": "$$this.v.priceCurrent"},
-                                    {
-                                        "$gte": [
-                                            "$$this.v.priceCurrent",
-                                            "$$value.v",
-                                        ]
-                                    },
-                                ]
-                            },
-                            {
-                                "k": "$$this.v.priceDate",
-                                "v": "$$this.v.priceCurrent",
-                            },
-                            "$$value",
-                        ]
-                    },
-                }
-            },
-            "average7Arr": {
-                "$filter": {
-                    "input": {"$reverseArray": "$timeseriesArr"},
-                    "as": "obj",
-                    "cond": {
-                        "$and": [
-                            {
-                                "$lt": [
-                                    "$$obj.v.priceDate",
-                                    "$crawledAt",
-                                ]
-                            },
-                            {
-                                "$gte": [
-                                    "$$obj.v.priceDate",
-                                    {
-                                        "$dateTrunc": {
-                                            "date": {
-                                                "$dateSubtract": {
-                                                    "startDate": "$crawledAt",
-                                                    "amount": 7,
-                                                    "unit": "day",
-                                                }
-                                            },
-                                            "unit": "day",
-                                        }
-                                    },
-                                ]
-                            },
-                            {"$toBool": "$$obj.v.priceCurrent"},
-                        ]
-                    },
-                }
-            },
-            "average30Arr": {
-                "$filter": {
-                    "input": {"$reverseArray": "$timeseriesArr"},
-                    "as": "obj",
-                    "cond": {
-                        "$and": [
-                            {
-                                "$lt": [
-                                    "$$obj.v.priceDate",
-                                    "$crawledAt",
-                                ]
-                            },
-                            {
-                                "$gte": [
-                                    "$$obj.v.priceDate",
-                                    {
-                                        "$dateTrunc": {
-                                            "date": {
-                                                "$dateSubtract": {
-                                                    "startDate": "$crawledAt",
-                                                    "amount": 30,
-                                                    "unit": "day",
-                                                }
-                                            },
-                                            "unit": "day",
-                                        }
-                                    },
-                                ]
-                            },
-                            {"$toBool": "$$obj.v.priceCurrent"},
-                        ]
-                    },
-                }
-            },
-            "average90Arr": {
-                "$filter": {
-                    "input": {"$reverseArray": "$timeseriesArr"},
-                    "as": "obj",
-                    "cond": {
-                        "$and": [
-                            {
-                                "$lt": [
-                                    "$$obj.v.priceDate",
-                                    "$crawledAt",
-                                ]
-                            },
-                            {
-                                "$gte": [
-                                    "$$obj.v.priceDate",
-                                    {
-                                        "$dateTrunc": {
-                                            "date": {
-                                                "$dateSubtract": {
-                                                    "startDate": "$crawledAt",
-                                                    "amount": 90,
-                                                    "unit": "day",
-                                                }
-                                            },
-                                            "unit": "day",
-                                        }
-                                    },
-                                ]
-                            },
-                            {"$toBool": "$$obj.v.priceCurrent"},
-                        ]
-                    },
-                }
-            },
-            "averageAllArr": {
-                "$filter": {
-                    "input": {"$reverseArray": "$timeseriesArr"},
-                    "as": "obj",
-                    "cond": {
-                        "$and": [
-                            {
-                                "$lt": [
-                                    "$$obj.v.priceDate",
-                                    "$crawledAt",
-                                ]
-                            },
-                            {
-                                "$gte": [
-                                    "$$obj.v.priceDate",
-                                    {
-                                        "$dateTrunc": {
-                                            "date": {
-                                                "$dateSubtract": {
-                                                    "startDate": "$crawledAt",
-                                                    "amount": 3650,
-                                                    "unit": "day",
-                                                }
-                                            },
-                                            "unit": "day",
-                                        }
-                                    },
-                                ]
-                            },
-                            {"$toBool": "$$obj.v.priceCurrent"},
-                        ]
-                    },
-                }
-            },
-        }
+        },
     }
 }
+
 cleanup = {
-    "$set": {
-        "stats.deal7": {
-            "v": {
-                "$cond": [
-                    {"$toBool": "$priceCurrent"},
-                    {
-                        "$subtract": [
-                            {
-                                "$divide": [
-                                    "$priceCurrent",
-                                    "$stats.lowest7.v",
-                                ]
-                            },
-                            1,
-                        ]
-                    },
-                    0,
-                ]
-            }
-        },
-        "stats.deal30": {
-            "v": {
-                "$cond": [
-                    {"$toBool": "$priceCurrent"},
-                    {
-                        "$subtract": [
-                            {
-                                "$divide": [
-                                    "$priceCurrent",
-                                    "$stats.lowest30.v",
-                                ]
-                            },
-                            1,
-                        ]
-                    },
-                    0,
-                ]
-            }
-        },
-        "stats.deal90": {
-            "v": {
-                "$cond": [
-                    {"$toBool": "$priceCurrent"},
-                    {
-                        "$subtract": [
-                            {
-                                "$divide": [
-                                    "$priceCurrent",
-                                    "$stats.lowest90.v",
-                                ]
-                            },
-                            1,
-                        ]
-                    },
-                    0,
-                ]
-            }
-        },
-        "stats.dealAll": {
-            "v": {
-                "$cond": [
-                    {"$toBool": "$priceCurrent"},
-                    {
-                        "$subtract": [
-                            {
-                                "$divide": [
-                                    "$priceCurrent",
-                                    "$stats.lowestAll.v",
-                                ]
-                            },
-                            1,
-                        ]
-                    },
-                    0,
-                ]
-            }
-        },
-        "stats.average7": {"v": {"$avg": "$stats.average7Arr.v.priceCurrent"}},
-        "stats.average30": {"v": {"$avg": "$stats.average30Arr.v.priceCurrent"}},
-        "stats.average90": {"v": {"$avg": "$stats.average90Arr.v.priceCurrent"}},
-        "stats.averageAll": {"v": {"$avg": "$stats.averageAllArr.v.priceCurrent"}},
-        "stats.cash7": {
-            "v": {
-                "$cond": [
-                    {"$toBool": "$priceCurrent"},
-                    {"$subtract": ["$priceCurrent", "$stats.lowest7.v"]},
-                    0,
-                ]
-            }
-        },
-        "stats.cash30": {
-            "v": {
-                "$cond": [
-                    {"$toBool": "$priceCurrent"},
-                    {"$subtract": ["$priceCurrent", "$stats.lowest30.v"]},
-                    0,
-                ]
-            }
-        },
-        "stats.cash90": {
-            "v": {
-                "$cond": [
-                    {"$toBool": "$priceCurrent"},
-                    {"$subtract": ["$priceCurrent", "$stats.lowest90.v"]},
-                    0,
-                ]
-            }
-        },
-        "stats.cashAll": {
-            "v": {
-                "$cond": [
-                    {"$toBool": "$priceCurrent"},
-                    {"$subtract": ["$priceCurrent", "$stats.lowestAll.v"]},
-                    0,
-                ]
-            }
-        },
-        # *This is UTC
-        "stats.updatedAt": "$$NOW",
-        "timeseriesArr": "$$REMOVE",
-        "stats.average7Arr": "$$REMOVE",
-        "stats.average30Arr": "$$REMOVE",
-        "stats.average90Arr": "$$REMOVE",
-        "stats.averageAllArr": "$$REMOVE",
-    }
+    "stats.deal7": {
+        "v": {
+            "$cond": [
+                {"$ne": ["$priceCurrent", None]},
+                {"$subtract": [{"$divide": ["$priceCurrent", "$stats.lowest7.v"]}, 1]},
+                0,
+            ]
+        }
+    },
+    "stats.deal30": {
+        "v": {
+            "$cond": [
+                {"$ne": ["$priceCurrent", None]},
+                {"$subtract": [{"$divide": ["$priceCurrent", "$stats.lowest30.v"]}, 1]},
+                0,
+            ]
+        }
+    },
+    "stats.deal90": {
+        "v": {
+            "$cond": [
+                {"$ne": ["$priceCurrent", None]},
+                {"$subtract": [{"$divide": ["$priceCurrent", "$stats.lowest90.v"]}, 1]},
+                0,
+            ]
+        }
+    },
+    "stats.dealAll": {
+        "v": {
+            "$cond": [
+                {"$ne": ["$priceCurrent", None]},
+                {"$subtract": [{"$divide": ["$priceCurrent", "$stats.lowestAll.v"]}, 1]},
+                0,
+            ]
+        }
+    },
+    "stats.average7": {
+        "v": {"$avg": "$stats.average7Arr.v.priceCurrent"},
+    },
+    "stats.average30": {
+        "v": {"$avg": "$stats.average30Arr.v.priceCurrent"},
+    },
+    "stats.average90": {
+        "v": {"$avg": "$stats.average90Arr.v.priceCurrent"},
+    },
+    "stats.averageAll": {
+        "v": {"$avg": "$stats.averageAllArr.v.priceCurrent"},
+    },
+    "stats.cash7": {
+        "v": {
+            "$cond": [
+                {"$ne": ["$priceCurrent", None]},
+                {"$subtract": ["$priceCurrent", "$stats.lowest7.v"]},
+                0,
+            ]
+        }
+    },
+    "stats.cash30": {
+        "v": {
+            "$cond": [
+                {"$ne": ["$priceCurrent", None]},
+                {"$subtract": ["$priceCurrent", "$stats.lowest30.v"]},
+                0,
+            ]
+        }
+    },
+    "stats.cash90": {
+        "v": {
+            "$cond": [
+                {"$ne": ["$priceCurrent", None]},
+                {"$subtract": ["$priceCurrent", "$stats.lowest90.v"]},
+                0,
+            ]
+        }
+    },
+    "stats.cashAll": {
+        "v": {
+            "$cond": [
+                {"$ne": ["$priceCurrent", None]},
+                {"$subtract": ["$priceCurrent", "$stats.lowestAll.v"]},
+                0,
+            ]
+        }
+    },
+    # *This is UTC
+    "stats.updatedAt": "$$NOW",
+    "timeseriesArr": "$$REMOVE",
+    "stats.average7Arr": "$$REMOVE",
+    "stats.average30Arr": "$$REMOVE",
+    "stats.average90Arr": "$$REMOVE",
+    "stats.averageAllArr": "$$REMOVE",
 }
+
+# To optimize the stage in your aggregation pipeline, you can simplify the $cond expression using the $min operator instead of using the $reduce operator. The $min operator will calculate the minimum value of the specified expression, so you can use it to calculate the minimum price in the last 7 and 30 days.
+
+# Here is an example of how the stage might look using the $min operator:
+
+# {
+#   "$set": {
+#     "stats": {
+#       "lowest7": {
+#         "$min": {
+#           "$filter": {
+#             "input": "$timeseriesArr",
+#             "cond": {
+#               "$and": [
+#                 {
+#                   "$lt": [
+#                     "$$this.v.priceDate",
+#                     "$crawledAt"
+#                   ]
+#                 },
+#                 {
+#                   "$gte": [
+#                     "$$this.v.priceDate",
+#                     {
+#                       "$dateTrunc": {
+#                         "date": {
+#                           "$dateSubtract": {
+#                             "startDate": "$crawledAt",
+#                             "amount": 7,
+#                             "unit": "day",
+#                           }
+#                         },
+#                         "unit": "day",
+#                       }
+#                     }
+#                   ]
+#                 },
+#                 {"$toBool": "$$this.v.priceCurrent"},
+#                 {
+#                   "$ne": [
+#                     "$$this.v.priceCurrent",
+#                     "$priceCurrent",
+#                   ]
+#                 },
+#               ]
+#             }
+#           },
+#           "in": "$$this.v.priceCurrent"
+#         }
+#       },
+#       "lowest30": {
+#         "$min": {
+#           "$filter": {
+#             "input": "$timeseriesArr",
+#             "cond": {
+#               "$and": [
+#                 {
+#                   "$lt": [
+#                     "$$this.v.priceDate",
+#                     "$crawledAt"
+#                   ]
+#                 },
+#                 {
+#                   "$gte": [
+#                     "$$this.v.priceDate",
+#                     {
+#                       "$dateTrunc": {
+#                         "date": {
+#                           "$dateSubtract": {
+#                             "startDate": "$crawledAt",
+#                             "amount": 30,
+#                             "unit": "day",
+#                           }
+#                         },
+#                         "unit": "day",
+#                       }
+#                     }
+#                   ]
+#                 },
+#                 {"$toBool": "$$this.v.priceCurrent"},
+#                 {
+#                   "$ne": [
+#                     "$$this.v.priceCurrent",
+#                     "$priceCurrent",
+#                   ]
+#                 },
+#               ]
+#             }
+#           },
+#           "in": "$$this.v.priceCurrent"
+#         }
+#       },
+#     }
+#   }
+# }
+
+# In this example, the $min operator is used to calculate the minimum price in the last 7 and 30 days. The $filter operator is used to filter the $timeseriesArr array to only include elements with a priceDate within the specified date range, and the $min operator calculates the minimum priceCurrent value in the filtered array.
+
+# I hope this helps! Let me know if you have any other questions.

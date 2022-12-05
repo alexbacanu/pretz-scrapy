@@ -96,7 +96,7 @@ SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
 SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 
 # App specific
-DEV_TAG = "_dev"  # !DEV TAG
+DEV_TAG = ""  # !DEV TAG
 SCRAPEDO_KEY = f"{os.getenv('SCRAPEDO_KEY')}"
 
 MONGO_URI = f"{os.getenv('MONGO_URI')}"
@@ -105,4 +105,4 @@ MONGO_COLL = f"{os.getenv('MONGO_COLL')}{DEV_TAG}"
 
 REDIS_URI = f"{os.getenv('REDIS_URI')}"
 
-MAX_IDLE_TIME = 5
+MAX_IDLE_TIME = 60
