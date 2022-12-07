@@ -1,38 +1,23 @@
-# Environment
-variable "PROXY_SCRAPERAPI_KEY" {
-  sensitive = true
-}
+# Data from .tfvars
+variable "tenancy_ocid" {}
+variable "user_ocid" {}
+variable "private_key_path" {}
+variable "private_key_password" {}
+variable "fingerprint" {}
+variable "region" {}
+variable "compartment_ocid" {}
+variable "public_key_path" {}
 
-variable "GOOGLE_CREDENTIALS" {
-  sensitive = true
+# Instance
+variable "instance_shape_a1" {
+  default = "VM.Standard.A1.Flex"
 }
-
-# Project
-variable "project" {
-  default = "honestprice-tf"
+variable "instance_shape_e2" {
+  default = "VM.Standard.E2.1.Micro"
 }
-
-variable "region" {
-  default = "europe-west3"
+variable "operating_system" {
+  default = "Oracle Linux"
 }
-
-variable "zone" {
-  default = "europe-west3-a"
-}
-
-# Functions
-variable "function_sitemap_name" {
-  default = "cloud_crawl_sitemap"
-}
-
-variable "function_sitemap_entry_point" {
-  default = "cloud_crawl_sitemap"
-}
-
-variable "function_products_name" {
-  default = "cloud_crawl_products"
-}
-
-variable "function_products_entry_point" {
-  default = "cloud_crawl_products"
+variable "operating_system_version" {
+  default = "8"
 }
