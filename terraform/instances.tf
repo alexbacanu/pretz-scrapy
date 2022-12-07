@@ -1,17 +1,24 @@
 /* Instances */
 resource "oci_core_instance" "tf_free_instance_db" {
   #Required
-  availability_domain = data.oci_identity_availability_domain.ad.name
+  availability_domain = data.oci_identity_availability_domain.ad3.name
   compartment_id      = var.compartment_ocid
   shape               = var.instance_shape_a1
 
   #Optional
   display_name = "tf-free-instance-db"
 
+  agent_config {
+    plugins_config {
+      desired_state = "ENABLED"
+      name          = "Vulnerability Scanning"
+    }
+  }
+
   shape_config {
     #Optional
-    ocpus         = 2
-    memory_in_gbs = 12
+    ocpus         = 1
+    memory_in_gbs = 6
   }
 
   create_vnic_details {
@@ -32,24 +39,39 @@ resource "oci_core_instance" "tf_free_instance_db" {
     are_legacy_imds_endpoints_disabled = true
   }
 
+  is_pv_encryption_in_transit_enabled = "true"
+
   metadata = {
-    ssh_authorized_keys = file(var.public_key_path)
+    ssh_authorized_keys = file(var.ssh_public_key)
   }
+}
+
+resource "oci_core_volume_backup_policy_assignment" "tf_free_instance_db_backup" {
+  #Required
+  asset_id  = oci_core_instance.tf_free_instance_db.boot_volume_id
+  policy_id = oci_core_volume_backup_policy.tf_free_backup_policy.id
 }
 
 resource "oci_core_instance" "tf_free_instance_scrapy" {
   #Required
-  availability_domain = data.oci_identity_availability_domain.ad.name
+  availability_domain = data.oci_identity_availability_domain.ad3.name
   compartment_id      = var.compartment_ocid
   shape               = var.instance_shape_e2
 
   #Optional
   display_name = "tf-free-instance-scrapy"
 
+  agent_config {
+    plugins_config {
+      desired_state = "ENABLED"
+      name          = "Vulnerability Scanning"
+    }
+  }
+
   shape_config {
     #Optional
-    ocpus         = 2
-    memory_in_gbs = 12
+    ocpus         = 1
+    memory_in_gbs = 1
   }
 
   create_vnic_details {
@@ -70,7 +92,15 @@ resource "oci_core_instance" "tf_free_instance_scrapy" {
     are_legacy_imds_endpoints_disabled = true
   }
 
+  is_pv_encryption_in_transit_enabled = "true"
+
   metadata = {
-    ssh_authorized_keys = file(var.public_key_path)
+    ssh_authorized_keys = file(var.ssh_public_key)
   }
+}
+
+resource "oci_core_volume_backup_policy_assignment" "tf_free_instance_scrapy_backup" {
+  #Required
+  asset_id  = oci_core_instance.tf_free_instance_scrapy.boot_volume_id
+  policy_id = oci_core_volume_backup_policy.tf_free_backup_policy.id
 }

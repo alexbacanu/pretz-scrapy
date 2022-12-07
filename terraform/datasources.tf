@@ -1,8 +1,13 @@
 # Availability Domain
 # Get a list of Availability Domains
-data "oci_identity_availability_domain" "ad" {
+data "oci_identity_availability_domain" "ad3" {
   compartment_id = var.tenancy_ocid
   ad_number      = 3
+}
+
+data "oci_identity_availability_domain" "ad1" {
+  compartment_id = var.tenancy_ocid
+  ad_number      = 1
 }
 
 # Images

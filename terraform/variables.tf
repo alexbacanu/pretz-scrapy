@@ -6,7 +6,7 @@ variable "private_key_password" {}
 variable "fingerprint" {}
 variable "region" {}
 variable "compartment_ocid" {}
-variable "public_key_path" {}
+variable "ssh_public_key" {}
 
 # Instance
 variable "instance_shape_a1" {
