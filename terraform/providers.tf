@@ -7,4 +7,3 @@ provider "oci" {
   fingerprint          = var.fingerprint
   region               = var.region
 }
-
