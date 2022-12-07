@@ -661,7 +661,7 @@ cleanup = {
     "stats.deal7": {
         "v": {
             "$cond": [
-                {"$ne": ["$priceCurrent", None]},
+                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
                 {"$subtract": [{"$divide": ["$priceCurrent", "$stats.lowest7.v"]}, 1]},
                 0,
             ]
@@ -670,7 +670,7 @@ cleanup = {
     "stats.deal30": {
         "v": {
             "$cond": [
-                {"$ne": ["$priceCurrent", None]},
+                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
                 {"$subtract": [{"$divide": ["$priceCurrent", "$stats.lowest30.v"]}, 1]},
                 0,
             ]
@@ -679,7 +679,7 @@ cleanup = {
     "stats.deal90": {
         "v": {
             "$cond": [
-                {"$ne": ["$priceCurrent", None]},
+                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
                 {"$subtract": [{"$divide": ["$priceCurrent", "$stats.lowest90.v"]}, 1]},
                 0,
             ]
@@ -688,7 +688,7 @@ cleanup = {
     "stats.dealAll": {
         "v": {
             "$cond": [
-                {"$ne": ["$priceCurrent", None]},
+                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
                 {"$subtract": [{"$divide": ["$priceCurrent", "$stats.lowestAll.v"]}, 1]},
                 0,
             ]
@@ -709,7 +709,7 @@ cleanup = {
     "stats.cash7": {
         "v": {
             "$cond": [
-                {"$ne": ["$priceCurrent", None]},
+                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
                 {"$subtract": ["$priceCurrent", "$stats.lowest7.v"]},
                 0,
             ]
@@ -718,7 +718,7 @@ cleanup = {
     "stats.cash30": {
         "v": {
             "$cond": [
-                {"$ne": ["$priceCurrent", None]},
+                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
                 {"$subtract": ["$priceCurrent", "$stats.lowest30.v"]},
                 0,
             ]
@@ -727,7 +727,7 @@ cleanup = {
     "stats.cash90": {
         "v": {
             "$cond": [
-                {"$ne": ["$priceCurrent", None]},
+                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
                 {"$subtract": ["$priceCurrent", "$stats.lowest90.v"]},
                 0,
             ]
@@ -736,7 +736,7 @@ cleanup = {
     "stats.cashAll": {
         "v": {
             "$cond": [
-                {"$ne": ["$priceCurrent", None]},
+                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
                 {"$subtract": ["$priceCurrent", "$stats.lowestAll.v"]},
                 0,
             ]

@@ -62,7 +62,8 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
         category = json_response.get("data").get("category").get("name")
 
         # Get brands
-        brands_array = json_response.get("data").get("filters").get("items")[5].get("items")
+        filters_array = json_response.get("data").get("filters").get("items")
+        brands_array = [element.get("items") for element in filters_array if element["name"] == "Brand"][0]
         choices = [o.get("name") for o in brands_array]
 
         # Get breadcrumbs
