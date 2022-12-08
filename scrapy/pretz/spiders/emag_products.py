@@ -43,7 +43,7 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
             # Generate requests based on number of pages
             requests_array = [f"{new_response}/p{i}/c" for i in range(2, total_pages + 1)]
 
-            # Insert first page (not using /p{i}/c)
+            # Insert first page (does not use /p{i}/c)
             requests_array.insert(0, response.url)
 
             for request in requests_array:
@@ -63,7 +63,10 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
 
         # Get brands
         filters_array = json_response.get("data").get("filters").get("items")
-        brands_array = [element.get("items") for element in filters_array if element["name"] == "Brand"][0]
+        try:
+            brands_array = next(element.get("items") for element in filters_array if element["name"] == "Brand")
+        except StopIteration:
+            brands_array = []
         choices = [o.get("name") for o in brands_array]
 
         # Get breadcrumbs
@@ -95,7 +98,8 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
 
             # pBrand
             extracted_brand = process.extractOne(product.get("name"), choices, scorer=partial_ratio)
-            itemloader.add_value("pBrand", extracted_brand[0])
+            self.logger.warning(extracted_brand) if extracted_brand[1] < 100 else ""  # Debug
+            itemloader.add_value("pBrand", extracted_brand[0] if extracted_brand else None)
 
             # pVendor
             itemloader.add_value("pVendor", product.get("offer").get("vendor").get("name").get("display"))
