@@ -18,7 +18,7 @@ resource "oci_core_instance" "tf_free_instance_db" {
   shape_config {
     #Optional
     ocpus         = 1
-    memory_in_gbs = 6
+    memory_in_gbs = 5
   }
 
   create_vnic_details {
@@ -43,6 +43,7 @@ resource "oci_core_instance" "tf_free_instance_db" {
 
   metadata = {
     ssh_authorized_keys = file(var.ssh_public_key)
+    user_data           = base64encode(templatefile(var.update_script_db, {}))
   }
 }
 
@@ -52,7 +53,11 @@ resource "oci_core_volume_backup_policy_assignment" "tf_free_instance_db_backup"
   policy_id = oci_core_volume_backup_policy.tf_free_backup_policy.id
 }
 
-resource "oci_core_instance" "tf_free_instance_scrapy" {
+output "tf_free_instance_db_ip" {
+  value = oci_core_instance.tf_free_instance_db.public_ip
+}
+
+resource "oci_core_instance" "tf_free_instance_scrapy_01" {
   #Required
   availability_domain = data.oci_identity_availability_domain.ad3.name
   compartment_id      = var.compartment_ocid
@@ -96,11 +101,16 @@ resource "oci_core_instance" "tf_free_instance_scrapy" {
 
   metadata = {
     ssh_authorized_keys = file(var.ssh_public_key)
+    user_data           = base64encode(templatefile(var.update_script_scrapy, {}))
   }
 }
 
-resource "oci_core_volume_backup_policy_assignment" "tf_free_instance_scrapy_backup" {
+resource "oci_core_volume_backup_policy_assignment" "tf_free_instance_scrapy_01_backup" {
   #Required
-  asset_id  = oci_core_instance.tf_free_instance_scrapy.boot_volume_id
+  asset_id  = oci_core_instance.tf_free_instance_scrapy_01.boot_volume_id
   policy_id = oci_core_volume_backup_policy.tf_free_backup_policy.id
+}
+
+output "tf_free_instance_scrapy_01_ip" {
+  value = oci_core_instance.tf_free_instance_scrapy_01.public_ip
 }

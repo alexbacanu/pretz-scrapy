@@ -15,9 +15,12 @@ variable "instance_shape_a1" {
 variable "instance_shape_e2" {
   default = "VM.Standard.E2.1.Micro"
 }
-variable "operating_system" {
-  default = "Oracle Linux"
+
+# Scripts
+variable "update_script_db" {
+  default = "scripts/update_db.sh"
 }
-variable "operating_system_version" {
-  default = "8"
+
+variable "update_script_scrapy" {
+  default = "scripts/update_scrapy.sh"
 }
