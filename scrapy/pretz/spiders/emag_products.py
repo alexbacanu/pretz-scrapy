@@ -98,7 +98,6 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
 
             # pBrand
             extracted_brand = process.extractOne(product.get("name"), choices, scorer=partial_ratio)
-            self.logger.warning(extracted_brand) if extracted_brand[1] < 100 else ""  # Debug
             itemloader.add_value("pBrand", extracted_brand[0] if extracted_brand else None)
 
             # pVendor
