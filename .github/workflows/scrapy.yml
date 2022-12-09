@@ -19,13 +19,15 @@ jobs:
 
       - name: 💾 Create backup for scrapy
         run: |
-          ssh ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }} -o StrictHostKeyChecking=no -i privkey.pem '
-            sudo mkdir -p /home/${{ secrets.ORACLE_INSTANCE_USER }}/backups/ &&
-            sudo mkdir -p /home/${{ secrets.ORACLE_INSTANCE_USER }}/backups/scrapy_$(date +"\%y-\%m-\%d_\%H\%M") &&
-            sudo mv /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/ /home/${{ secrets.ORACLE_INSTANCE_USER }}/backups/scrapy_$(date +"\%y-\%m-\%d_\%H\%M") &&
-            sudo mkdir -p /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/ &&
-            sudo chmod 777 /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/
-          '
+          ssh ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }} -o StrictHostKeyChecking=no -i privkey.pem "
+            cd /home/${{ secrets.ORACLE_INSTANCE_USER }}/ &&
+            sudo mkdir -p backups/ &&
+            sudo mkdir -p backups/scrapy_$(date +'\%y-\%m-\%d_\%H\%M') &&
+            sudo rm -f -r scrapy/.venv/ &&
+            sudo mv scrapy/ backups/scrapy_$(date +'\%y-\%m-\%d_\%H\%M') &&
+            sudo mkdir -p scrapy/ &&
+            sudo chmod 777 scrapy/
+          "
   deploy:
     name: "2️⃣ Deploy scrapy"
     runs-on: self-hosted
@@ -36,8 +38,25 @@ jobs:
         run: |
           scp -i privkey.pem -o StrictHostKeyChecking=no -r scrapy/ ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }}:/home/${{ secrets.ORACLE_INSTANCE_USER }}/
 
+  generate:
+    name: "3️⃣ Generate venv"
+    runs-on: self-hosted
+    needs: deploy
+
+    steps:
+      - name: 🛠️ Create a .venv directory
+        run: |
+          ssh ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }} -o StrictHostKeyChecking=no -i privkey.pem "
+            cd /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy &&
+            python -m venv .venv &&
+            source .venv/bin/activate &&
+            pip install --upgrade pip &&
+            pip install wheel &&
+            pip install -r requirements.txt
+          "
+
   config:
-    name: "3️⃣ Configure scrapy"
+    name: "4️⃣ Configure scrapy"
     runs-on: self-hosted
     needs: deploy
 
