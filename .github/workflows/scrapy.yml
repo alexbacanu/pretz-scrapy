@@ -1,0 +1,97 @@
+# This will work only on linux runners
+name: 🛫 Scrapy deployment
+
+on: [push]
+
+jobs:
+  backup:
+    name: "1️⃣ Backup scrapy"
+    runs-on: self-hosted
+
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v3
+
+      - name: 🔐 Set privkey
+        run: |
+          echo "${{ secrets.PRIVATE_KEY_FILE }}" > privkey.pem
+          chmod 600 privkey.pem
+
+      - name: 💾 Create backup for scrapy
+        run: |
+          ssh ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }} -o StrictHostKeyChecking=no -i privkey.pem '
+            sudo mkdir -p /home/${{ secrets.ORACLE_INSTANCE_USER }}/backups/ &&
+            sudo mkdir -p /home/${{ secrets.ORACLE_INSTANCE_USER }}/backups/scrapy_$(date +"\%y-\%m-\%d_\%H\%M") &&
+            sudo mv /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/ /home/${{ secrets.ORACLE_INSTANCE_USER }}/backups/scrapy_$(date +"\%y-\%m-\%d_\%H\%M") &&
+            sudo mkdir -p /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/ &&
+            sudo chmod 777 /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/
+          '
+  deploy:
+    name: "2️⃣ Deploy scrapy"
+    runs-on: self-hosted
+    needs: backup
+
+    steps:
+      - name: ☁️ Upload directory to server
+        run: |
+          scp -i privkey.pem -o StrictHostKeyChecking=no -r scrapy/ ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }}:/home/${{ secrets.ORACLE_INSTANCE_USER }}/
+
+  config:
+    name: "3️⃣ Configure scrapy"
+    runs-on: self-hosted
+    needs: deploy
+
+    steps:
+      - name: ⚙️ Set bash_profile variables
+        run: |
+          echo "# .bash_profile
+
+          # Get the aliases and functions
+          if [ -f ~/.bashrc ]; then
+                  . ~/.bashrc
+          fi
+
+          # User specific environment and startup programs
+          export EDITOR='nano'
+          export SCRAPEDO_KEY='${{ secrets.SCRAPEDO_KEY }}'
+          export REDIS_URI='${{ secrets.REDIS_URI }}'
+          export MONGO_URI='${{ secrets.MONGO_URI }}'
+          export MONGO_DB='${{ secrets.MONGO_DB }}'" > .bash_profile
+
+          scp -i privkey.pem -o StrictHostKeyChecking=no .bash_profile ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }}:~/.bash_profile
+
+          ssh ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }} -o StrictHostKeyChecking=no -i privkey.pem 'source ~/.bashrc'
+
+      - name: ⏲️ Set crontab
+        run: |
+          cat > crontab_scrapy <<'EOF'
+          SHELL=/bin/bash
+
+          # Move log
+          10 8 * * * cd /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/ && mv scrapy.log "logs/scrapy_$(date +'\%d-\%m-\%y_\%H\%M').log"
+
+          # Get sitemap
+          15 8 * * * /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/scripts/run_sitemap_emag.sh
+          20 8 * * * /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/scripts/run_sitemap_altex.sh
+
+          # Get products
+          25 8 * * * /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/scripts/run_products_emag.sh
+          30 8 * * * /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/scripts/run_products_altex.sh
+
+          # Get failed products x1
+          25 15 * * * /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/scripts/run_failed_urls.sh
+          30 15 * * * /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/scripts/run_products_emag.sh
+          35 15 * * * /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/scripts/run_products_altex.sh
+
+          # Get failed products x2
+          25 22 * * * /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/scripts/run_failed_urls.sh
+          35 22 * * * /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/scripts/run_products_emag.sh
+          40 22 * * * /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/scripts/run_products_altex.sh
+          EOF
+
+          scp -i privkey.pem -o StrictHostKeyChecking=no crontab_scrapy ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }}:/home/${{ secrets.ORACLE_INSTANCE_USER }}/
+          ssh ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }} -o StrictHostKeyChecking=no -i privkey.pem 'crontab /home/${{ secrets.ORACLE_INSTANCE_USER }}/crontab_scrapy'
+
+      - name: 🧹 Cleanup
+        run: |
+          ssh ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }} -o StrictHostKeyChecking=no -i privkey.pem 'rm /home/${{ secrets.ORACLE_INSTANCE_USER }}/crontab_scrapy'

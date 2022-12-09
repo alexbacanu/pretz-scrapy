@@ -18,7 +18,7 @@ resource "oci_core_instance" "tf_free_instance_db" {
   shape_config {
     #Optional
     ocpus         = 1
-    memory_in_gbs = 5
+    memory_in_gbs = 6
   }
 
   create_vnic_details {

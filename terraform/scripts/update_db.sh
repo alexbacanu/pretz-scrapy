@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Make logs directory
-mkdir /home/opc/init_logs_update
-mkdir /home/opc/init_logs_mongodb
+mkdir -p /home/opc/init_logs_update
+mkdir -p /home/opc/init_logs_mongodb
 
 # --- UPDATE SYSTEM ---
 # Update the package list
@@ -11,19 +11,16 @@ sudo yum update -y > /home/opc/init_logs_update/yum_update.log
 # Upgrade all installed packages to the latest version
 sudo yum upgrade -y > /home/opc/init_logs_update/yum_upgrade.log
 
-# Clean up the package manager
-sudo yum clean all > /home/opc/init_logs_update/yum_clean.log
-
 # --- ADD MONGODB ---
 # Add the MongoDB repository
-cat <<EOF | sudo tee /etc/yum.repos.d/mongodb-org-6.0.repo
-[mongodb-org-6.0]
+repo="[mongodb-org-6.0]
 name=MongoDB Repository
-baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/6.0/aarch64/
+baseurl=https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/6.0/aarch64/
 gpgcheck=1
 enabled=1
-gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc
-EOF
+gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc"
+
+sudo echo "$repo" > /etc/yum.repos.d/mongodb-org-6.0.repo
 
 # Update the package index
 sudo yum update -y > /home/opc/init_logs_mongodb/yum_update.log
@@ -32,14 +29,13 @@ sudo yum update -y > /home/opc/init_logs_mongodb/yum_update.log
 sudo yum install -y mongodb-org > /home/opc/init_logs_mongodb/yum_install.log
 
 # Start the MongoDB service
-sudo systemctl start mongod > /home/opc/init_logs_mongodb/systemctl_start.log
+# sudo systemctl start mongod > /home/opc/init_logs_mongodb/systemctl_start.log
 
 # Enable the MongoDB service to start automatically on boot
-sudo systemctl enable mongod > /home/opc/init_logs_mongodb/systemctl_enable.log
+# sudo systemctl enable mongod > /home/opc/init_logs_mongodb/systemctl_enable.log
 
 # Replace MongoDB config
-cat <<EOF | sudo tee /etc/mongod.conf
-# mongod.conf
+conf="# mongod.conf
 
 # for documentation of all options, see:
 #   http://docs.mongodb.org/manual/reference/configuration-options/
@@ -73,24 +69,24 @@ net:
 
 #security:
 security:
-  authorization: 'enabled'
-EOF
+  authorization: 'enabled'"
+
+sudo echo "$conf" > /etc/mongod.conf
 
 # Add the vm.max_map_count = 102400 setting to sysctl.conf
-sudo sh -c "echo 'vm.max_map_count = 102400' >> /etc/sysctl.conf"
+sudo echo 'vm.max_map_count = 102400' >> /etc/sysctl.conf
 
 # Apply the changes to sysctl.conf
 sudo sysctl -p > /home/opc/init_logs_mongodb/sysctl_p.log
 
 # Append "transparent_hugepage=never" to the end of GRUB_CMDLINE_LINUX
-sudo sh -c 'echo "GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX transparent_hugepage=never" >> /etc/default/grub'
+sudo sed -i '/GRUB_CMDLINE_LINUX/ s/"$/ transparent_hugepage=never"/' /etc/default/grub
 
 # Apply the changes to the GRUB configuration
-sudo update-grub > /home/opc/init_logs_mongodb/update_grub.log
+sudo update-grub
 
 # Create MongoDB logrotate config
-cat <<EOF | sudo tee /etc/logrotate.d/mongodb.conf
-/var/log/mongodb/mongod.log {
+logrotate="/var/log/mongodb/mongod.log {
   rotate 30
   daily
   compress
@@ -98,14 +94,15 @@ cat <<EOF | sudo tee /etc/logrotate.d/mongodb.conf
   missingok
   notifempty
   create 640 mongod mongod
-}
-EOF
+}"
+
+sudo echo "$logrotate" > /etc/logrotate.d/mongodb.conf
 
 # Apply the changes to the logrotate configuration
-logrotate /etc/logrotate.d/mongodb > /home/opc/init_logs_mongodb/logrotate.log
+logrotate /etc/logrotate.d/mongodb
 
 # Check logrotate
-logrotate -d /etc/logrotate.conf > /home/opc/init_logs_mongodb/logrotate_d.log
+logrotate -d /etc/logrotate.conf
 
 # Check the status of the MongoDB service
 systemctl status mongod > /home/opc/init_logs_mongodb/systemctl_status.log
