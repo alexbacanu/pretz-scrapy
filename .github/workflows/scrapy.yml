@@ -38,6 +38,13 @@ jobs:
         run: |
           scp -i privkey.pem -o StrictHostKeyChecking=no -r scrapy/ ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }}:/home/${{ secrets.ORACLE_INSTANCE_USER }}/
 
+      - name: ⛔ Fix permissions
+        run: |
+          ssh ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }} -o StrictHostKeyChecking=no -i privkey.pem "
+            cd /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/scripts &&
+            chmod 770 -R ./
+          "
+
   generate:
     name: "3️⃣ Generate venv"
     runs-on: self-hosted
@@ -87,7 +94,7 @@ jobs:
           SHELL=/bin/bash
 
           # Move log
-          10 8 * * * cd /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/ && mv scrapy.log "logs/scrapy_$(date +'\%d-\%m-\%y_\%H\%M').log"
+          10 8 * * * cd /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/ && mkdir -p logs && mv scrapy.log "logs/scrapy_$(date +'\%d-\%m-\%y_\%H\%M').log"
 
           # Get sitemap
           15 8 * * * /home/${{ secrets.ORACLE_INSTANCE_USER }}/scrapy/scripts/run_sitemap_emag.sh
