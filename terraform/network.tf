@@ -104,4 +104,17 @@ resource "oci_core_security_list" "tf_free_security_list" {
       type = "3"
     }
   }
+
+  # Allow TCP(6) port var.mongodb_port for all ips
+  ingress_security_rules {
+    #Required
+    protocol = "6"
+    source   = "0.0.0.0/0"
+
+    tcp_options {
+      #Optional
+      max = var.mongodb_port
+      min = var.mongodb_port
+    }
+  }
 }

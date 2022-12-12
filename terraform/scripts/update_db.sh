@@ -37,10 +37,10 @@ sudo yum install -y mongodb-org > /home/opc/init_logs_mongodb/yum_install.log
 # Replace MongoDB config
 conf="# mongod.conf
 
-# for documentation of all options, see:
+# For documentation of all options, see:
 #   http://docs.mongodb.org/manual/reference/configuration-options/
 
-# where to write logging data.
+# Where to write logging data.
 systemLog:
   destination: file
   path: /var/log/mongodb/mongod.log
@@ -55,21 +55,25 @@ storage:
 #  engine:
 #  wiredTiger:
 
-# how the process runs
+# How the process runs
 processManagement:
   fork: true  # fork and run in background
   pidFilePath: /var/run/mongodb/mongod.pid  # location of pidfile
   timeZoneInfo: /usr/share/zoneinfo
 
-# network interfaces
+# Network interfaces
 net:
-  port: 27017
+  port: ${port}
   bindIp: 0.0.0.0  # Enter 0.0.0.0,:: to bind to all IPv4 and IPv6 addresses or, alternatively, use the net.bindIpAll setting.
 
-
-#security:
+# Security:
 security:
-  authorization: 'enabled'"
+  authorization: 'enabled'
+
+# Cloud:
+cloud:
+  monitoring:
+    state: 'on'"
 
 sudo echo "$conf" > /etc/mongod.conf
 

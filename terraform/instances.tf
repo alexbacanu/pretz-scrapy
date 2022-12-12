@@ -43,7 +43,7 @@ resource "oci_core_instance" "tf_free_instance_db" {
 
   metadata = {
     ssh_authorized_keys = file(var.ssh_public_key)
-    user_data           = base64encode(templatefile(var.update_script_db, {}))
+    user_data           = base64encode(templatefile(var.update_script_db, { port = var.mongodb_port }))
   }
 }
 
@@ -54,7 +54,8 @@ resource "oci_core_volume_backup_policy_assignment" "tf_free_instance_db_backup"
 }
 
 output "tf_free_instance_db_ip" {
-  value = oci_core_instance.tf_free_instance_db.public_ip
+  value     = oci_core_instance.tf_free_instance_db.public_ip
+  sensitive = true
 }
 
 resource "oci_core_instance" "tf_free_instance_scrapy_01" {
@@ -112,5 +113,6 @@ resource "oci_core_volume_backup_policy_assignment" "tf_free_instance_scrapy_01_
 }
 
 output "tf_free_instance_scrapy_01_ip" {
-  value = oci_core_instance.tf_free_instance_scrapy_01.public_ip
+  value     = oci_core_instance.tf_free_instance_scrapy_01.public_ip
+  sensitive = true
 }

@@ -7,6 +7,7 @@ variable "fingerprint" {}
 variable "region" {}
 variable "compartment_ocid" {}
 variable "ssh_public_key" {}
+variable "mongodb_port" {}
 
 # Instance
 variable "instance_shape_a1" {
