@@ -8,6 +8,8 @@ variable "region" {}
 variable "compartment_ocid" {}
 variable "ssh_public_key" {}
 variable "mongodb_port" {}
+variable "mongodb_user" {}
+variable "mongodb_pass" {}
 
 # Instance
 variable "instance_shape_a1" {

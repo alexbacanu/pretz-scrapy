@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# --- LOGS ---
 # Make logs directory
 mkdir -p /home/opc/init_logs_update
 mkdir -p /home/opc/init_logs_mongodb
@@ -27,12 +28,6 @@ sudo yum update -y > /home/opc/init_logs_mongodb/yum_update.log
 
 # Install MongoDB
 sudo yum install -y mongodb-org > /home/opc/init_logs_mongodb/yum_install.log
-
-# Start the MongoDB service
-# sudo systemctl start mongod > /home/opc/init_logs_mongodb/systemctl_start.log
-
-# Enable the MongoDB service to start automatically on boot
-# sudo systemctl enable mongod > /home/opc/init_logs_mongodb/systemctl_enable.log
 
 # Replace MongoDB config
 conf="# mongod.conf
@@ -73,7 +68,8 @@ security:
 # Cloud:
 cloud:
   monitoring:
-    state: 'on'"
+    free:
+      state: 'on'"
 
 sudo echo "$conf" > /etc/mongod.conf
 
@@ -108,13 +104,47 @@ logrotate /etc/logrotate.d/mongodb
 # Check logrotate
 logrotate -d /etc/logrotate.conf
 
+# Configure SELinux for MongoDB:
+sudo yum install git make checkpolicy policycoreutils selinux-policy-devel -y
+
+# Download the policy repository.
+git clone https://github.com/mongodb/mongodb-selinux
+
+# Build the policy.
+cd mongodb-selinux
+make
+
+# Apply the policy.
+sudo make install
+
+# Change default port for SEPolicy
+sudo semanage port -a -t mongod_port_t -p tcp ${port}
+
+# Start the MongoDB service
+sudo systemctl start mongod > /home/opc/init_logs_mongodb/systemctl_start.log
+
+# Use mongosh to create a user
+mongosh --port ${port} --eval '
+db = db.getSiblingDB("admin");
+db.createUser({
+  user: "${user}",
+  pwd: "${pass}",
+  roles: [
+    { role: "clusterAdmin", db: "admin" },
+    { role: "dbAdminAnyDatabase", db: "admin" },
+    { role: "userAdminAnyDatabase", db: "admin" },
+    { role: "readWriteAnyDatabase", db: "admin" },
+  ],
+});
+'
+
 # Check the status of the MongoDB service
 systemctl status mongod > /home/opc/init_logs_mongodb/systemctl_status.log
 
+# --- FINAL ---
 # Clean up the package manager
 sudo yum clean all > /home/opc/init_logs_mongodb/yum_clean.log
 
-# --- FINAL ---
 # Create a notification
 echo "Init script finished" > /home/opc/init.log
 
