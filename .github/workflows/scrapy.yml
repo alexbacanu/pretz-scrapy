@@ -4,7 +4,7 @@ name: 🛫 Scrapy deployment
 on: [push]
 
 env:
-  HOST: ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }}
+  CONNECT_HOST: ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }}
   USER_PATH: /home/${{ secrets.ORACLE_INSTANCE_USER }}
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
 
       - name: 💾 Create backup for scrapy
         run: |
-          ssh $HOST -o StrictHostKeyChecking=no -i privkey.pem "
+          ssh $CONNECT_HOST -o StrictHostKeyChecking=no -i privkey.pem "
             cd $USER_PATH/ &&
             sudo mkdir -p backups/ &&
             sudo mkdir -p backups/scrapy_$(date +'\%y-\%m-\%d_\%H\%M') &&
@@ -40,11 +40,11 @@ jobs:
     steps:
       - name: ☁️ Upload directory to server
         run: |
-          scp -i privkey.pem -o StrictHostKeyChecking=no -r scrapy/ $HOST:$USER_PATH/
+          scp -i privkey.pem -o StrictHostKeyChecking=no -r scrapy/ $CONNECT_HOST:$USER_PATH/
 
       - name: ⛔ Fix permissions
         run: |
-          ssh $HOST -o StrictHostKeyChecking=no -i privkey.pem "
+          ssh $CONNECT_HOST -o StrictHostKeyChecking=no -i privkey.pem "
             cd $USER_PATH/scrapy/scripts &&
             chmod 770 -R ./
           "
@@ -57,7 +57,7 @@ jobs:
     steps:
       - name: 🛠️ Create a .venv directory
         run: |
-          ssh $HOST -o StrictHostKeyChecking=no -i privkey.pem "
+          ssh $CONNECT_HOST -o StrictHostKeyChecking=no -i privkey.pem "
             cd $USER_PATH/scrapy &&
             python -m venv .venv &&
             source .venv/bin/activate &&
@@ -88,40 +88,40 @@ jobs:
           export MONGO_URI='${{ secrets.MONGO_URI }}'
           export MONGO_DB='${{ secrets.MONGO_DB }}'" > .bash_profile
 
-          scp -i privkey.pem -o StrictHostKeyChecking=no .bash_profile $HOST:~/.bash_profile
+          scp -i privkey.pem -o StrictHostKeyChecking=no .bash_profile $CONNECT_HOST:~/.bash_profile
 
-          ssh $HOST -o StrictHostKeyChecking=no -i privkey.pem 'source ~/.bashrc'
+          ssh $CONNECT_HOST -o StrictHostKeyChecking=no -i privkey.pem "source ~/.bashrc"
 
       - name: ⏲️ Set crontab
         run: |
-          cat > crontab_scrapy <<'EOF'
+          cat <<EOF > crontab_scrapy
           SHELL=/bin/bash
 
           # Move log
-          10 8 * * * cd $USER_PATH/scrapy/ && mkdir -p logs/ && mv scrapy.log "logs/scrapy_$(date +'\%d-\%m-\%y_\%H\%M').log"
+          10 8 * * * cd ${{env.USER_PATH}}/scrapy/ && mkdir -p logs/ && mv scrapy.log "logs/scrapy_\$(date +'\%d-\%m-\%y_\%H\%M').log"
 
           # Get sitemap
-          15 8 * * * $USER_PATH/scrapy/scripts/run_sitemap_emag.sh
-          20 8 * * * $USER_PATH/scrapy/scripts/run_sitemap_altex.sh
+          15 8 * * * ${{env.USER_PATH}}/scrapy/scripts/run_sitemap_emag.sh
+          20 8 * * * ${{env.USER_PATH}}/scrapy/scripts/run_sitemap_altex.sh
 
           # Get products
-          25 8 * * * $USER_PATH/scrapy/scripts/run_products_emag.sh
-          30 8 * * * $USER_PATH/scrapy/scripts/run_products_altex.sh
+          25 8 * * * ${{env.USER_PATH}}/scrapy/scripts/run_products_emag.sh
+          30 8 * * * ${{env.USER_PATH}}/scrapy/scripts/run_products_altex.sh
 
           # Get failed products x1
-          25 15 * * * $USER_PATH/scrapy/scripts/run_failed_urls.sh
-          30 15 * * * $USER_PATH/scrapy/scripts/run_products_emag.sh
-          35 15 * * * $USER_PATH/scrapy/scripts/run_products_altex.sh
+          25 15 * * * ${{env.USER_PATH}}/scrapy/scripts/run_failed_urls.sh
+          30 15 * * * ${{env.USER_PATH}}/scrapy/scripts/run_products_emag.sh
+          35 15 * * * ${{env.USER_PATH}}/scrapy/scripts/run_products_altex.sh
 
           # Get failed products x2
-          25 22 * * * $USER_PATH/scrapy/scripts/run_failed_urls.sh
-          35 22 * * * $USER_PATH/scrapy/scripts/run_products_emag.sh
-          40 22 * * * $USER_PATH/scrapy/scripts/run_products_altex.sh
+          25 22 * * * ${{env.USER_PATH}}/scrapy/scripts/run_failed_urls.sh
+          35 22 * * * ${{env.USER_PATH}}/scrapy/scripts/run_products_emag.sh
+          40 22 * * * ${{env.USER_PATH}}/scrapy/scripts/run_products_altex.sh
           EOF
 
-          scp -i privkey.pem -o StrictHostKeyChecking=no crontab_scrapy $HOST:$USER_PATH/
-          ssh $HOST -o StrictHostKeyChecking=no -i privkey.pem 'crontab $USER_PATH/crontab_scrapy'
+          scp -i privkey.pem -o StrictHostKeyChecking=no crontab_scrapy $CONNECT_HOST:$USER_PATH/
+          ssh $CONNECT_HOST -o StrictHostKeyChecking=no -i privkey.pem "crontab $USER_PATH/crontab_scrapy"
 
       - name: 🧹 Cleanup
         run: |
-          ssh $HOST -o StrictHostKeyChecking=no -i privkey.pem 'rm $USER_PATH/crontab_scrapy'
+          ssh $CONNECT_HOST -o StrictHostKeyChecking=no -i privkey.pem "rm $USER_PATH/crontab_scrapy"
