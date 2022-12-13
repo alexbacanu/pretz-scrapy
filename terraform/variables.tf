@@ -7,6 +7,7 @@ variable "fingerprint" {}
 variable "region" {}
 variable "compartment_ocid" {}
 variable "ssh_public_key" {}
+variable "ssh_user" {}
 variable "mongodb_port" {}
 variable "mongodb_user" {}
 variable "mongodb_pass" {}

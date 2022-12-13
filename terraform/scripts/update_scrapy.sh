@@ -1,24 +1,23 @@
 #!/bin/bash
 
-# Make init_logs directory
-mkdir /home/opc/init_logs_update
-
 # --- UPDATE SYSTEM ---
+cd /home/${ssh_user}/
+
 # Update the package list
-sudo yum update -y > /home/opc/init_logs_update/yum_update.log
+sudo yum update -y
 
 # Upgrade all installed packages to the latest version
-sudo yum upgrade -y > /home/opc/init_logs_update/yum_upgrade.log
-
-# Clean up the package manager
-sudo yum clean all > /home/opc/init_logs_update/yum_clean.log
+sudo yum upgrade -y
 
 # Make scrapy directory
-mkdir /home/opc/scrapy
+mkdir -p scrapy
 
 # --- FINAL ---
+# Clean up the package manager
+sudo yum clean all
+
 # Create a notification
-echo "Init script finished" > /home/opc/init.log
+echo "Cloud-Init script finished" > init.log
 
 # Reboot system
 sudo reboot

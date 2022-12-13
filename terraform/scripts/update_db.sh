@@ -1,16 +1,13 @@
 #!/bin/bash
 
-# --- LOGS ---
-# Make logs directory
-mkdir -p /home/opc/init_logs_update
-mkdir -p /home/opc/init_logs_mongodb
-
 # --- UPDATE SYSTEM ---
+cd /home/${ssh_user}/
+
 # Update the package list
-sudo yum update -y > /home/opc/init_logs_update/yum_update.log
+sudo yum update -y
 
 # Upgrade all installed packages to the latest version
-sudo yum upgrade -y > /home/opc/init_logs_update/yum_upgrade.log
+sudo yum upgrade -y
 
 # --- ADD MONGODB ---
 # Add the MongoDB repository
@@ -24,10 +21,10 @@ gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc"
 sudo echo "$repo" > /etc/yum.repos.d/mongodb-org-6.0.repo
 
 # Update the package index
-sudo yum update -y > /home/opc/init_logs_mongodb/yum_update.log
+sudo yum update -y
 
 # Install MongoDB
-sudo yum install -y mongodb-org > /home/opc/init_logs_mongodb/yum_install.log
+sudo yum install -y mongodb-org
 
 # Replace MongoDB config
 conf="# mongod.conf
@@ -77,13 +74,10 @@ sudo echo "$conf" > /etc/mongod.conf
 sudo echo 'vm.max_map_count = 102400' >> /etc/sysctl.conf
 
 # Apply the changes to sysctl.conf
-sudo sysctl -p > /home/opc/init_logs_mongodb/sysctl_p.log
+sudo sysctl -p
 
 # Append "transparent_hugepage=never" to the end of GRUB_CMDLINE_LINUX
-sudo sed -i '/GRUB_CMDLINE_LINUX/ s/"$/ transparent_hugepage=never"/' /etc/default/grub
-
-# Apply the changes to the GRUB configuration
-sudo update-grub
+grubby --update-kernel=ALL --args="transparent_hugepage=never"
 
 # Create MongoDB logrotate config
 logrotate="/var/log/mongodb/mongod.log {
@@ -99,7 +93,7 @@ logrotate="/var/log/mongodb/mongod.log {
 sudo echo "$logrotate" > /etc/logrotate.d/mongodb.conf
 
 # Apply the changes to the logrotate configuration
-logrotate /etc/logrotate.d/mongodb
+logrotate /etc/logrotate.d/mongodb.conf
 
 # Check logrotate
 logrotate -d /etc/logrotate.conf
@@ -116,12 +110,13 @@ make
 
 # Apply the policy.
 sudo make install
+cd ..
 
 # Change default port for SEPolicy
 sudo semanage port -a -t mongod_port_t -p tcp ${port}
 
 # Start the MongoDB service
-sudo systemctl start mongod > /home/opc/init_logs_mongodb/systemctl_start.log
+sudo systemctl start mongod
 
 # Use mongosh to create a user
 mongosh --port ${port} --eval '
@@ -139,14 +134,20 @@ db.createUser({
 '
 
 # Check the status of the MongoDB service
-systemctl status mongod > /home/opc/init_logs_mongodb/systemctl_status.log
+systemctl status mongod
+
+# Allow port from firewall
+sudo firewall-offline-cmd -v --zone=public --add-port="${port}/tcp"
 
 # --- FINAL ---
 # Clean up the package manager
-sudo yum clean all > /home/opc/init_logs_mongodb/yum_clean.log
+sudo yum clean all
+
+# Clean created folders
+sudo rm -r mongodb-selinux
 
 # Create a notification
-echo "Init script finished" > /home/opc/init.log
+echo "Cloud-Init script finished" > init.log
 
 # Reboot system
 sudo reboot

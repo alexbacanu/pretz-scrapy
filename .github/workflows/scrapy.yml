@@ -1,7 +1,10 @@
 # This will work only on linux runners
 name: 🛫 Scrapy deployment
 
-on: [push]
+on:
+  push:
+    paths:
+      - scrapy/**
 
 env:
   CONNECT_HOST: ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }}

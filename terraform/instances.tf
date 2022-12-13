@@ -43,7 +43,7 @@ resource "oci_core_instance" "tf_free_instance_db" {
 
   metadata = {
     ssh_authorized_keys = file(var.ssh_public_key)
-    user_data           = base64encode(templatefile(var.update_script_db, { port = var.mongodb_port, user = var.mongodb_user, pass = var.mongodb_pass }))
+    user_data           = base64encode(templatefile(var.update_script_db, { ssh_user = var.ssh_user, port = var.mongodb_port, user = var.mongodb_user, pass = var.mongodb_pass }))
   }
 }
 
@@ -102,7 +102,7 @@ resource "oci_core_instance" "tf_free_instance_scrapy_01" {
 
   metadata = {
     ssh_authorized_keys = file(var.ssh_public_key)
-    user_data           = base64encode(templatefile(var.update_script_scrapy, {}))
+    user_data           = base64encode(templatefile(var.update_script_scrapy, { ssh_user = var.ssh_user }))
   }
 }
 
