@@ -3,6 +3,6 @@
 . ~/.bash_profile
 
 # Run Scrapy->emag_products
-cd /home/opc/scrapy/
+cd ~/scrapy/
 source .venv/bin/activate
 scrapy crawl emag_products
