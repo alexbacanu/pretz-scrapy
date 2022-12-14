@@ -39,7 +39,7 @@ jobs:
             sudo rm -f -r scrapy/.venv/ &&
             sudo mv scrapy/ backups/scrapy_$(date +'\%y-\%m-\%d_\%H\%M') &&
             sudo mkdir -p scrapy/ &&
-            sudo chmod 770 scrapy/
+            sudo chmod 777 scrapy/
           "
   deploy_matrix:
     name: "2️⃣ Deploy scrapy"
@@ -54,7 +54,7 @@ jobs:
     steps:
       - name: ☁️ Upload directory to server
         run: |
-          scp -i privkey.pem -o StrictHostKeyChecking=no -r scrapy/ ${{ matrix.value }}:~/
+          scp -i privkey.pem -o StrictHostKeyChecking=no -r scrapy/ ${{ matrix.value }}:~
 
       - name: ⛔ Fix permissions
         run: |
@@ -143,7 +143,7 @@ jobs:
           40 22 * * * ~/scrapy/scripts/run_products_altex.sh
           EOF
 
-          scp -i privkey.pem -o StrictHostKeyChecking=no crontab_scrapy ${{ matrix.value }}:~/
+          scp -i privkey.pem -o StrictHostKeyChecking=no crontab_scrapy ${{ matrix.value }}:~
           ssh ${{ matrix.value }} -o StrictHostKeyChecking=no -i privkey.pem "crontab ~/crontab_scrapy"
 
       - name: 🧹 Cleanup
