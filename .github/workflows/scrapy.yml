@@ -32,7 +32,7 @@ jobs:
 
       - name: 💾 Create backup for scrapy
         run: |
-          ssh ${{ matrix.env }} -o StrictHostKeyChecking=no -i privkey.pem "
+          ssh ${{ matrix.value }} -o StrictHostKeyChecking=no -i privkey.pem "
             cd ~/ &&
             sudo mkdir -p backups/ &&
             sudo mkdir -p backups/scrapy_$(date +'\%y-\%m-\%d_\%H\%M') &&
@@ -54,11 +54,11 @@ jobs:
     steps:
       - name: ☁️ Upload directory to server
         run: |
-          scp -i privkey.pem -o StrictHostKeyChecking=no -r scrapy/ ${{ matrix.env }}:~/
+          scp -i privkey.pem -o StrictHostKeyChecking=no -r scrapy/ ${{ matrix.value }}:~/
 
       - name: ⛔ Fix permissions
         run: |
-          ssh ${{ matrix.env }} -o StrictHostKeyChecking=no -i privkey.pem "
+          ssh ${{ matrix.value }} -o StrictHostKeyChecking=no -i privkey.pem "
             cd ~/scrapy/scripts &&
             chmod 770 -R ./
           "
@@ -76,7 +76,7 @@ jobs:
     steps:
       - name: 🛠️ Create a .venv directory
         run: |
-          ssh ${{ matrix.env }} -o StrictHostKeyChecking=no -i privkey.pem "
+          ssh ${{ matrix.value }} -o StrictHostKeyChecking=no -i privkey.pem "
             cd ~/scrapy &&
             python -m venv .venv &&
             source .venv/bin/activate &&
@@ -112,9 +112,9 @@ jobs:
           export MONGO_URI='${{ secrets.MONGO_URI }}'
           export MONGO_DB='${{ secrets.MONGO_DB }}'" > .bash_profile
 
-          scp -i privkey.pem -o StrictHostKeyChecking=no .bash_profile ${{ matrix.env }}:~/.bash_profile
+          scp -i privkey.pem -o StrictHostKeyChecking=no .bash_profile ${{ matrix.value }}:~/.bash_profile
 
-          ssh ${{ matrix.env }} -o StrictHostKeyChecking=no -i privkey.pem "source ~/.bashrc"
+          ssh ${{ matrix.value }} -o StrictHostKeyChecking=no -i privkey.pem "source ~/.bashrc"
 
       - name: ⏲️ Set crontab
         run: |
@@ -143,9 +143,9 @@ jobs:
           40 22 * * * ~/scrapy/scripts/run_products_altex.sh
           EOF
 
-          scp -i privkey.pem -o StrictHostKeyChecking=no crontab_scrapy ${{ matrix.env }}:~/
-          ssh ${{ matrix.env }} -o StrictHostKeyChecking=no -i privkey.pem "crontab ~/crontab_scrapy"
+          scp -i privkey.pem -o StrictHostKeyChecking=no crontab_scrapy ${{ matrix.value }}:~/
+          ssh ${{ matrix.value }} -o StrictHostKeyChecking=no -i privkey.pem "crontab ~/crontab_scrapy"
 
       - name: 🧹 Cleanup
         run: |
-          ssh ${{ matrix.env }} -o StrictHostKeyChecking=no -i privkey.pem "rm ~/crontab_scrapy"
+          ssh ${{ matrix.value }} -o StrictHostKeyChecking=no -i privkey.pem "rm ~/crontab_scrapy"
