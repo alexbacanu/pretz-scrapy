@@ -72,67 +72,68 @@ class EmagProductsSpider(SimpleRedisCrawlSpider):
         # Get breadcrumbs
         breadcrumbs_list = json_response.get("data").get("category").get("trail").split("/")
 
-        for product in products:
-            itemloader = ItemLoader(item=GenericProductsItem(), selector=product)
+        if products:
+            for product in products:
+                itemloader = ItemLoader(item=GenericProductsItem(), selector=product)
 
-            # pID
-            itemloader.add_value("pID", f"emg:{product.get('part_number_key')}")
+                # pID
+                itemloader.add_value("pID", f"emg:{product.get('part_number_key')}")
 
-            # pName
-            itemloader.add_value("pName", product.get("name"))
+                # pName
+                itemloader.add_value("pName", product.get("name"))
 
-            # # pNameTags
-            # itemloader.add_value("pNameTags", product.get("name"))
+                # # pNameTags
+                # itemloader.add_value("pNameTags", product.get("name"))
 
-            # pLink
-            itemloader.add_value("pLink", f"https://emag.ro/{product.get('url').get('path')}")
+                # pLink
+                itemloader.add_value("pLink", f"https://emag.ro/{product.get('url').get('path')}")
 
-            # pImg
-            itemloader.add_value("pImg", product.get("image").get("original"))
+                # pImg
+                itemloader.add_value("pImg", product.get("image").get("original"))
 
-            # pCategoryTrail
-            itemloader.add_value("pCategoryTrail", breadcrumbs_list)
+                # pCategoryTrail
+                itemloader.add_value("pCategoryTrail", breadcrumbs_list)
 
-            # pCategory
-            itemloader.add_value("pCategory", category)
+                # pCategory
+                itemloader.add_value("pCategory", category)
 
-            # pBrand
-            extracted_brand = process.extractOne(product.get("name"), choices, scorer=partial_ratio)
-            itemloader.add_value("pBrand", extracted_brand[0] if extracted_brand else None)
-            # Debug
-            if extracted_brand and extracted_brand[1] < 91:
-                self.logger.warning(product.get("name"))
-                self.logger.warning(extracted_brand)
+                # pBrand
+                extracted_brand = process.extractOne(product.get("name"), choices, scorer=partial_ratio)
+                itemloader.add_value("pBrand", extracted_brand[0] if extracted_brand else None)
+                # Debug
+                if extracted_brand and extracted_brand[1] < 91:
+                    self.logger.warning(product.get("name"))
+                    self.logger.warning(extracted_brand)
 
-            # pVendor
-            itemloader.add_value("pVendor", product.get("offer").get("vendor").get("name").get("display"))
+                # pVendor
+                itemloader.add_value("pVendor", product.get("offer").get("vendor").get("name").get("display"))
 
-            # pStock
-            itemloader.add_value("pStock", product.get("offer").get("availability").get("text"))
+                # pStock
+                itemloader.add_value("pStock", product.get("offer").get("availability").get("text"))
 
-            # pReviews
-            itemloader.add_value("pReviews", product.get("feedback").get("reviews").get("count"))
+                # pReviews
+                itemloader.add_value("pReviews", product.get("feedback").get("reviews").get("count"))
 
-            # pStars
-            itemloader.add_value("pStars", product.get("feedback").get("rating"))
+                # pStars
+                itemloader.add_value("pStars", product.get("feedback").get("rating"))
 
-            # priceCurrent
-            itemloader.add_value("priceCurrent", product.get("offer").get("price").get("current"))
+                # priceCurrent
+                itemloader.add_value("priceCurrent", product.get("offer").get("price").get("current"))
 
-            # priceRetail
-            itemloader.add_value(
-                "priceRetail",
-                product.get("offer").get("price").get("recommended_retail_price").get("amount"),
-            )
+                # priceRetail
+                itemloader.add_value(
+                    "priceRetail",
+                    product.get("offer").get("price").get("recommended_retail_price").get("amount"),
+                )
 
-            # priceSlashed
-            itemloader.add_value(
-                "priceSlashed",
-                product.get("offer").get("price").get("lowest_price_30_days").get("amount"),
-            )
+                # priceSlashed
+                itemloader.add_value(
+                    "priceSlashed",
+                    product.get("offer").get("price").get("lowest_price_30_days").get("amount"),
+                )
 
-            # crawledAt
-            itemloader.add_value("crawledAt", datetime.utcnow())
+                # crawledAt
+                itemloader.add_value("crawledAt", datetime.utcnow())
 
-            # Load items
-            yield itemloader.load_item()
+                # Load items
+                yield itemloader.load_item()
