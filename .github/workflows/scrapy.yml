@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         # Secrets should be formatted as [user@ip, user@ip]
-        value: [ORACLE_HOST_01, ORACLE_HOST_02]
+        value: [$ORACLE_HOST_01, $ORACLE_HOST_02]
 
     steps:
       - name: 🚚 Get latest code
@@ -49,7 +49,7 @@ jobs:
     strategy:
       matrix:
         # Secrets should be formatted as [user@ip, user@ip]
-        value: [ORACLE_HOST_01, ORACLE_HOST_02]
+        value: [$ORACLE_HOST_01, $ORACLE_HOST_02]
 
     steps:
       - name: ☁️ Upload directory to server
@@ -71,7 +71,7 @@ jobs:
     strategy:
       matrix:
         # Secrets should be formatted as [user@ip, user@ip]
-        value: [ORACLE_HOST_01, ORACLE_HOST_02]
+        value: [$ORACLE_HOST_01, $ORACLE_HOST_02]
 
     steps:
       - name: 🛠️ Create a .venv directory
@@ -93,7 +93,7 @@ jobs:
     strategy:
       matrix:
         # Secrets should be formatted as [user@ip, user@ip]
-        value: [ORACLE_HOST_01, ORACLE_HOST_02]
+        value: [$ORACLE_HOST_01, $ORACLE_HOST_02]
 
     steps:
       - name: ⚙️ Set bash_profile variables
