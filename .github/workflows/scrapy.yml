@@ -50,7 +50,7 @@ jobs:
       matrix:
         env: [HOST_01, HOST_02]
         # Secrets should be formatted as [user@ip, user@ip]
-        value: ["${{ secrets.ORACLE_HOST_01 }}", "${{ secrets.ORACLE_HOST_02 }}"]
+        value: [ORACLE_HOST_01, ORACLE_HOST_02]
 
     steps:
       - name: ☁️ Upload directory to server
@@ -73,7 +73,7 @@ jobs:
       matrix:
         env: [HOST_01, HOST_02]
         # Secrets should be formatted as [user@ip, user@ip]
-        value: ["${{ secrets.ORACLE_HOST_01 }}", "${{ secrets.ORACLE_HOST_02 }}"]
+        value: [ORACLE_HOST_01, ORACLE_HOST_02]
 
     steps:
       - name: 🛠️ Create a .venv directory
@@ -96,7 +96,7 @@ jobs:
       matrix:
         env: [HOST_01, HOST_02]
         # Secrets should be formatted as [user@ip, user@ip]
-        value: ["${{ secrets.ORACLE_HOST_01 }}", "${{ secrets.ORACLE_HOST_02 }}"]
+        value: [ORACLE_HOST_01, ORACLE_HOST_02]
 
     steps:
       - name: ⚙️ Set bash_profile variables
