@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - scrapy/**
+      - .github/**
 
 env:
   ORACLE_HOST_01: ${{ secrets.ORACLE_HOST_01 }}
@@ -17,7 +18,6 @@ jobs:
 
     strategy:
       matrix:
-        env: [HOST_01, HOST_02]
         # Secrets should be formatted as [user@ip, user@ip]
         value: [ORACLE_HOST_01, ORACLE_HOST_02]
 
@@ -48,7 +48,6 @@ jobs:
 
     strategy:
       matrix:
-        env: [HOST_01, HOST_02]
         # Secrets should be formatted as [user@ip, user@ip]
         value: [ORACLE_HOST_01, ORACLE_HOST_02]
 
@@ -71,7 +70,6 @@ jobs:
 
     strategy:
       matrix:
-        env: [HOST_01, HOST_02]
         # Secrets should be formatted as [user@ip, user@ip]
         value: [ORACLE_HOST_01, ORACLE_HOST_02]
 
@@ -94,7 +92,6 @@ jobs:
 
     strategy:
       matrix:
-        env: [HOST_01, HOST_02]
         # Secrets should be formatted as [user@ip, user@ip]
         value: [ORACLE_HOST_01, ORACLE_HOST_02]
 
