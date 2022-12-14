@@ -6,14 +6,16 @@ on:
     paths:
       - scrapy/**
 
-env:
-  CONNECT_HOST: ${{ secrets.ORACLE_INSTANCE_USER }}@${{ secrets.ORACLE_INSTANCE_IP }}
-  USER_PATH: /home/${{ secrets.ORACLE_INSTANCE_USER }}
-
 jobs:
-  backup:
+  backup_matrix:
     name: "1️⃣ Backup scrapy"
     runs-on: self-hosted
+
+    strategy:
+      matrix:
+        env: [HOST_01, HOST_02]
+        # Secrets should be formatted as [user@ip, user@ip]
+        value: ["${{ secrets.ORACLE_HOST_01 }}", "${{ secrets.ORACLE_HOST_02 }}"]
 
     steps:
       - name: 🚚 Get latest code
@@ -21,47 +23,59 @@ jobs:
 
       - name: 🔐 Set privkey
         run: |
-          echo "${{ secrets.PRIVATE_KEY_FILE }}" > privkey.pem
+          echo "${{ secrets.ORACLE_PRIVATE_KEY }}" > privkey.pem
           chmod 600 privkey.pem
 
       - name: 💾 Create backup for scrapy
         run: |
-          ssh $CONNECT_HOST -o StrictHostKeyChecking=no -i privkey.pem "
-            cd $USER_PATH/ &&
+          ssh ${{ matrix.env }} -o StrictHostKeyChecking=no -i privkey.pem "
+            cd ~/ &&
             sudo mkdir -p backups/ &&
             sudo mkdir -p backups/scrapy_$(date +'\%y-\%m-\%d_\%H\%M') &&
             sudo rm -f -r scrapy/.venv/ &&
             sudo mv scrapy/ backups/scrapy_$(date +'\%y-\%m-\%d_\%H\%M') &&
             sudo mkdir -p scrapy/ &&
-            sudo chmod 777 scrapy/
+            sudo chmod 770 scrapy/
           "
-  deploy:
+  deploy_matrix:
     name: "2️⃣ Deploy scrapy"
     runs-on: self-hosted
-    needs: backup
+    needs: backup_matrix
+
+    strategy:
+      matrix:
+        env: [HOST_01, HOST_02]
+        # Secrets should be formatted as [user@ip, user@ip]
+        value: ["${{ secrets.ORACLE_HOST_01 }}", "${{ secrets.ORACLE_HOST_02 }}"]
 
     steps:
       - name: ☁️ Upload directory to server
         run: |
-          scp -i privkey.pem -o StrictHostKeyChecking=no -r scrapy/ $CONNECT_HOST:$USER_PATH/
+          scp -i privkey.pem -o StrictHostKeyChecking=no -r scrapy/ ${{ matrix.env }}:~/
 
       - name: ⛔ Fix permissions
         run: |
-          ssh $CONNECT_HOST -o StrictHostKeyChecking=no -i privkey.pem "
-            cd $USER_PATH/scrapy/scripts &&
+          ssh ${{ matrix.env }} -o StrictHostKeyChecking=no -i privkey.pem "
+            cd ~/scrapy/scripts &&
             chmod 770 -R ./
           "
 
-  generate:
+  generate_matrix:
     name: "3️⃣ Generate venv"
     runs-on: self-hosted
-    needs: deploy
+    needs: deploy_matrix
+
+    strategy:
+      matrix:
+        env: [HOST_01, HOST_02]
+        # Secrets should be formatted as [user@ip, user@ip]
+        value: ["${{ secrets.ORACLE_HOST_01 }}", "${{ secrets.ORACLE_HOST_02 }}"]
 
     steps:
       - name: 🛠️ Create a .venv directory
         run: |
-          ssh $CONNECT_HOST -o StrictHostKeyChecking=no -i privkey.pem "
-            cd $USER_PATH/scrapy &&
+          ssh ${{ matrix.env }} -o StrictHostKeyChecking=no -i privkey.pem "
+            cd ~/scrapy &&
             python -m venv .venv &&
             source .venv/bin/activate &&
             pip install --upgrade pip &&
@@ -69,10 +83,16 @@ jobs:
             pip install -r requirements.txt
           "
 
-  config:
+  config_matrix:
     name: "4️⃣ Configure scrapy"
     runs-on: self-hosted
-    needs: deploy
+    needs: deploy_matrix
+
+    strategy:
+      matrix:
+        env: [HOST_01, HOST_02]
+        # Secrets should be formatted as [user@ip, user@ip]
+        value: ["${{ secrets.ORACLE_HOST_01 }}", "${{ secrets.ORACLE_HOST_02 }}"]
 
     steps:
       - name: ⚙️ Set bash_profile variables
@@ -91,9 +111,9 @@ jobs:
           export MONGO_URI='${{ secrets.MONGO_URI }}'
           export MONGO_DB='${{ secrets.MONGO_DB }}'" > .bash_profile
 
-          scp -i privkey.pem -o StrictHostKeyChecking=no .bash_profile $CONNECT_HOST:~/.bash_profile
+          scp -i privkey.pem -o StrictHostKeyChecking=no .bash_profile ${{ matrix.env }}:~/.bash_profile
 
-          ssh $CONNECT_HOST -o StrictHostKeyChecking=no -i privkey.pem "source ~/.bashrc"
+          ssh ${{ matrix.env }} -o StrictHostKeyChecking=no -i privkey.pem "source ~/.bashrc"
 
       - name: ⏲️ Set crontab
         run: |
@@ -101,30 +121,30 @@ jobs:
           SHELL=/bin/bash
 
           # Move log
-          10 8 * * * cd ${{env.USER_PATH}}/scrapy/ && mkdir -p logs/ && mv scrapy.log "logs/scrapy_\$(date +'\%d-\%m-\%y_\%H\%M').log"
+          10 8 * * * cd ~/scrapy/ && mkdir -p logs/ && mv scrapy.log "logs/scrapy_\$(date +'\%d-\%m-\%y_\%H\%M').log"
 
           # Get sitemap
-          15 8 * * * ${{env.USER_PATH}}/scrapy/scripts/run_sitemap_emag.sh
-          20 8 * * * ${{env.USER_PATH}}/scrapy/scripts/run_sitemap_altex.sh
+          15 8 * * * ~/scrapy/scripts/run_sitemap_emag.sh
+          20 8 * * * ~/scrapy/scripts/run_sitemap_altex.sh
 
           # Get products
-          25 8 * * * ${{env.USER_PATH}}/scrapy/scripts/run_products_emag.sh
-          30 8 * * * ${{env.USER_PATH}}/scrapy/scripts/run_products_altex.sh
+          25 8 * * * ~/scrapy/scripts/run_products_emag.sh
+          30 8 * * * ~/scrapy/scripts/run_products_altex.sh
 
           # Get failed products x1
-          25 15 * * * ${{env.USER_PATH}}/scrapy/scripts/run_failed_urls.sh
-          30 15 * * * ${{env.USER_PATH}}/scrapy/scripts/run_products_emag.sh
-          35 15 * * * ${{env.USER_PATH}}/scrapy/scripts/run_products_altex.sh
+          25 15 * * * ~/scrapy/scripts/run_failed_urls.sh
+          30 15 * * * ~/scrapy/scripts/run_products_emag.sh
+          35 15 * * * ~/scrapy/scripts/run_products_altex.sh
 
           # Get failed products x2
-          25 22 * * * ${{env.USER_PATH}}/scrapy/scripts/run_failed_urls.sh
-          35 22 * * * ${{env.USER_PATH}}/scrapy/scripts/run_products_emag.sh
-          40 22 * * * ${{env.USER_PATH}}/scrapy/scripts/run_products_altex.sh
+          25 22 * * * ~/scrapy/scripts/run_failed_urls.sh
+          35 22 * * * ~/scrapy/scripts/run_products_emag.sh
+          40 22 * * * ~/scrapy/scripts/run_products_altex.sh
           EOF
 
-          scp -i privkey.pem -o StrictHostKeyChecking=no crontab_scrapy $CONNECT_HOST:$USER_PATH/
-          ssh $CONNECT_HOST -o StrictHostKeyChecking=no -i privkey.pem "crontab $USER_PATH/crontab_scrapy"
+          scp -i privkey.pem -o StrictHostKeyChecking=no crontab_scrapy ${{ matrix.env }}:~/
+          ssh ${{ matrix.env }} -o StrictHostKeyChecking=no -i privkey.pem "crontab ~/crontab_scrapy"
 
       - name: 🧹 Cleanup
         run: |
-          ssh $CONNECT_HOST -o StrictHostKeyChecking=no -i privkey.pem "rm $USER_PATH/crontab_scrapy"
+          ssh ${{ matrix.env }} -o StrictHostKeyChecking=no -i privkey.pem "rm ~/crontab_scrapy"

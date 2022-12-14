@@ -31,10 +31,19 @@ class FailedUrlsMiddleware:
         )
 
     def process_response(self, request, response, spider):
+
+        failed_url = response.url
+
+        if response.url.split("/")[2] == "fenrir.altex.ro":
+            failed_url = response.url.split("/", 5)[-1]
+
+        if response.url.split("/")[2] == "www.emag.ro":
+            failed_url = response.url.split("/", 4)[-1]
+
         # Called with the response returned from the downloader.
         if response.status not in range(200, 399):
             # Add failed urls
-            self.r.sadd(f"{spider.name}:failed_urls", response.url)
+            self.r.sadd(f"{spider.name}:failed_urls", failed_url)
 
         return response
 
