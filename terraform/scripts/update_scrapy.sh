@@ -9,6 +9,9 @@ sudo yum update -y
 # Upgrade all installed packages to the latest version
 sudo yum upgrade -y
 
+# Install redis
+sudo yum install redis -y
+
 # Make scrapy directory
 mkdir -p scrapy
 
