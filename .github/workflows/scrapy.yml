@@ -6,6 +6,7 @@ on:
     paths:
       - scrapy/**
       - .github/**
+      # - terraform/**
 
 env:
   ORACLE_HOST_01: ${{ secrets.ORACLE_HOST_01 }}
