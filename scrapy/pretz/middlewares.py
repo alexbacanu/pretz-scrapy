@@ -1,7 +1,7 @@
 from redis import Redis
+from scrapy.extensions.httpcache import DummyPolicy
 
 
-# emag_products uses this
 class ScrapeDoMiddleware:
     def __init__(self, scrapedo_key):
         self.scrapedo_key = scrapedo_key
@@ -18,7 +18,6 @@ class ScrapeDoMiddleware:
         return None
 
 
-# emag_products uses this
 class FailedUrlsMiddleware:
     def __init__(self, redis_url):
         self.redis_url = redis_url
@@ -48,9 +47,13 @@ class FailedUrlsMiddleware:
         return response
 
 
-# emag_products uses this
 class EmagCookiesMiddleware:
     def process_request(self, request, spider):
         # Set cookies to display 100 items per page
         request.cookies["listingPerPage"] = 100
         return None
+
+
+class CachePolicy(DummyPolicy):
+    def should_cache_response(self, response, request):
+        return response.status == 200

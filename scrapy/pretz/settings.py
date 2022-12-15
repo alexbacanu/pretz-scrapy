@@ -65,8 +65,9 @@ AUTOTHROTTLE_MAX_DELAY = 20
 HTTPCACHE_ENABLED = True
 HTTPCACHE_EXPIRATION_SECS = 25200
 HTTPCACHE_DIR = "/tmp"
-HTTPCACHE_IGNORE_HTTP_CODES = ["400", "401", "403", "404", "499", "500", "504", "511"]
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
+HTTPCACHE_POLICY = "pretz.middlewares.CachePolicy"  # allow only 200
+# HTTPCACHE_IGNORE_HTTP_CODES = ["400", "401", "403", "404", "499", "500", "504", "511"]
 
 # Set settings whose default value is deprecated to a future-proof value
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"

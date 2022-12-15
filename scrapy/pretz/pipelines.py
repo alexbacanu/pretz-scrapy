@@ -5,7 +5,6 @@ from pymongo import ASCENDING, DESCENDING, TEXT, MongoClient, UpdateOne
 from redis import Redis
 
 
-# emag_products uses this
 class DefaultValuesPipeline:
     def process_item(self, item, spider):
         for field in item.fields:
@@ -15,7 +14,6 @@ class DefaultValuesPipeline:
         return item
 
 
-# emag_products uses this
 class MongoPipeline:
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
