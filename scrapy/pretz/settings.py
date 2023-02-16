@@ -101,4 +101,7 @@ MONGO_DB = f"{os.getenv('MONGO_DB')}{DEV_TAG}"
 
 REDIS_URI = f"{os.getenv('REDIS_URI')}"
 
+PROXY_LIST_PRIMARY = f"{os.getenv('PROXY_LIST_PRIMARY')}"
+PROXY_LIST_SECONDARY = f"{os.getenv('PROXY_LIST_SECONDARY')}"
+
 MAX_IDLE_TIME = 60
