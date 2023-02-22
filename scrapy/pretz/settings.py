@@ -32,6 +32,7 @@ TELNETCONSOLE_ENABLED = False
 
 # Enable or disable downloader middlewares
 DOWNLOADER_MIDDLEWARES = {
+    # "pretz.middlewares.WebShareMiddleware": 115,
     "pretz.middlewares.ScrapeDoMiddleware": 120,
     "pretz.middlewares.FailedUrlsMiddleware": 250,
 }
@@ -48,21 +49,21 @@ EXTENSIONS = {
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 CONCURRENT_REQUESTS = 1
-DOWNLOAD_DELAY = 4
+DOWNLOAD_DELAY = 2
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 AUTOTHROTTLE_ENABLED = True
 # The initial download delay
-AUTOTHROTTLE_START_DELAY = 4
+AUTOTHROTTLE_START_DELAY = 2
 # The maximum download delay to be set in case of high latencies
-AUTOTHROTTLE_MAX_DELAY = 20
+AUTOTHROTTLE_MAX_DELAY = 5
 # The average number of requests Scrapy should be sending in parallel to each remote server
 # AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
 # Enable showing throttling stats for every response received:
 # AUTOTHROTTLE_DEBUG = False
 
 # Enable and configure HTTP caching (disabled by default)
-HTTPCACHE_ENABLED = True
+HTTPCACHE_ENABLED = False
 HTTPCACHE_EXPIRATION_SECS = 25200
 HTTPCACHE_DIR = "/tmp"
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
@@ -94,6 +95,9 @@ SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 
 # App specific
 DEV_TAG = ""  # !DEV TAG
+
+WEBSHARE_USER = f"{os.getenv('WEBSHARE_USER')}"
+WEBSHARE_PASS = f"{os.getenv('WEBSHARE_PASS')}"
 SCRAPEDO_KEY = f"{os.getenv('SCRAPEDO_KEY')}"
 
 MONGO_URI = f"{os.getenv('MONGO_URI')}"
@@ -101,7 +105,4 @@ MONGO_DB = f"{os.getenv('MONGO_DB')}{DEV_TAG}"
 
 REDIS_URI = f"{os.getenv('REDIS_URI')}"
 
-PROXY_LIST_PRIMARY = f"{os.getenv('PROXY_LIST_PRIMARY')}"
-PROXY_LIST_SECONDARY = f"{os.getenv('PROXY_LIST_SECONDARY')}"
-
-MAX_IDLE_TIME = 60
+MAX_IDLE_TIME = 30
