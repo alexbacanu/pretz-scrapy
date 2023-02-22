@@ -28,7 +28,7 @@ jobs:
 
       - name: 🔐 Set privkey
         run: |
-          echo ${{ secrets.ORACLE_PRIVATE_KEY }} | base64 --decode > privkey.pem
+          echo "${{ secrets.ORACLE_PRIVATE_KEY }}" > privkey.pem
           chmod 600 privkey.pem
 
       - name: 💾 Create backup for scrapy
