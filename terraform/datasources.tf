@@ -17,19 +17,21 @@ data "oci_identity_availability_domain" "ad1" {
 
 # Images
 # See https://docs.oracle.com/iaas/images/
+# Oracle-Linux-8.6-aarch64-2022.12.15-0
 data "oci_core_images" "compute_a1_images" {
   compartment_id           = var.compartment_ocid
-  operating_system         = "Oracle Linux"
-  operating_system_version = "8"
-  shape                    = var.instance_shape_a1
-  sort_by                  = "TIMECREATED"
-  sort_order               = "DESC"
+  display_name             = "Oracle-Linux-8.6-aarch64-2022.12.15-0"
+  # operating_system         = "Oracle Linux"
+  # operating_system_version = "8"
+  # shape                    = var.instance_shape_a1
+  # sort_by                  = "TIMECREATED"
+  # sort_order               = "DESC"
 }
 
 data "oci_core_images" "compute_e2_images" {
   compartment_id           = var.compartment_ocid
   operating_system         = "Oracle Linux"
-  operating_system_version = "8"
+  operating_system_version = "9"
   shape                    = var.instance_shape_e2
   sort_by                  = "TIMECREATED"
   sort_order               = "DESC"
