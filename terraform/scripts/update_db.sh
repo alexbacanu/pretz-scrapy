@@ -139,6 +139,25 @@ systemctl status mongod
 # Allow port from firewall
 sudo firewall-offline-cmd -v --zone=public --add-port="${port}/tcp"
 
+# Create auto-reboot script
+script="#!/bin/bash
+# Stop MongoDB service
+sudo systemctl stop mongod
+
+# Wait a few seconds
+sleep 10
+
+# Reboot
+sudo reboot"
+
+echo "$script" | sudo tee auto_reboot.sh > /dev/null
+
+# Set permissions
+sudo chmod +x /home/${ssh_user}/auto_reboot.sh
+
+# Set cron
+(crontab -u ${ssh_user} -l ; echo "0 2 */2 * 0 /home/${ssh_user}/auto_reboot.sh") | sudo crontab -u ${ssh_user} -
+
 # --- FINAL ---
 # Clean up the package manager
 sudo yum clean all

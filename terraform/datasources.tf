@@ -29,7 +29,7 @@ data "oci_core_images" "compute_a1_images" {
 data "oci_core_images" "compute_e2_images" {
   compartment_id           = var.compartment_ocid
   operating_system         = "Oracle Linux"
-  operating_system_version = "9"
+  operating_system_version = "8"
   shape                    = var.instance_shape_e2
   sort_by                  = "TIMECREATED"
   sort_order               = "DESC"
