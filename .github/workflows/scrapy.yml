@@ -4,11 +4,12 @@ name: 🛫 Scrapy deployment
 on:
   push:
     paths:
-      - scrapy/**
       - .github/**
+      - scrapy/**
       # - terraform/**
 
 env:
+  # Secrets should be formatted as [user@ip, user@ip]
   ORACLE_HOST_01: ${{ secrets.ORACLE_HOST_01 }}
   ORACLE_HOST_02: ${{ secrets.ORACLE_HOST_02 }}
 
@@ -19,7 +20,6 @@ jobs:
 
     strategy:
       matrix:
-        # Secrets should be formatted as [user@ip, user@ip]
         value: [$ORACLE_HOST_01, $ORACLE_HOST_02]
 
     steps:
@@ -28,7 +28,7 @@ jobs:
 
       - name: 🔐 Set privkey
         run: |
-          echo "${{ secrets.ORACLE_PRIVATE_KEY }}" > privkey.pem
+          echo ${{ secrets.ORACLE_PRIVATE_KEY }} | base64 --decode > privkey.pem
           chmod 600 privkey.pem
 
       - name: 💾 Create backup for scrapy
@@ -49,7 +49,6 @@ jobs:
 
     strategy:
       matrix:
-        # Secrets should be formatted as [user@ip, user@ip]
         value: [$ORACLE_HOST_01, $ORACLE_HOST_02]
 
     steps:
@@ -71,7 +70,6 @@ jobs:
 
     strategy:
       matrix:
-        # Secrets should be formatted as [user@ip, user@ip]
         value: [$ORACLE_HOST_01, $ORACLE_HOST_02]
 
     steps:
@@ -93,7 +91,6 @@ jobs:
 
     strategy:
       matrix:
-        # Secrets should be formatted as [user@ip, user@ip]
         value: [$ORACLE_HOST_01, $ORACLE_HOST_02]
 
     steps:
@@ -108,10 +105,15 @@ jobs:
 
           # User specific environment and startup programs
           export EDITOR='nano'
-          export SCRAPEDO_KEY='${{ secrets.SCRAPEDO_KEY }}'
-          export REDIS_URI='${{ secrets.REDIS_URI }}'
+
           export MONGO_URI='${{ secrets.MONGO_URI }}'
-          export MONGO_DB='${{ secrets.MONGO_DB }}'" > .bash_profile
+          export MONGO_DB='${{ secrets.MONGO_DB }}'
+          export REDIS_URI='${{ secrets.REDIS_URI }}'
+
+          export WEBSHARE_USER='${{ secrets.WEBSHARE_USER }}'
+          export WEBSHARE_PASS='${{ secrets.WEBSHARE_PASS }}'
+          export SCRAPEDO_API_KEY='${{ secrets.SCRAPEDO_API_KEY }}'
+          " > .bash_profile
 
           scp -i privkey.pem -o StrictHostKeyChecking=no .bash_profile ${{ matrix.value }}:~/.bash_profile
 

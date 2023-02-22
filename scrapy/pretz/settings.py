@@ -94,15 +94,16 @@ SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
 SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 
 # App specific
-DEV_TAG = ""  # !DEV TAG
+MAX_IDLE_TIME = 30
 
-WEBSHARE_USER = f"{os.getenv('WEBSHARE_USER')}"
-WEBSHARE_PASS = f"{os.getenv('WEBSHARE_PASS')}"
-SCRAPEDO_KEY = f"{os.getenv('SCRAPEDO_KEY')}"
+# Env variables
+DEV_TAG = os.getenv("ENV_APP")
 
-MONGO_URI = f"{os.getenv('MONGO_URI')}"
+MONGO_URI = os.getenv("MONGO_URI")
 MONGO_DB = f"{os.getenv('MONGO_DB')}{DEV_TAG}"
 
-REDIS_URI = f"{os.getenv('REDIS_URI')}"
+REDIS_URI = os.getenv("REDIS_URI")
 
-MAX_IDLE_TIME = 30
+WEBSHARE_USER = os.getenv("WEBSHARE_USER")
+WEBSHARE_PASS = os.getenv("WEBSHARE_PASS")
+SCRAPEDO_API_KEY = os.getenv("SCRAPEDO_API_KEY")

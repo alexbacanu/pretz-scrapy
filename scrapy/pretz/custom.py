@@ -27,42 +27,34 @@ class RedisMixin(object):
     redis_batch_size = None
 
     def setup_redis(self, crawler):
-        # Do this once
         if self.r is not None:
             return
 
-        # Get crawler attr
         if crawler is None:
             crawler = getattr(self, "crawler")
         if crawler is None:
             raise ValueError("Crawler is required")
 
-        # Get REDIS_URI
         self.redis_url = crawler.settings.get("REDIS_URI")
         if self.redis_url is None:
             raise ValueError("REDIS_URI settings is required")
 
-        # Get spider name
         self.redis_key = f"{self.sitemap_name}:start_urls"
         if self.redis_key is None:
             raise ValueError("Spider name is missing")
 
-        # Get api website name
         self.api_website = self.api_website
         if self.api_website is None:
             raise ValueError("api_website from spider is missing")
 
-        # Get CONCURRENT_REQUESTS
         self.redis_batch_size = crawler.settings.get("CONCURRENT_REQUESTS")
         if self.redis_batch_size is None:
             raise ValueError("CONCURRENT_REQUESTS settings is required")
 
-        # Get MAX_IDLE_TIME
         self.idle_max_time = crawler.settings.get("MAX_IDLE_TIME")
         if self.idle_max_time is None:
             raise ValueError("MAX_IDLE_TIME settings is required")
 
-        # Initialize Redis
         self.r = Redis.from_url(self.redis_url, decode_responses=True)
 
         # spider_idle method called when spider has no requests left

@@ -40,9 +40,9 @@ class ScrapeDoMiddleware:
     @classmethod
     def from_crawler(cls, crawler):
         try:
-            scrapedo_key = crawler.settings.get("SCRAPEDO_KEY")
+            scrapedo_key = crawler.settings.get("SCRAPEDO_API_KEY")
         except KeyError:
-            raise NotConfigured("SCRAPEDO_KEY is not set!")
+            raise NotConfigured("SCRAPEDO_API_KEY is not set!")
         return cls(scrapedo_key)
 
     def process_request(self, request, spider):
