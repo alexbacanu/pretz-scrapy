@@ -22,7 +22,6 @@ class AltexSitemapSpider(Spider):
 
         for child in tree:
             if child[0].text.endswith("/cpl/") and child[3].text != "0.4":
-
                 item = GenericSitemapItem()
                 item["response_status"] = response.status
                 item["response_category"] = child[0].text.split("/")[3]

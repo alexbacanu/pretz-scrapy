@@ -424,13 +424,31 @@ generate_stats = {
                                 {
                                     "$and": [
                                         {"$lt": ["$$this.v.priceDate", "$$value.k"]},
-                                        {"$gte": ["$$this.v.priceDate", "$$dateTrunc7"]},
+                                        {
+                                            "$gte": [
+                                                "$$this.v.priceDate",
+                                                "$$dateTrunc7",
+                                            ]
+                                        },
                                         {"$ne": ["$$this.v.priceCurrent", None]},
-                                        {"$lte": ["$$this.v.priceCurrent", "$$value.v"]},
-                                        {"$ne": ["$$this.v.priceCurrent", "$priceCurrent"]},
+                                        {
+                                            "$lte": [
+                                                "$$this.v.priceCurrent",
+                                                "$$value.v",
+                                            ]
+                                        },
+                                        {
+                                            "$ne": [
+                                                "$$this.v.priceCurrent",
+                                                "$priceCurrent",
+                                            ]
+                                        },
                                     ]
                                 },
-                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                {
+                                    "k": "$$this.v.priceDate",
+                                    "v": "$$this.v.priceCurrent",
+                                },
                                 "$$value",
                             ]
                         },
@@ -448,13 +466,31 @@ generate_stats = {
                                 {
                                     "$and": [
                                         {"$lt": ["$$this.v.priceDate", "$$value.k"]},
-                                        {"$gte": ["$$this.v.priceDate", "$$dateTrunc30"]},
+                                        {
+                                            "$gte": [
+                                                "$$this.v.priceDate",
+                                                "$$dateTrunc30",
+                                            ]
+                                        },
                                         {"$ne": ["$$this.v.priceCurrent", None]},
-                                        {"$lte": ["$$this.v.priceCurrent", "$$value.v"]},
-                                        {"$ne": ["$$this.v.priceCurrent", "$priceCurrent"]},
+                                        {
+                                            "$lte": [
+                                                "$$this.v.priceCurrent",
+                                                "$$value.v",
+                                            ]
+                                        },
+                                        {
+                                            "$ne": [
+                                                "$$this.v.priceCurrent",
+                                                "$priceCurrent",
+                                            ]
+                                        },
                                     ]
                                 },
-                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                {
+                                    "k": "$$this.v.priceDate",
+                                    "v": "$$this.v.priceCurrent",
+                                },
                                 "$$value",
                             ]
                         },
@@ -472,13 +508,31 @@ generate_stats = {
                                 {
                                     "$and": [
                                         {"$lt": ["$$this.v.priceDate", "$$value.k"]},
-                                        {"$gte": ["$$this.v.priceDate", "$$dateTrunc90"]},
+                                        {
+                                            "$gte": [
+                                                "$$this.v.priceDate",
+                                                "$$dateTrunc90",
+                                            ]
+                                        },
                                         {"$ne": ["$$this.v.priceCurrent", None]},
-                                        {"$lte": ["$$this.v.priceCurrent", "$$value.v"]},
-                                        {"$ne": ["$$this.v.priceCurrent", "$priceCurrent"]},
+                                        {
+                                            "$lte": [
+                                                "$$this.v.priceCurrent",
+                                                "$$value.v",
+                                            ]
+                                        },
+                                        {
+                                            "$ne": [
+                                                "$$this.v.priceCurrent",
+                                                "$priceCurrent",
+                                            ]
+                                        },
                                     ]
                                 },
-                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                {
+                                    "k": "$$this.v.priceDate",
+                                    "v": "$$this.v.priceCurrent",
+                                },
                                 "$$value",
                             ]
                         },
@@ -496,13 +550,31 @@ generate_stats = {
                                 {
                                     "$and": [
                                         {"$lt": ["$$this.v.priceDate", "$$value.k"]},
-                                        {"$gte": ["$$this.v.priceDate", "$$dateTruncAll"]},
+                                        {
+                                            "$gte": [
+                                                "$$this.v.priceDate",
+                                                "$$dateTruncAll",
+                                            ]
+                                        },
                                         {"$ne": ["$$this.v.priceCurrent", None]},
-                                        {"$lte": ["$$this.v.priceCurrent", "$$value.v"]},
-                                        {"$ne": ["$$this.v.priceCurrent", "$priceCurrent"]},
+                                        {
+                                            "$lte": [
+                                                "$$this.v.priceCurrent",
+                                                "$$value.v",
+                                            ]
+                                        },
+                                        {
+                                            "$ne": [
+                                                "$$this.v.priceCurrent",
+                                                "$priceCurrent",
+                                            ]
+                                        },
                                     ]
                                 },
-                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                {
+                                    "k": "$$this.v.priceDate",
+                                    "v": "$$this.v.priceCurrent",
+                                },
                                 "$$value",
                             ]
                         },
@@ -520,12 +592,25 @@ generate_stats = {
                                 {
                                     "$and": [
                                         {"$lt": ["$$this.v.priceDate", "$$value.k"]},
-                                        {"$gte": ["$$this.v.priceDate", "$$dateTrunc7"]},
+                                        {
+                                            "$gte": [
+                                                "$$this.v.priceDate",
+                                                "$$dateTrunc7",
+                                            ]
+                                        },
                                         {"$ne": ["$$this.v.priceCurrent", None]},
-                                        {"$gte": ["$$this.v.priceCurrent", "$$value.v"]},
+                                        {
+                                            "$gte": [
+                                                "$$this.v.priceCurrent",
+                                                "$$value.v",
+                                            ]
+                                        },
                                     ]
                                 },
-                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                {
+                                    "k": "$$this.v.priceDate",
+                                    "v": "$$this.v.priceCurrent",
+                                },
                                 "$$value",
                             ]
                         },
@@ -543,12 +628,25 @@ generate_stats = {
                                 {
                                     "$and": [
                                         {"$lt": ["$$this.v.priceDate", "$$value.k"]},
-                                        {"$gte": ["$$this.v.priceDate", "$$dateTrunc30"]},
+                                        {
+                                            "$gte": [
+                                                "$$this.v.priceDate",
+                                                "$$dateTrunc30",
+                                            ]
+                                        },
                                         {"$ne": ["$$this.v.priceCurrent", None]},
-                                        {"$gte": ["$$this.v.priceCurrent", "$$value.v"]},
+                                        {
+                                            "$gte": [
+                                                "$$this.v.priceCurrent",
+                                                "$$value.v",
+                                            ]
+                                        },
                                     ]
                                 },
-                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                {
+                                    "k": "$$this.v.priceDate",
+                                    "v": "$$this.v.priceCurrent",
+                                },
                                 "$$value",
                             ]
                         },
@@ -566,12 +664,25 @@ generate_stats = {
                                 {
                                     "$and": [
                                         {"$lt": ["$$this.v.priceDate", "$$value.k"]},
-                                        {"$gte": ["$$this.v.priceDate", "$$dateTrunc90"]},
+                                        {
+                                            "$gte": [
+                                                "$$this.v.priceDate",
+                                                "$$dateTrunc90",
+                                            ]
+                                        },
                                         {"$ne": ["$$this.v.priceCurrent", None]},
-                                        {"$gte": ["$$this.v.priceCurrent", "$$value.v"]},
+                                        {
+                                            "$gte": [
+                                                "$$this.v.priceCurrent",
+                                                "$$value.v",
+                                            ]
+                                        },
                                     ]
                                 },
-                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                {
+                                    "k": "$$this.v.priceDate",
+                                    "v": "$$this.v.priceCurrent",
+                                },
                                 "$$value",
                             ]
                         },
@@ -589,12 +700,25 @@ generate_stats = {
                                 {
                                     "$and": [
                                         {"$lt": ["$$this.v.priceDate", "$$value.k"]},
-                                        {"$gte": ["$$this.v.priceDate", "$$dateTruncAll"]},
+                                        {
+                                            "$gte": [
+                                                "$$this.v.priceDate",
+                                                "$$dateTruncAll",
+                                            ]
+                                        },
                                         {"$ne": ["$$this.v.priceCurrent", None]},
-                                        {"$gte": ["$$this.v.priceCurrent", "$$value.v"]},
+                                        {
+                                            "$gte": [
+                                                "$$this.v.priceCurrent",
+                                                "$$value.v",
+                                            ]
+                                        },
                                     ]
                                 },
-                                {"k": "$$this.v.priceDate", "v": "$$this.v.priceCurrent"},
+                                {
+                                    "k": "$$this.v.priceDate",
+                                    "v": "$$this.v.priceCurrent",
+                                },
                                 "$$value",
                             ]
                         },
@@ -661,7 +785,12 @@ cleanup = {
     "stats.deal7": {
         "v": {
             "$cond": [
-                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
+                {
+                    "$and": [
+                        {"$ne": ["$priceCurrent", None]},
+                        {"$gt": ["$priceCurrent", 0]},
+                    ]
+                },
                 {"$subtract": [{"$divide": ["$priceCurrent", "$stats.lowest7.v"]}, 1]},
                 0,
             ]
@@ -670,7 +799,12 @@ cleanup = {
     "stats.deal30": {
         "v": {
             "$cond": [
-                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
+                {
+                    "$and": [
+                        {"$ne": ["$priceCurrent", None]},
+                        {"$gt": ["$priceCurrent", 0]},
+                    ]
+                },
                 {"$subtract": [{"$divide": ["$priceCurrent", "$stats.lowest30.v"]}, 1]},
                 0,
             ]
@@ -679,7 +813,12 @@ cleanup = {
     "stats.deal90": {
         "v": {
             "$cond": [
-                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
+                {
+                    "$and": [
+                        {"$ne": ["$priceCurrent", None]},
+                        {"$gt": ["$priceCurrent", 0]},
+                    ]
+                },
                 {"$subtract": [{"$divide": ["$priceCurrent", "$stats.lowest90.v"]}, 1]},
                 0,
             ]
@@ -688,8 +827,18 @@ cleanup = {
     "stats.dealAll": {
         "v": {
             "$cond": [
-                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
-                {"$subtract": [{"$divide": ["$priceCurrent", "$stats.lowestAll.v"]}, 1]},
+                {
+                    "$and": [
+                        {"$ne": ["$priceCurrent", None]},
+                        {"$gt": ["$priceCurrent", 0]},
+                    ]
+                },
+                {
+                    "$subtract": [
+                        {"$divide": ["$priceCurrent", "$stats.lowestAll.v"]},
+                        1,
+                    ]
+                },
                 0,
             ]
         }
@@ -709,7 +858,12 @@ cleanup = {
     "stats.cash7": {
         "v": {
             "$cond": [
-                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
+                {
+                    "$and": [
+                        {"$ne": ["$priceCurrent", None]},
+                        {"$gt": ["$priceCurrent", 0]},
+                    ]
+                },
                 {"$subtract": ["$priceCurrent", "$stats.lowest7.v"]},
                 0,
             ]
@@ -718,7 +872,12 @@ cleanup = {
     "stats.cash30": {
         "v": {
             "$cond": [
-                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
+                {
+                    "$and": [
+                        {"$ne": ["$priceCurrent", None]},
+                        {"$gt": ["$priceCurrent", 0]},
+                    ]
+                },
                 {"$subtract": ["$priceCurrent", "$stats.lowest30.v"]},
                 0,
             ]
@@ -727,7 +886,12 @@ cleanup = {
     "stats.cash90": {
         "v": {
             "$cond": [
-                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
+                {
+                    "$and": [
+                        {"$ne": ["$priceCurrent", None]},
+                        {"$gt": ["$priceCurrent", 0]},
+                    ]
+                },
                 {"$subtract": ["$priceCurrent", "$stats.lowest90.v"]},
                 0,
             ]
@@ -736,7 +900,12 @@ cleanup = {
     "stats.cashAll": {
         "v": {
             "$cond": [
-                {"$and": [{"$ne": ["$priceCurrent", None]}, {"$gt": ["$priceCurrent", 0]}]},
+                {
+                    "$and": [
+                        {"$ne": ["$priceCurrent", None]},
+                        {"$gt": ["$priceCurrent", 0]},
+                    ]
+                },
                 {"$subtract": ["$priceCurrent", "$stats.lowestAll.v"]},
                 0,
             ]

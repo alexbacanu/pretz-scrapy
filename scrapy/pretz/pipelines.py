@@ -37,7 +37,9 @@ class MongoPipeline:
             self.products = self.db[spider.database_name]
         else:
             # Create the "products" collection if it does not exist
-            self.db.create_collection(spider.database_name, validator=validator, validationAction="warn")
+            self.db.create_collection(
+                spider.database_name, validator=validator, validationAction="warn"
+            )
 
             self.products = self.db[spider.database_name]
 

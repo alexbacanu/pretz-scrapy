@@ -70,10 +70,14 @@ class AltexProductsSpider(SimpleRedisCrawlSpider):
                 # itemloader.add_value("pNameTags", product.get("name"))
 
                 # pLink
-                itemloader.add_value("pLink", f"https://altex.ro/{product.get('url_key')}")
+                itemloader.add_value(
+                    "pLink", f"https://altex.ro/{product.get('url_key')}"
+                )
 
                 # pImg
-                itemloader.add_value("pImg", f"https://lcdn.altex.ro{product.get('image')}")
+                itemloader.add_value(
+                    "pImg", f"https://lcdn.altex.ro{product.get('image')}"
+                )
 
                 # pCategoryTrail
                 itemloader.add_value("pCategoryTrail", breadcrumbs_list)
@@ -88,16 +92,28 @@ class AltexProductsSpider(SimpleRedisCrawlSpider):
                 itemloader.add_value("pVendor", product.get("price_seller_name"))
 
                 # pStock
-                if product.get("stock_status") == 1 and product.get("pickup_is_in_stock") == 1:
+                if (
+                    product.get("stock_status") == 1
+                    and product.get("pickup_is_in_stock") == 1
+                ):
                     itemloader.add_value("pStock", "În stoc")
 
-                if product.get("stock_status") == 1 and product.get("pickup_is_in_stock") == 0:
+                if (
+                    product.get("stock_status") == 1
+                    and product.get("pickup_is_in_stock") == 0
+                ):
                     itemloader.add_value("pStock", "Exclusiv online")
 
-                if product.get("stock_status") == 0 and product.get("pickup_is_in_stock") == 1:
+                if (
+                    product.get("stock_status") == 0
+                    and product.get("pickup_is_in_stock") == 1
+                ):
                     itemloader.add_value("pStock", "În anumite magazine")
 
-                if product.get("stock_status") == 0 and product.get("pickup_is_in_stock") == 0:
+                if (
+                    product.get("stock_status") == 0
+                    and product.get("pickup_is_in_stock") == 0
+                ):
                     itemloader.add_value("pStock", "Stoc epuizat")
 
                 # pReviews

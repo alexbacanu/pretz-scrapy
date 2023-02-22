@@ -30,7 +30,6 @@ class EmagSitemapSpider(Spider):
 
         for child in tree:
             if child[0].text.endswith("/vendor/emag/c"):
-
                 item = GenericSitemapItem()
                 item["response_status"] = response.status
                 item["response_category"] = child[0].text.split("/", 3)[3]
