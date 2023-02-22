@@ -97,7 +97,7 @@ SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 MAX_IDLE_TIME = 30
 
 # Env variables
-DEV_TAG = os.getenv("ENV_APP")
+DEV_TAG = ""
 
 MONGO_URI = os.getenv("MONGO_URI")
 MONGO_DB = f"{os.getenv('MONGO_DB')}{DEV_TAG}"
