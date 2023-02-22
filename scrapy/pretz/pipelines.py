@@ -3,6 +3,7 @@ from datetime import datetime
 from pretz.helpers import cleanup, generate_stats, timeseries_to_arr, validator
 from pymongo import ASCENDING, DESCENDING, TEXT, MongoClient, UpdateOne
 from redis import Redis
+from scrapy.exceptions import NotConfigured
 
 
 class DefaultValuesPipeline:
@@ -21,10 +22,12 @@ class MongoPipeline:
 
     @classmethod
     def from_crawler(cls, crawler):
-        return cls(
-            mongo_uri=crawler.settings.get("MONGO_URI"),
-            mongo_db=crawler.settings.get("MONGO_DB"),
-        )
+        try:
+            mongo_uri = crawler.settings.get("MONGO_URI")
+            mongo_db = crawler.settings.get("MONGO_DB")
+        except KeyError:
+            raise NotConfigured("MONGO_URI or MONGO_DB are not set!")
+        return cls(mongo_uri, mongo_db)
 
     def open_spider(self, spider):
         # Initialize MongoDB
@@ -118,16 +121,20 @@ class MongoPipeline:
 
 
 class RedisPipeline:
-    def __init__(self, redis_url):
-        self.redis_url = redis_url
+    def __init__(self, redis_uri):
+        self.redis_uri = redis_uri
 
     @classmethod
     def from_crawler(cls, crawler):
-        return cls(redis_url=crawler.settings.get("REDIS_URI"))
+        try:
+            redis_uri = crawler.settings.get("REDIS_URI")
+        except KeyError:
+            raise NotConfigured("REDIS_URI is not set!")
+        return cls(redis_uri)
 
     def open_spider(self, spider):
         # Initialize Redis
-        self.r = Redis.from_url(self.redis_url, decode_responses=True)
+        self.r = Redis.from_url(self.redis_uri, decode_responses=True)
 
         # Set up pipeline for bulk operations
         self.pipe = self.r.pipeline()
