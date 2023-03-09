@@ -12,6 +12,12 @@ sudo yum upgrade -y
 # Install redis
 sudo yum install redis -y
 
+# Install python 3.9
+sudo dnf module install python39 -y
+
+# Make it default to python
+sudo ln -sfn /usr/bin/python3.9 /usr/bin/python
+
 # Make scrapy directory
 mkdir -p scrapy
 

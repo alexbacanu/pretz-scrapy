@@ -33,26 +33,26 @@ class WebShareMiddleware:
 
 
 # This will not be used anymore after 06/03/2023
-class ScrapeDoMiddleware:
-    def __init__(self, scrapedo_key):
-        self.scrapedo_key = scrapedo_key
+# class ScrapeDoMiddleware:
+#     def __init__(self, scrapedo_key):
+#         self.scrapedo_key = scrapedo_key
 
-    @classmethod
-    def from_crawler(cls, crawler):
-        try:
-            scrapedo_key = crawler.settings.get("SCRAPEDO_API_KEY")
-        except KeyError:
-            raise NotConfigured("SCRAPEDO_API_KEY is not set!")
-        return cls(scrapedo_key)
+#     @classmethod
+#     def from_crawler(cls, crawler):
+#         try:
+#             scrapedo_key = crawler.settings.get("SCRAPEDO_API_KEY")
+#         except KeyError:
+#             raise NotConfigured("SCRAPEDO_API_KEY is not set!")
+#         return cls(scrapedo_key)
 
-    def process_request(self, request, spider):
-        try:
-            request.meta[
-                "proxy"
-            ] = f"http://{self.scrapedo_key}:render=false@proxy.scrape.do:8080"
-        except Exception as e:
-            spider.logger.error(f"ScrapeDoMiddleware failed: {e}")
-            return None
+#     def process_request(self, request, spider):
+#         try:
+#             request.meta[
+#                 "proxy"
+#             ] = f"http://{self.scrapedo_key}:render=false@proxy.scrape.do:8080"
+#         except Exception as e:
+#             spider.logger.error(f"ScrapeDoMiddleware failed: {e}")
+#             return None
 
 
 class FailedUrlsMiddleware:

@@ -32,8 +32,8 @@ TELNETCONSOLE_ENABLED = False
 
 # Enable or disable downloader middlewares
 DOWNLOADER_MIDDLEWARES = {
-    # "pretz.middlewares.WebShareMiddleware": 115,
-    "pretz.middlewares.ScrapeDoMiddleware": 120,
+    "pretz.middlewares.WebShareMiddleware": 115,
+    # "pretz.middlewares.ScrapeDoMiddleware": 120,
     "pretz.middlewares.FailedUrlsMiddleware": 250,
 }
 
