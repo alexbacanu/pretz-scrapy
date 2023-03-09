@@ -49,12 +49,12 @@ EXTENSIONS = {
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 CONCURRENT_REQUESTS = 1
-DOWNLOAD_DELAY = 2
+DOWNLOAD_DELAY = 4
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 AUTOTHROTTLE_ENABLED = True
 # The initial download delay
-AUTOTHROTTLE_START_DELAY = 2
+AUTOTHROTTLE_START_DELAY = 4
 # The maximum download delay to be set in case of high latencies
 AUTOTHROTTLE_MAX_DELAY = 5
 # The average number of requests Scrapy should be sending in parallel to each remote server
@@ -77,7 +77,7 @@ TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 # Retry Middleware
 RETRY_ENABLED = True
 RETRY_HTTP_CODES = [500, 502, 503, 504, 511, 522, 524, 408, 429, 499]
-RETRY_TIMES = 6
+RETRY_TIMES = 7
 
 # Log related
 LOG_ENABLED = True
@@ -94,7 +94,7 @@ SCHEDULER_DISK_QUEUE = "scrapy.squeues.PickleFifoDiskQueue"
 SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 
 # App specific
-MAX_IDLE_TIME = 30
+MAX_IDLE_TIME = 60
 
 # Env variables
 DEV_TAG = ""

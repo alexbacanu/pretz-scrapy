@@ -9,18 +9,20 @@ from scrapy.extensions.httpcache import DummyPolicy
 
 
 class WebShareMiddleware:
-    def __init__(self, webshare_user, webshare_pass):
+    def __init__(self, webshare_user, webshare_pass, scrapedo_key):
         self.webshare_user = webshare_user
         self.webshare_pass = webshare_pass
+        self.scrapedo_key = scrapedo_key
 
     @classmethod
     def from_crawler(cls, crawler):
         try:
             webshare_user = crawler.settings.get("WEBSHARE_USER")
             webshare_pass = crawler.settings.get("WEBSHARE_PASS")
+            scrapedo_key = crawler.settings.get("SCRAPEDO_API_KEY")
         except KeyError:
-            raise NotConfigured("WEBSHARE_USER or WEBSHARE_PASS are not set!")
-        return cls(webshare_user, webshare_pass)
+            raise NotConfigured("WEBSHARE or SCRAPEDO keys are not set!")
+        return cls(webshare_user, webshare_pass, scrapedo_key)
 
     def process_request(self, request, spider):
         try:
@@ -30,6 +32,15 @@ class WebShareMiddleware:
         except Exception as e:
             spider.logger.error(f"WebShareMiddleware failed: {e}")
             return None
+
+    def process_response(self, request, response, spider):
+        # Switch to Scrape.Do proxy
+        if response.status in [502, 511]:
+            request.meta[
+                "proxy"
+            ] = f"http://{self.scrapedo_key}:render=false@proxy.scrape.do:8080"
+            return request
+        return response
 
 
 # This will not be used anymore after 06/03/2023
