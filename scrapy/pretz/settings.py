@@ -10,10 +10,10 @@ NEWSPIDER_MODULE = "pretz.spiders"
 USER_AGENT = "pretz/1.0 (Windows NT 10.0; Win64; x64)"
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 #  Enable cookies
-COOKIES_ENABLED = True
+COOKIES_ENABLED = False
 # COOKIES_DEBUG = True
 
 # Disable Telnet Console (enabled by default)
